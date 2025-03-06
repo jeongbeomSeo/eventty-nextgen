@@ -1,12 +1,10 @@
 package com.eventty.eventtynextgen.ticket.controller;
 
+import com.eventty.eventtynextgen.ticket.shared.annotation.APIV1Ticket;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/api/v1/ticket")
+@APIV1Ticket
 public class TicketBaseController {
 
     @GetMapping("")

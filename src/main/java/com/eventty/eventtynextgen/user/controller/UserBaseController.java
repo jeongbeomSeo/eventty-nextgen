@@ -1,12 +1,10 @@
 package com.eventty.eventtynextgen.user.controller;
 
+import com.eventty.eventtynextgen.user.shared.annotation.APIV1User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/api/v1/user")
+@APIV1User
 public class UserBaseController {
 
     @GetMapping("")
