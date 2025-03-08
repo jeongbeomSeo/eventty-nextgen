@@ -1,13 +1,15 @@
 package com.eventty.eventtynextgen.user.controller;
 
-import com.eventty.eventtynextgen.user.shared.annotation.APIV1User;
+import com.eventty.eventtynextgen.shared.annotation.APIV1;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@APIV1User
+@APIV1
 public class UserBaseController {
 
-    @GetMapping("")
+    private final String BASE_PATH = "/user";
+
+    @GetMapping(BASE_PATH)
     public ResponseEntity<Void> example() {
         return ResponseEntity.ok().build();
     }

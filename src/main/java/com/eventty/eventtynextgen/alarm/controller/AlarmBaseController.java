@@ -1,14 +1,16 @@
 package com.eventty.eventtynextgen.alarm.controller;
 
-import com.eventty.eventtynextgen.alarm.shared.annotation.APIV1Alarm;
+import com.eventty.eventtynextgen.shared.annotation.APIV1;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 
-@APIV1Alarm
+@APIV1
 public class AlarmBaseController {
 
-    @GetMapping("")
-    public ResponseEntity<Void> example() {
+    private final String BASE_PATH = "/alarm";
+
+    @GetMapping(BASE_PATH)
+    public ResponseEntity<String> example() {
         return ResponseEntity.ok().build();
     }
 }
