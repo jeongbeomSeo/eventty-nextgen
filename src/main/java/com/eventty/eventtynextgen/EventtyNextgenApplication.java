@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class EventtyNextgenApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(EventtyNextgenApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(EventtyNextgenApplication.class, args);
+    }
 
 }
