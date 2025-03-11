@@ -49,7 +49,7 @@ class AuthControllerTest {
     class Signup {
 
         @Test
-        @DisplayName("회원 등록에 성공")
+        @DisplayName("[GOOD] - 회원 등록에 성공한다.")
         void 회원등록_성공() throws Exception {
             // given
             SignupRequest signup = new SignupRequest("test@google.com", "12345678", "000-0000-0000",
@@ -71,14 +71,13 @@ class AuthControllerTest {
             verify(authService, times(1)).signup(any(SignupRequest.class));
         }
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "[{index}] 이메일: {0}, 패스워드: {1}, 전화번호: {2}, 생년월일: {3}, 사용자 권한: {4}")
         @MethodSource("invalidSignupRequest")
-        @DisplayName("회원 등록 실패 - 입력 데이터 유효성 검증")
+        @DisplayName("[BAD] - 입력 데이터 유효성 검증에 실패한다.")
         void 회원등록_실패_입력데이터_유효성_검증_실패(String email, String password, String phone, String birth, UserRole userRole) throws Exception {
             // given
             SignupRequest signupRequest = new SignupRequest(email, password, phone, birth,
                 userRole);
-            Long createdId = 100L;
 
             // when
             ResultActions resultActions = mockMvc.perform(
@@ -94,6 +93,7 @@ class AuthControllerTest {
         private static Stream<Arguments> invalidSignupRequest() {
             return Stream.of(
                 Arguments.of("email", "12345678", "000-0000-0000", "1999-01-01", UserRole.USER),
+                Arguments.of("email@mm", "12345678", "000-0000-0000", "1999-01-01", UserRole.USER),
                 Arguments.of("email@mm.mm", "1234", "000-0000-0000", "1999-01-01", UserRole.USER),
                 Arguments.of("email@mm.mm", "12345678", "0000-0000", "1999-01-01", UserRole.USER),
                 Arguments.of("email@mm.mm", "12345678", "000-0000-0000", "199-01", UserRole.USER),
