@@ -59,7 +59,7 @@ class AuthControllerTest {
                     .contentType(MediaType.APPLICATION_JSON));
 
             // then
-            resultActions.andExpect(status().isCreated())
+              resultActions.andExpect(status().isCreated())
                 .andExpect(header().string("Location", StringEndsWith.endsWith("/api/v1/auth/100")));
 
             verify(authService, times(1)).signup(any(SignupRequest.class));
