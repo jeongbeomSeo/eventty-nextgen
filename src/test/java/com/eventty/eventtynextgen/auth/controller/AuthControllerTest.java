@@ -48,7 +48,8 @@ class AuthControllerTest {
     @Nested
     class Signup {
 
-        @Test
+        @ParameterizedTest(name = "[{index}] 이메일: {0}, 패스워드: {1}, 전화번호: {2}, 생년월일: {3}, 사용자 권한: {4}")
+        @MethodSource("validSignupRequest")
         @DisplayName("[GOOD] - 회원 등록에 성공한다.")
         void 회원등록_성공() throws Exception {
             // given
@@ -90,11 +91,19 @@ class AuthControllerTest {
             resultActions.andExpect(status().is4xxClientError());
         }
 
+        private static Stream<Arguments> validSignupRequest() {
+            return Stream.of(
+                Arguments.of("email@mm.mm", "12345678", "000-0000-0000", "1999-01-01", UserRole.USER),
+                Arguments.of("email@mm.mm", "12345678912345678", "000-0000-0000", "1999.12.31", UserRole.HOST)
+            );
+        }
+
         private static Stream<Arguments> invalidSignupRequest() {
             return Stream.of(
                 Arguments.of("email", "12345678", "000-0000-0000", "1999-01-01", UserRole.USER),
                 Arguments.of("email@mm", "12345678", "000-0000-0000", "1999-01-01", UserRole.USER),
                 Arguments.of("email@mm.mm", "1234", "000-0000-0000", "1999-01-01", UserRole.USER),
+                Arguments.of("email@mm.mm", "123456789123456789", "000-0000-0000", "1999-01-01", UserRole.USER),
                 Arguments.of("email@mm.mm", "12345678", "0000-0000", "1999-01-01", UserRole.USER),
                 Arguments.of("email@mm.mm", "12345678", "000-0000-0000", "199-01", UserRole.USER),
                 Arguments.of("email@mm.mm", "12345678", "000-0000-0000", "1999-99-99", UserRole.USER),
