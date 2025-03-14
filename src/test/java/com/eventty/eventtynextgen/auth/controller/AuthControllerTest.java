@@ -11,8 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.service.AuthService;
+import com.eventty.eventtynextgen.shared.exception.CustomException;
+import com.eventty.eventtynextgen.shared.exception.type.CommonErrorType;
+import com.eventty.eventtynextgen.shared.factory.ErrorMsgFactory;
+import com.eventty.eventtynextgen.shared.factory.ErrorResponseFactory;
+import com.eventty.eventtynextgen.shared.model.ErrorResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.hamcrest.core.StringEndsWith;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +30,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -74,6 +81,11 @@ class AuthControllerTest {
         void 회원가입_입력값_이메일_검증에_실패한다(String fixture, SignupRequest signupRequest)
             throws Exception {
             // given
+            Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg("email",
+                "이메일은 '@'와 '.'가 포함되어 있어야 합니다.");
+            CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                customException);
 
             // when
             ResultActions resultActions = mockMvc.perform(
@@ -85,15 +97,20 @@ class AuthControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
-                    MockMvcResultMatchers.content().json(EmailErrorInEnum));
+                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
         @ParameterizedTest(name = "[{index}] {0}")
         @MethodSource("invalidSignupRequestsByPassword")
-        @DisplayName("signup request validation - 패스워드가 유효하지 않는 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
+        @DisplayName("signup request validation - 패스워드가 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
         void 회원가입_입력값_패스워드_검증에_실패한다(String fixture, SignupRequest signupRequest)
             throws Exception {
             // given
+            Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg("password",
+                "패스워드는 8자 이상 16자 이하여야 합니다.");
+            CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                customException);
 
             // when
             ResultActions resultActions = mockMvc.perform(
@@ -105,15 +122,46 @@ class AuthControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
-                    MockMvcResultMatchers.content().json(passwordErrorInEnum));
+                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
         @Test
-        @DisplayName("signup request validation - 생년월일이 유효하지 않는 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
+        @DisplayName("signup request validation - 핸드폰 번호 포맷이 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
+        void 회원가입_입력값_핸드폰_번호_검증에_실패한다() throws Exception {
+            // given
+            SignupRequest signupRequest = SignupRequestFixture.invalidPhoneNumberRequest();
+
+            Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg("phone",
+                "핸드폰 번호는 000-0000-0000의 형식이어야 합니다.");
+            CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                customException);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(
+                post("/api/v1/auth")
+                    .content(objectMapper.writeValueAsString(signupRequest))
+                    .contentType(MediaType.APPLICATION_JSON)
+            );
+
+            // then
+            resultActions.andExpect(status().isBadRequest())
+                .andExpect(
+                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+
+        @Test
+        @DisplayName("signup request validation - 생년월일 포맷이 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
         void 회원가입_입력값_생년월일_검증에_실패한다() throws Exception {
             // given
             SignupRequest signupRequest = SignupRequestFixture.invalidBirthdateFormatRequest();
 
+            Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg("birth",
+                "생년월일은 YYYY.MM.DD 혹은 YYYY-MM-DD 형식이어야 합니다.");
+            CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                customException);
+
             // when
             ResultActions resultActions = mockMvc.perform(
                 post("/api/v1/auth")
@@ -124,14 +172,20 @@ class AuthControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
-                    MockMvcResultMatchers.content().json(birthdateFormatErrorInEnum));
+                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
         @Test
         @DisplayName("signup request validation - 사용자 역할이 올바르지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
         void 회원가입_입력값_사용자역할_검증에_실패한다() throws Exception {
             // given
-            SignupRequest signupRequest = SignupRequestFixture.invalidBirthdateFormatRequest();
+            SignupRequest signupRequest = SignupRequestFixture.invalidUserRoleRequest();
+
+            Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg("userRole",
+                "사용자 역할을 USER 혹은 HOST이어야 합니다.");
+            CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                customException);
 
             // when
             ResultActions resultActions = mockMvc.perform(
@@ -143,7 +197,7 @@ class AuthControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
-                    MockMvcResultMatchers.content().json(userRoleErrorInEnum));
+                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
         private static Stream<Arguments> validSignupRequests() {
