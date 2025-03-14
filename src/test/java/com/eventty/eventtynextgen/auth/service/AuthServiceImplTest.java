@@ -5,6 +5,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.auth.client.AuthClient;
+import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.auth.model.UserRole;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
@@ -23,9 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("AuthService 단위 테스트")
 class AuthServiceImplTest {
 
-    @InjectMocks
-    private AuthServiceImpl authService;
-
     @Mock
     private JpaAuthRepository authRepository;
 
@@ -39,7 +37,7 @@ class AuthServiceImplTest {
         @DisplayName("[GOOD] - 회원 가입에 성공합니다.")
         void 회원가입_성공() {
             // given
-            SignupRequest request = createRequest();
+            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
 
             AuthUser authUser = createAuthUserByRequest(request);
             Long id = 1L;
@@ -47,6 +45,8 @@ class AuthServiceImplTest {
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
             when(authClient.saveUser(authUser)).thenReturn(id);
+
+            AuthService authService = new AuthServiceImpl(authClient, authRepository);
 
             // when
             Long result = authService.signup(request);
@@ -59,9 +59,11 @@ class AuthServiceImplTest {
         @DisplayName("[BAD] - 이메일 중복으로 인하여 회원가입에 실패합니다.")
         void 회원가입_실패_이메일_중복() {
             // given
-            SignupRequest request = createRequest();
+            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
 
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(true);
+
+            AuthService authService = new AuthServiceImpl(authClient, authRepository);
 
             // when & then
             try {
@@ -76,13 +78,15 @@ class AuthServiceImplTest {
         @DisplayName("[BAD] - Api Client 결과 실패로 인해 회원가입에 실패합니다.")
         void 회원가입_실패_클라이언트_호출_결과_실패() {
             // given
-            SignupRequest request = createRequest();
+            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
             AuthUser authUser = createAuthUserByRequest(request);
 
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
             when(authClient.saveUser(authUser)).thenThrow(
                 CustomException.badRequest(AuthErrorType.CLIENT_ERROR_EXCEPTION));
+
+            AuthService authService = new AuthServiceImpl(authClient, authRepository);
 
             // when & then
             try {
@@ -96,11 +100,6 @@ class AuthServiceImplTest {
         private AuthUser createAuthUserByRequest(SignupRequest request) {
             return new AuthUser(1L, request.getEmail(), request.getPassword(),
                 request.getUserRole());
-        }
-
-        private SignupRequest createRequest() {
-            return new SignupRequest("email@mm.mm", "12345678", "010-0000-0000",
-                "2000-01-01", UserRole.USER);
         }
     }
 
