@@ -3,7 +3,7 @@ package com.eventty.eventtynextgen.auth.service;
 import com.eventty.eventtynextgen.auth.client.AuthClient;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
-import com.eventty.eventtynextgen.auth.repository.AuthRepository;
+import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthServiceImpl implements AuthService{
 
     private final AuthClient authClient;
-    private final AuthRepository authRepository;
+    private final JpaAuthRepository authRepository;
 
     @Override
     @Transactional

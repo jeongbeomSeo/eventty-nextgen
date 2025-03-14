@@ -8,7 +8,7 @@ import com.eventty.eventtynextgen.auth.client.AuthClient;
 import com.eventty.eventtynextgen.auth.model.UserRole;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
-import com.eventty.eventtynextgen.auth.repository.AuthRepository;
+import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +27,7 @@ class AuthServiceImplTest {
     private AuthServiceImpl authService;
 
     @Mock
-    private AuthRepository authRepository;
+    private JpaAuthRepository authRepository;
 
     @Mock
     private AuthClient authClient;

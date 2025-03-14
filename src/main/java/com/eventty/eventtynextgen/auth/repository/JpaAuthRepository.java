@@ -5,8 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface JpaAuthRepository extends JpaRepository<AuthUser, Long>, AuthRepository {
+public interface JpaAuthRepository extends JpaRepository<AuthUser, Long> {
 
-    @Override
     boolean existsByEmail(String email);
 }
