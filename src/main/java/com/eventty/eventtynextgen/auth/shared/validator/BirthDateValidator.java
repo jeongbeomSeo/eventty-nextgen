@@ -14,6 +14,7 @@ public class BirthDateValidator implements ConstraintValidator<ValidBirthDate, S
 
     @Override
     public void initialize(ValidBirthDate constraintAnnotation) {
+        ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
     @Override

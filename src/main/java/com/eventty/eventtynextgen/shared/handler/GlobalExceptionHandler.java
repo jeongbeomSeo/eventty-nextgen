@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
         CustomException customException = CustomException.badRequest(
             CommonErrorType.INVALID_INPUT_DATA, errorMsg);
 
-        // TODO: 반복되는 Error logging 작업을 AOP를 이용하여 분리
+        // TODO: 반복되는 Error logging 작업을 분리 고려중
         log.warn(String.format("http-status={%s} code={%s} msg={%s} detail={%s}",
             customException.getHttpStatus().value(), CommonErrorType.INVALID_INPUT_DATA.getCode(),
             CommonErrorType.INVALID_INPUT_DATA.getMsg(), errorMsg));

@@ -10,6 +10,7 @@ import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
 import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
+import com.eventty.eventtynextgen.auth.service.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +30,9 @@ class AuthServiceImplTest {
     @Mock
     private AuthClient authClient;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @Nested
     class Signup {
 
@@ -42,10 +46,11 @@ class AuthServiceImplTest {
             Long id = 1L;
 
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
+            when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
             when(authClient.saveUser(authUser)).thenReturn(id);
 
-            AuthService authService = new AuthServiceImpl(authClient, authRepository);
+            AuthService authService = new AuthServiceImpl(authClient, authRepository, passwordEncoder);
 
             // when
             Long result = authService.signup(request);
@@ -62,7 +67,7 @@ class AuthServiceImplTest {
 
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
-            AuthService authService = new AuthServiceImpl(authClient, authRepository);
+            AuthService authService = new AuthServiceImpl(authClient, authRepository, passwordEncoder);
 
             // when & then
             try {
@@ -81,11 +86,12 @@ class AuthServiceImplTest {
             AuthUser authUser = AuthUserFixture.createAuthUserBySignupRequest(request);
 
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
+            when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
             when(authClient.saveUser(authUser)).thenThrow(
                 CustomException.badRequest(AuthErrorType.CLIENT_ERROR_EXCEPTION));
 
-            AuthService authService = new AuthServiceImpl(authClient, authRepository);
+            AuthService authService = new AuthServiceImpl(authClient, authRepository, passwordEncoder);
 
             // when & then
             try {
