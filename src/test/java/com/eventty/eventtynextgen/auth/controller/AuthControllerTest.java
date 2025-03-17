@@ -141,15 +141,6 @@ class AuthControllerTest {
                     MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
-        private ResponseEntity<ErrorResponse> getErrorResponseResponseEntity(String feild,
-            String msg) {
-            Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg(feild,
-                msg);
-            CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
-            return ErrorResponseFactory.toResponseEntity(
-                customException);
-        }
-
         @Test
         @DisplayName("signup request validation - 생년월일 포맷이 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
         void 회원가입_입력값_생년월일_검증에_실패한다() throws Exception {
@@ -220,6 +211,15 @@ class AuthControllerTest {
                 Arguments.of("패스워드가 16자 초과인 Request",
                     SignupRequestFixture.longPasswordRequest())
             );
+        }
+
+        private ResponseEntity<ErrorResponse> getErrorResponseResponseEntity(String feild,
+            String msg) {
+            Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg(feild,
+                msg);
+            CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
+            return ErrorResponseFactory.toResponseEntity(
+                customException);
         }
     }
 

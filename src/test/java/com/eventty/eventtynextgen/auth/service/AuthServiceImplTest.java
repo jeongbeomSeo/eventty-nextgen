@@ -5,8 +5,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.auth.client.AuthClient;
+import com.eventty.eventtynextgen.auth.fixture.AuthUserFixture;
 import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
-import com.eventty.eventtynextgen.auth.model.UserRole;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
 import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
@@ -16,7 +16,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -39,7 +38,7 @@ class AuthServiceImplTest {
             // given
             SignupRequest request = SignupRequestFixture.successUserRoleRequest();
 
-            AuthUser authUser = createAuthUserByRequest(request);
+            AuthUser authUser = AuthUserFixture.createAuthUserBySignupRequest(request);
             Long id = 1L;
 
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
@@ -79,7 +78,7 @@ class AuthServiceImplTest {
         void 회원가입_실패_클라이언트_호출_결과_실패() {
             // given
             SignupRequest request = SignupRequestFixture.successUserRoleRequest();
-            AuthUser authUser = createAuthUserByRequest(request);
+            AuthUser authUser = AuthUserFixture.createAuthUserBySignupRequest(request);
 
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
@@ -97,10 +96,6 @@ class AuthServiceImplTest {
             }
         }
 
-        private AuthUser createAuthUserByRequest(SignupRequest request) {
-            return new AuthUser(1L, request.getEmail(), request.getPassword(),
-                request.getUserRole());
-        }
     }
 
 }
