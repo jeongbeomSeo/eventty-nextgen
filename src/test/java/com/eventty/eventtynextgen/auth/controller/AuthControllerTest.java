@@ -48,12 +48,12 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Nested
-    class Signup {
+    class SignupRequestValidationTest {
 
         @ParameterizedTest(name = "[{index}] {0}")
         @MethodSource("validSignupRequests")
         @DisplayName("signup request validation - 모든 입력값이 유효한 회원가입 요청은 성공해야 한다.")
-        void 회원가입_입력값_유효성_검증에_통과한다(String fixtureName, SignupRequest signupRequest)
+        void 회원가입_입력값_유효성_검증에_통과한다(String fixtureName, SignupRequest request)
             throws Exception {
             // given
             Long createdId = 100L;
@@ -63,7 +63,7 @@ class AuthControllerTest {
             // when
             ResultActions resultActions = mockMvc.perform(
                 post("/api/v1/auth")
-                    .content(objectMapper.writeValueAsString(signupRequest))
+                    .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON));
 
             // then
@@ -77,7 +77,7 @@ class AuthControllerTest {
         @ParameterizedTest(name = "[{index}] {0}")
         @MethodSource("invalidSignupRequestsByEmail")
         @DisplayName("signup request validation - 이메일이 유효하지 않는 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
-        void 회원가입_입력값_이메일_검증에_실패한다(String fixture, SignupRequest signupRequest)
+        void 회원가입_입력값_이메일_검증에_실패한다(String fixture, SignupRequest request)
             throws Exception {
             // given
             ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity("email",
@@ -86,7 +86,7 @@ class AuthControllerTest {
             // when
             ResultActions resultActions = mockMvc.perform(
                 post("/api/v1/auth")
-                    .content(objectMapper.writeValueAsString(signupRequest))
+                    .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             );
 
@@ -99,7 +99,7 @@ class AuthControllerTest {
         @ParameterizedTest(name = "[{index}] {0}")
         @MethodSource("invalidSignupRequestsByPassword")
         @DisplayName("signup request validation - 패스워드가 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
-        void 회원가입_입력값_패스워드_검증에_실패한다(String fixture, SignupRequest signupRequest)
+        void 회원가입_입력값_패스워드_검증에_실패한다(String fixture, SignupRequest request)
             throws Exception {
             // given
             ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
@@ -109,7 +109,7 @@ class AuthControllerTest {
             // when
             ResultActions resultActions = mockMvc.perform(
                 post("/api/v1/auth")
-                    .content(objectMapper.writeValueAsString(signupRequest))
+                    .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             );
 
@@ -123,7 +123,7 @@ class AuthControllerTest {
         @DisplayName("signup request validation - 핸드폰 번호 포맷이 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
         void 회원가입_입력값_핸드폰_번호_검증에_실패한다() throws Exception {
             // given
-            SignupRequest signupRequest = SignupRequestFixture.invalidPhoneNumberRequest();
+            SignupRequest request = SignupRequestFixture.invalidPhoneNumberRequest();
 
             ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity("phone",
                 "핸드폰 번호는 000-0000-0000의 형식이어야 합니다.");
@@ -131,7 +131,7 @@ class AuthControllerTest {
             // when
             ResultActions resultActions = mockMvc.perform(
                 post("/api/v1/auth")
-                    .content(objectMapper.writeValueAsString(signupRequest))
+                    .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             );
 
@@ -145,7 +145,7 @@ class AuthControllerTest {
         @DisplayName("signup request validation - 생년월일 포맷이 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
         void 회원가입_입력값_생년월일_검증에_실패한다() throws Exception {
             // given
-            SignupRequest signupRequest = SignupRequestFixture.invalidBirthdateFormatRequest();
+            SignupRequest request = SignupRequestFixture.invalidBirthdateFormatRequest();
 
             ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity("birth",
                 "생년월일은 YYYY.MM.DD 혹은 YYYY-MM-DD 형식이어야 합니다.");
@@ -153,7 +153,7 @@ class AuthControllerTest {
             // when
             ResultActions resultActions = mockMvc.perform(
                 post("/api/v1/auth")
-                    .content(objectMapper.writeValueAsString(signupRequest))
+                    .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             );
 
@@ -167,7 +167,7 @@ class AuthControllerTest {
         @DisplayName("signup request validation - 사용자 역할이 올바르지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
         void 회원가입_입력값_사용자역할_검증에_실패한다() throws Exception {
             // given
-            SignupRequest signupRequest = SignupRequestFixture.invalidUserRoleRequest();
+            SignupRequest request = SignupRequestFixture.invalidUserRoleRequest();
 
             ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
                 "userRole",
@@ -176,7 +176,7 @@ class AuthControllerTest {
             // when
             ResultActions resultActions = mockMvc.perform(
                 post("/api/v1/auth")
-                    .content(objectMapper.writeValueAsString(signupRequest))
+                    .content(objectMapper.writeValueAsString(request))
                     .contentType(MediaType.APPLICATION_JSON)
             );
 

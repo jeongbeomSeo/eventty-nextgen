@@ -40,4 +40,9 @@ public class AuthServiceImpl implements AuthService {
 
         return id;
     }
+
+    @Override
+    public boolean checkEmail(String email) {
+        return authRepository.existsByEmail(email);
+    }
 }

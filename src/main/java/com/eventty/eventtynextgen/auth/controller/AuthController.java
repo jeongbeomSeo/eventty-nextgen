@@ -7,9 +7,10 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @APIV1
@@ -33,4 +34,13 @@ public class AuthController {
 
         return ResponseEntity.created(location).build();
     }
+
+    @GetMapping("email-check")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam(value = "email") String email) {
+
+        boolean result = authService.checkEmail(email);
+
+        return ResponseEntity.ok(result);
+    }
+
 }

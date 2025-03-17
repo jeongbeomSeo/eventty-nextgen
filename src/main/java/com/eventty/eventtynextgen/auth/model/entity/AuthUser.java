@@ -29,7 +29,6 @@ public class AuthUser {
     private String email;
 
     @Column(nullable = false)
-    // TODO: 암호화
     private String password;
 
     @Enumerated(EnumType.STRING)

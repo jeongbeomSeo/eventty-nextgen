@@ -3,7 +3,6 @@ package com.eventty.eventtynextgen.auth.model.dto.request;
 import com.eventty.eventtynextgen.auth.model.UserRole;
 import com.eventty.eventtynextgen.auth.shared.annotation.ValidBirthDate;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
