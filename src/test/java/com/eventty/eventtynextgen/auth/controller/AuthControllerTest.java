@@ -16,6 +16,7 @@ import com.eventty.eventtynextgen.shared.exception.type.CommonErrorType;
 import com.eventty.eventtynextgen.shared.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.shared.model.ErrorResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -78,7 +79,7 @@ class AuthControllerTest {
         @ParameterizedTest(name = "[{index}] {0}")
         @MethodSource("invalidSignupRequestsByEmail")
         @DisplayName("request validation - 이메일이 유효하지 않는 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
-        void 회원가입_입력값_이메일_검증에_실패한다(String fixture, SignupRequest request)
+        void 회원가입_입력값_이메일_검증으로_인해_요청은_실패한다(String fixture, SignupRequest request)
             throws Exception {
             // given
             ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity("email",
@@ -100,7 +101,7 @@ class AuthControllerTest {
         @ParameterizedTest(name = "[{index}] {0}")
         @MethodSource("invalidSignupRequestsByPassword")
         @DisplayName("request validation - 패스워드가 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
-        void 회원가입_입력값_패스워드_검증에_실패한다(String fixture, SignupRequest request)
+        void 회원가입_입력값_패스워드_검증으로_인해_요청은_실패한다(String fixture, SignupRequest request)
             throws Exception {
             // given
             ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
@@ -120,11 +121,32 @@ class AuthControllerTest {
                     MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
-        // TODO: 이름이 NULL일 경우 테스트 추가
+        @ParameterizedTest(name = "[{index}] {0}")
+        @MethodSource("invalidSignupRequestByName")
+        @DisplayName("request validation - 이름이 NULL이거나 빈 문자열인 요청은 클라이언트에게 실패한 이유가 제공되어야 한다.")
+        void 회원가입_입력값_이름_검증으로_인해_요청은_실패한다(String fixture, SignupRequest request)
+            throws Exception {
+            // given
+            ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
+                "name",
+                "이름은 null이거나 빈 문자열일 수 없습니다.");
+
+            // when
+            ResultActions resultActions = mockMvc.perform(
+                post("/api/v1/auth")
+                    .content(objectMapper.writeValueAsString(request))
+                    .contentType(MediaType.APPLICATION_JSON)
+            );
+
+            // then
+            resultActions.andExpect(status().isBadRequest())
+                .andExpect(
+                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
 
         @Test
         @DisplayName("request validation - 핸드폰 번호 포맷이 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
-        void 회원가입_입력값_핸드폰_번호_검증에_실패한다() throws Exception {
+        void 회원가입_입력값_핸드폰_번호_검증으로_인해_요청은_실패한다() throws Exception {
             // given
             SignupRequest request = SignupRequestFixture.invalidPhoneNumberRequest();
 
@@ -213,6 +235,15 @@ class AuthControllerTest {
                     SignupRequestFixture.shortPasswordRequest()),
                 Arguments.of("패스워드가 16자 초과인 Request",
                     SignupRequestFixture.longPasswordRequest())
+            );
+        }
+
+        private static Stream<Arguments> invalidSignupRequestByName() {
+            return Stream.of(
+                Arguments.of("이름이 null인 request",
+                    SignupRequestFixture.nameIsNullRequest()),
+                Arguments.of("이름이 빈 문자열인 request",
+                    SignupRequestFixture.nameIsEmptyRequest())
             );
         }
 

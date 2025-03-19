@@ -59,6 +59,16 @@ public class SignupRequestFixture {
             "1990-01-01", UserRole.USER);
     }
 
+    public static SignupRequest nameIsNullRequest() {
+        return new SignupRequest("test@google.com","12345678", null, "000-0000-0000",
+            "1990-01-01", UserRole.USER);
+    }
+
+    public static SignupRequest nameIsEmptyRequest() {
+        return new SignupRequest("test@google.com","12345678", "", "000-0000-0000",
+            "1990-01-01", UserRole.USER);
+    }
+
     /**
      * 핸드폰 형식이 000-0000-0000가 아닌 Request를 생성한다.
      * @return SignupRequest
