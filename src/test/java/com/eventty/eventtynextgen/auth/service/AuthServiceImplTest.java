@@ -50,7 +50,7 @@ class AuthServiceImplTest {
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
             when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
-            when(authClient.saveUser(any(UserSignupRequest.class))).thenReturn(id);
+            when(authClient.saveUser(any(Long.class), any(SignupRequest.class))).thenReturn(id);
 
             AuthService authService = new AuthServiceImpl(authClient, authRepository, passwordEncoder);
 
@@ -90,7 +90,7 @@ class AuthServiceImplTest {
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
             when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
-            when(authClient.saveUser(any(UserSignupRequest.class))).thenThrow(
+            when(authClient.saveUser(any(Long.class), any(SignupRequest.class))).thenThrow(
                 CustomException.badRequest(AuthErrorType.CLIENT_ERROR));
 
             AuthService authService = new AuthServiceImpl(authClient, authRepository, passwordEncoder);

@@ -59,8 +59,8 @@ public class AuthControllerIntegrationTest {
             Long userId = 100L;
 
             when(authRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
-            when(authClient.saveUser(any(UserSignupRequest.class))).thenReturn(userId);
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
+            when(authClient.saveUser(any(Long.class), any(SignupRequest.class))).thenReturn(userId);
 
             // when
             ResultActions resultActions = mockMvc.perform(post("/api/v1/auth")
@@ -89,7 +89,7 @@ public class AuthControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
             // then
-            resultActions.andExpect(status().isBadRequest())
+            resultActions.andExpect(status().isConflict())
                 .andExpect(
                     MockMvcResultMatchers.content()
                         .string(objectMapper.writeValueAsString(responseEntity.getBody())));
