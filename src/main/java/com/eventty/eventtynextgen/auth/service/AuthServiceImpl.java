@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
         AuthUser authUser = new AuthUser(request.getEmail(), hashedPassword, request.getUserRole());
         authUser = authRepository.save(authUser);
 
-        Long id = authClient.saveUser(authUser.getId(), request);
+        Long id = authClient.saveUser(new UserSignupRequest(authUser.getId(), request));
 
         return id;
     }

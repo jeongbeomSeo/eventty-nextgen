@@ -5,5 +5,5 @@ import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
 import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
 
 public interface AuthClient {
-    Long saveUser(Long authUserId, SignupRequest signupRequest);
+    Long saveUser(UserSignupRequest userSignupRequest);
 }

@@ -1,5 +1,6 @@
 package com.eventty.eventtynextgen.shared.model.dto.request;
 
+import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.shared.validator.BirthDateValidator;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,6 +15,11 @@ public class UserSignupRequest {
     private String name;
     private String phone;
     private String birth;
+
+    public UserSignupRequest(Long authUserId, SignupRequest signupRequest) {
+        this(authUserId, signupRequest.getName(), signupRequest.getPhone(),
+            signupRequest.getBirth());
+    }
 
     /**
      * 회원가입 요청 시 필요한 필드에 대해 null/빈 값 및 형식 검증을 수행한다.

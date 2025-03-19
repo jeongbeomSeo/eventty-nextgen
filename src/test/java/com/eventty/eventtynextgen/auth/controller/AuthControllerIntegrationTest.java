@@ -60,7 +60,7 @@ public class AuthControllerIntegrationTest {
 
             when(authRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
-            when(authClient.saveUser(any(Long.class), any(SignupRequest.class))).thenReturn(userId);
+            when(authClient.saveUser(any(UserSignupRequest.class))).thenReturn(userId);
 
             // when
             ResultActions resultActions = mockMvc.perform(post("/api/v1/auth")
