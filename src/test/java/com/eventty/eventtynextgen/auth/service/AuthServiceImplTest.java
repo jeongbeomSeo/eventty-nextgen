@@ -34,12 +34,13 @@ class AuthServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @DisplayName("비즈니스 로직 - 회원가입")
     @Nested
     class Signup {
 
         @Test
-        @DisplayName("[GOOD] - 회원 가입에 성공합니다.")
-        void 회원가입_성공() {
+        @DisplayName("auth user signup - 새로운 회원은 회원 가입에 `성공`한다.")
+        void 새로운_회원은_회원가입에_성공한다() {
             // given
             SignupRequest request = SignupRequestFixture.successUserRoleRequest();
 
@@ -61,8 +62,8 @@ class AuthServiceImplTest {
         }
 
         @Test
-        @DisplayName("[BAD] - 이메일 중복으로 인하여 회원가입에 실패합니다.")
-        void 회원가입_실패_이메일_중복() {
+        @DisplayName("auth user signup - 이메일 중복으로 인하여 회원가입에 `실패`한다.")
+        void 이메일이_등록되어_있는_경우_회원가입에_실패한다() {
             // given
             SignupRequest request = SignupRequestFixture.successUserRoleRequest();
 
@@ -80,8 +81,8 @@ class AuthServiceImplTest {
         }
 
         @Test
-        @DisplayName("[BAD] - Api Client 결과 실패로 인해 회원가입에 실패합니다.")
-        void 회원가입_실패_클라이언트_호출_결과_실패() {
+        @DisplayName("auth user signup - Api Client 결과 실패로 인해 회원가입에 `실패`합니다.")
+        void 외부_서비스_서버에서_실패_메시지를_전달할_경우_회원가입에_실패한다() {
             // given
             SignupRequest request = SignupRequestFixture.successUserRoleRequest();
             AuthUser authUser = AuthUserFixture.createAuthUserBySignupRequest(request);

@@ -8,6 +8,7 @@ import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class UserServiceImpl implements UserService{
     private final JpaUserRepository userRepository;
 
     @Override
-    public Long signup(UserSignupRequest userSignupRequest) {
+    public Long signup(@Validated UserSignupRequest userSignupRequest) {
 
         if (userRepository.existsByAuthUserId(userSignupRequest.getAuthUserId())) {
             throw CustomException.of(HttpStatus.CONFLICT, UserErrorType.AUTH_USER_ID_ALREADY_EXISTS);

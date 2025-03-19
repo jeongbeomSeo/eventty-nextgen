@@ -52,7 +52,7 @@ public class AuthControllerIntegrationTest {
     class Signup {
         @Test
         @DisplayName("signup test - 이메일이 존재하지 않는 회원가입 요청은 성공한다.")
-        void 이메일이_존재하지_않는_경우_회원가입_요청_성공() throws Exception {
+        void 이메일이_존재하지_않는_경우_회원가입_요청_성공한다() throws Exception {
             // given
             SignupRequest signupRequest = SignupRequestFixture.successUserRoleRequest();
             AuthUser authUser = AuthUserFixture.createAuthUserBySignupRequest(signupRequest);
@@ -75,7 +75,7 @@ public class AuthControllerIntegrationTest {
 
         @Test
         @DisplayName("signup test - 이메일이 존재하는 경우 회원가입 요청은 실패하고 예외를 던진다.")
-        void 이메일이_존재하는_경우_회원가입_요청_실패() throws Exception {
+        void 이메일이_존재하는_경우_회원가입_요청_실패한다() throws Exception {
             // given
             SignupRequest signupRequest = SignupRequestFixture.successUserRoleRequest();
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
