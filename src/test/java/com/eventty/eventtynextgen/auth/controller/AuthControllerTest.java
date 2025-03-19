@@ -119,6 +119,8 @@ class AuthControllerTest {
                     MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
+        // TODO: 이름이 NULL일 경우 테스트 추가
+
         @Test
         @DisplayName("signup request validation - 핸드폰 번호 포맷이 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
         void 회원가입_입력값_핸드폰_번호_검증에_실패한다() throws Exception {

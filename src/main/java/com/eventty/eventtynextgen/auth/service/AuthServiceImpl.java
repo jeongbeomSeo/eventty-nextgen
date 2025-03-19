@@ -7,7 +7,9 @@ import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.auth.service.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
+import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,22 +23,22 @@ public class AuthServiceImpl implements AuthService {
     private final JpaAuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
 
-
     @Override
     @Transactional
     public Long signup(SignupRequest request) {
 
         if (authRepository.existsByEmail(request.getEmail())) {
-            throw CustomException.badRequest(AuthErrorType.EMAIL_ALREADY_EXISTS_EXCEPTION);
+            throw CustomException.of(HttpStatus.CONFLICT, AuthErrorType.EMAIL_ALREADY_EXISTS);
         }
 
         String hashedPassword = passwordEncoder.hashPassword(request.getPassword());
 
         AuthUser authUser = new AuthUser(request.getEmail(), hashedPassword, request.getUserRole());
-
         authUser = authRepository.save(authUser);
 
-        Long id = authClient.saveUser(authUser);
+        UserSignupRequest userSignupRequest = new UserSignupRequest(authUser.getId(),
+            request.getName(), request.getPhone(), request.getBirth());
+        Long id = authClient.saveUser(userSignupRequest);
 
         return id;
     }

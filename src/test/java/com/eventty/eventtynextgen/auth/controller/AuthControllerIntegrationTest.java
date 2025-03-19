@@ -15,6 +15,7 @@ import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import com.eventty.eventtynextgen.shared.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.shared.model.ErrorResponse;
+import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.core.StringEndsWith;
 import org.junit.jupiter.api.DisplayName;
@@ -58,7 +59,7 @@ public class AuthControllerIntegrationTest {
             Long userId = 100L;
 
             when(authRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
-            when(authClient.saveUser(any(AuthUser.class))).thenReturn(userId);
+            when(authClient.saveUser(any(UserSignupRequest.class))).thenReturn(userId);
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
 
             // when
@@ -78,7 +79,7 @@ public class AuthControllerIntegrationTest {
             // given
             SignupRequest signupRequest = SignupRequestFixture.successUserRoleRequest();
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(AuthErrorType.EMAIL_ALREADY_EXISTS_EXCEPTION));
+                CustomException.badRequest(AuthErrorType.EMAIL_ALREADY_EXISTS));
 
             when(authRepository.existsByEmail(signupRequest.getEmail())).thenReturn(true);
 

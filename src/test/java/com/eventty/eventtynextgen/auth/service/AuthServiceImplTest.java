@@ -13,6 +13,7 @@ import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.auth.service.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
+import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class AuthServiceImplTest {
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
             when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
-            when(authClient.saveUser(authUser)).thenReturn(id);
+            when(authClient.saveUser(any(UserSignupRequest.class))).thenReturn(id);
 
             AuthService authService = new AuthServiceImpl(authClient, authRepository, passwordEncoder);
 
@@ -74,7 +75,7 @@ class AuthServiceImplTest {
                 authService.signup(request);
             } catch (CustomException customException) {
                 assertThat(customException.getErrorType())
-                    .isEqualTo(AuthErrorType.EMAIL_ALREADY_EXISTS_EXCEPTION);
+                    .isEqualTo(AuthErrorType.EMAIL_ALREADY_EXISTS);
             }
         }
 
@@ -88,8 +89,8 @@ class AuthServiceImplTest {
             when(authRepository.existsByEmail(request.getEmail())).thenReturn(false);
             when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
-            when(authClient.saveUser(authUser)).thenThrow(
-                CustomException.badRequest(AuthErrorType.CLIENT_ERROR_EXCEPTION));
+            when(authClient.saveUser(any(UserSignupRequest.class))).thenThrow(
+                CustomException.badRequest(AuthErrorType.CLIENT_ERROR));
 
             AuthService authService = new AuthServiceImpl(authClient, authRepository, passwordEncoder);
 
@@ -98,7 +99,7 @@ class AuthServiceImplTest {
                 authService.signup(request);
             } catch (CustomException customException) {
                 assertThat(customException.getErrorType())
-                    .isEqualTo(AuthErrorType.CLIENT_ERROR_EXCEPTION);
+                    .isEqualTo(AuthErrorType.CLIENT_ERROR);
             }
         }
 
