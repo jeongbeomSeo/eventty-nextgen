@@ -7,6 +7,6 @@ public class AuthUserFixture {
 
     public static AuthUser createAuthUserBySignupRequest(SignupRequest request) {
         return new AuthUser(1L, request.getEmail(), request.getPassword(),
-            request.getUserRole());
+            request.getUserRole(), false, null);
     }
 }

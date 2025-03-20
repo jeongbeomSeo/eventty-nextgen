@@ -105,4 +105,10 @@ class AuthServiceImplTest {
         }
 
     }
+
+    @DisplayName("비즈니스 로직 - 회원삭제")
+    @Nested
+    class Delete {
+
+    }
 }

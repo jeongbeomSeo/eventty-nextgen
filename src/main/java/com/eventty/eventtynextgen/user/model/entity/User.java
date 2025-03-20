@@ -6,11 +6,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "users")
@@ -35,16 +36,29 @@ public class User {
     @Column(nullable = false)
     private String birth;
 
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private boolean isDeleted;
+
+    private LocalDateTime deleteTime;
+
     public User(Long authUserId, String name, String phone, String birth) {
         this.authUserId = authUserId;
         this.name = name;
         this.phone = phone;
         this.birth = birth;
+        this.isDeleted = false;
+        this.deleteTime = null;
     }
 
     public void update(String name, String phone, String birth) {
         this.name = name;
         this.phone = phone;
         this.birth = birth;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+        this.deleteTime = LocalDateTime.now();
     }
 }
