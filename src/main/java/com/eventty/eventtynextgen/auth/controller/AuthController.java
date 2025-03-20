@@ -43,8 +43,6 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    // TODO: 회원 수정
-
     // TODO: 회원 삭제 (SOFT)
 
     // TODO: 이메일 검증
