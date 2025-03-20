@@ -1,21 +1,20 @@
 package com.eventty.eventtynextgen.user.service;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.auth.fixture.UserFixture;
 import com.eventty.eventtynextgen.auth.fixture.UserSignupRequestFixture;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.UserErrorType;
 import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
+import com.eventty.eventtynextgen.user.fixture.UpdateUserRequestFixture;
+import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.model.entity.User;
 import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
 import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
 import java.util.Optional;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -130,10 +129,8 @@ class UserServiceImplTest {
         @DisplayName("user update - id가 일치하는 요청은 `성공`한다.")
         void 조건에_일치하는_회원_수정_요청은_성공한다() {
             // given
-            // TODO: Fixture
-            UpdateUserRequest updateUserRequest = new UpdateUserRequest(1L, "변경된_이름", "010-1111-1111", "2000-01-01");
-            // TODO: Fixture
-            User user = new User(1L, 1L, "홍길동", "010-0000-0000", "1999-01-01");
+            UpdateUserRequest updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
+            User user = UserFixture.createUserByUpdateUserRequest(updateUserRequest);
 
             when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.of(user));
             UserService userService = new UserServiceImpl(userRepository);
@@ -146,10 +143,10 @@ class UserServiceImplTest {
         }
 
         @Test
-        @DisplayName("user update - id가 일치한 회원이 존재하지 않은 요청은 `실패`한다.")
+        @DisplayName("user update - id가 일치하는 회원이 존재하지 않은 요청은 `실패`한다.")
         void ID가_존재하지_않는_회원_수정_요청은_실패한다() {
             // given
-            UpdateUserRequest updateUserRequest = new UpdateUserRequest(null, null, null, null);
+            UpdateUserRequest updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
 
             when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.empty());
             UserService userService = new UserServiceImpl(userRepository);

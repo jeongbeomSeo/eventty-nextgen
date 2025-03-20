@@ -1,7 +1,8 @@
-package com.eventty.eventtynextgen.auth.fixture;
+package com.eventty.eventtynextgen.user.fixture;
 
 import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
 import com.eventty.eventtynextgen.user.model.entity.User;
+import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
 
 public class UserFixture {
 
@@ -10,4 +11,8 @@ public class UserFixture {
             request.getBirth());
     }
 
+    public static User createUserByUpdateUserRequest(UpdateUserRequest request) {
+        return new User(request.getId(), 1L, request.getName(), request.getPhone(),
+            request.getBirth());
+    }
 }
