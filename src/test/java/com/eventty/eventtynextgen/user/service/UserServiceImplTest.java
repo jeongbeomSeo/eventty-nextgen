@@ -14,6 +14,7 @@ import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
 import com.eventty.eventtynextgen.user.model.entity.User;
 import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
 import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -129,9 +130,12 @@ class UserServiceImplTest {
         @DisplayName("user update - id가 일치하는 요청은 `성공`한다.")
         void 조건에_일치하는_회원_수정_요청은_성공한다() {
             // given
-            UpdateUserRequest updateUserRequest = new UpdateUserRequest(null, null, null, null);
+            // TODO: Fixture
+            UpdateUserRequest updateUserRequest = new UpdateUserRequest(1L, "변경된_이름", "010-1111-1111", "2000-01-01");
+            // TODO: Fixture
+            User user = new User(1L, 1L, "홍길동", "010-0000-0000", "1999-01-01");
 
-            when(userRepository.existsById(updateUserRequest.getId())).thenReturn(true);
+            when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.of(user));
             UserService userService = new UserServiceImpl(userRepository);
 
             // when
@@ -147,7 +151,7 @@ class UserServiceImplTest {
             // given
             UpdateUserRequest updateUserRequest = new UpdateUserRequest(null, null, null, null);
 
-            when(userRepository.existsById(updateUserRequest.getId())).thenReturn(false);
+            when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.empty());
             UserService userService = new UserServiceImpl(userRepository);
 
             // when & then

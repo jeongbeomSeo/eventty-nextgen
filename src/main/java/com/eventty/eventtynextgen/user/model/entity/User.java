@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
@@ -36,6 +37,12 @@ public class User {
 
     public User(Long authUserId, String name, String phone, String birth) {
         this.authUserId = authUserId;
+        this.name = name;
+        this.phone = phone;
+        this.birth = birth;
+    }
+
+    public void update(String name, String phone, String birth) {
         this.name = name;
         this.phone = phone;
         this.birth = birth;
