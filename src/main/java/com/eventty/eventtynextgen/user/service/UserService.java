@@ -8,4 +8,6 @@ public interface UserService {
     Long signup(UserSignupRequest userSignupRequest);
 
     Long updateUser(UpdateUserRequest updateUserRequest);
+
+    Long deleteUserByAuthUserId(Long authId);
 }

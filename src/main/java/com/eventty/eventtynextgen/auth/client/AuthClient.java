@@ -6,5 +6,5 @@ public interface AuthClient {
 
     Long saveUser(UserSignupRequest userSignupRequest);
 
-    Long deleteUser(Long authId);
+    Long deleteUser(Long authUserId);
 }

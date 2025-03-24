@@ -20,7 +20,10 @@ public class LocalAuthClient implements AuthClient {
     }
 
     @Override
-    public Long deleteUser(Long authId) {
-        return null;
+    public Long deleteUser(Long authUserId) {
+
+        Long userId = userService.deleteUserByAuthUserId(authUserId);
+
+        return userId;
     }
 }

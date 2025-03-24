@@ -44,4 +44,16 @@ public class UserServiceImpl implements UserService{
 
         return user.getId();
     }
+
+    @Override
+    @Transactional
+    public Long deleteUserByAuthUserId(Long authUserId) {
+
+        User user = userRepository.findByAuthUserId(authUserId)
+            .orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+
+        user.delete();
+
+        return user.getId();
+    }
 }

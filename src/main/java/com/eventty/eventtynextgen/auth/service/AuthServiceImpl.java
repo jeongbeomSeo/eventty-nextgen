@@ -49,6 +49,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public Long delete(Long authUserId) {
-        return null;
+        AuthUser authUser = authRepository.findById(authUserId)
+            .orElseThrow(() -> CustomException.badRequest(AuthErrorType.NOT_FOUND_AUTH_USER));
+
+        authUser.delete();
+
+        Long userId = authClient.deleteUser(authUserId);
+
+        return authUser.getId();
     }
 }
