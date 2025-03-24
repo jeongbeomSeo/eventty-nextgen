@@ -4,10 +4,15 @@ spring:
   profiles:
     active: local
   datasource:
-    url: ${url}
-    username: ${username}
-    password: ${password}
-    driver-class-name: ${driver-class-name}
+    url: ${db.url}
+    username: ${db.username}
+    password: ${db.password}
+    driver-class-name: ${db.driver-class-name}
+  data:
+    redis:
+      client-type: lettuce
+      port: 6379
+      host: ${redis.host}
 
   jpa:
     hibernate:
