@@ -172,4 +172,22 @@ class AuthServiceImplTest {
 
         }
     }
+
+    @DisplayName("비즈니스 로직 - 이메일 검증")
+    @Nested
+    class EmailVerification {
+        // TODO: 이메일 Redis에 저장한 후, 해당 이메일로 인증 코드 발송 성공
+
+        // TODO: 이메일 Redis에 저장했지만, 이메일로 발송 실패
+
+        // TODO: 이메일 Redis에 저장 실패
+
+        // TODO: 이메일 검증 요청시 올바르게 검증 성공
+
+        // TODO: 이메일 검증 요청시 TTL이 초과된 경우
+
+        // TODO: 이메일 검증 요청시 code가 일치하지 않는 경우
+
+        // TODO: 이메일 검증 요청시 email을 찾을 수 없는 경우
+    }
 }
