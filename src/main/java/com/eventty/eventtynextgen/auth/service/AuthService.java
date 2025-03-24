@@ -7,4 +7,6 @@ public interface AuthService {
     Long signup(SignupRequest signupRequest);
 
     boolean checkEmail(String email);
+
+    Long delete(Long authUserId);
 }

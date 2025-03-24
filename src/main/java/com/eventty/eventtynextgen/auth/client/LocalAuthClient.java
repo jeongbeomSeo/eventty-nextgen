@@ -18,4 +18,9 @@ public class LocalAuthClient implements AuthClient {
 
         return userService.signup(userSignupRequest);
     }
+
+    @Override
+    public Long deleteUser(Long authId) {
+        return null;
+    }
 }

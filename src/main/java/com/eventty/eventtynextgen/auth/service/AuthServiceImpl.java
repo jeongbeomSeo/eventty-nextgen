@@ -45,4 +45,10 @@ public class AuthServiceImpl implements AuthService {
     public boolean checkEmail(String email) {
         return authRepository.existsByEmail(email);
     }
+
+    @Override
+    @Transactional
+    public Long delete(Long authUserId) {
+        return null;
+    }
 }

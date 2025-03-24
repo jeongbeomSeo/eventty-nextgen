@@ -10,6 +10,7 @@ public enum AuthErrorType implements ErrorType {
 
     EMAIL_ALREADY_EXISTS("EMAIL_ALREADY_EXISTS", "이미 중복된 이메일이 존재합니다."),
     CLIENT_ERROR("CLIENT_ERROR", "외부 서버에서 예외가 발생했습니다."),
+    NOT_FOUND_AUTH_USER("NOT_FOUND_AUTH_USER", "사용자를 찾을 수 없습니다."),
 
     // Input Validation
     INVALID_EMAIL_FORMAT("INVALID_EMAIL_FORMAT", "이메일 형식이 올바르지 않습니다: 이메일은 '@'와 '.'가 포함되어 있어야 합니다."),

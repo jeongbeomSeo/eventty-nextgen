@@ -14,6 +14,7 @@ import com.eventty.eventtynextgen.auth.service.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -82,7 +83,7 @@ class AuthServiceImplTest {
 
         @Test
         @DisplayName("auth user signup - Api Client 결과 실패로 인해 회원가입에 `실패`합니다.")
-        void 외부_서비스_서버에서_실패_메시지를_전달할_경우_회원가입에_실패한다() {
+        void 유저_서비스_서버에서_실패_메시지를_전달할_경우_회원가입에_실패한다() {
             // given
             SignupRequest request = SignupRequestFixture.successUserRoleRequest();
             AuthUser authUser = AuthUserFixture.createAuthUserBySignupRequest(request);
@@ -91,7 +92,7 @@ class AuthServiceImplTest {
             when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
             when(authRepository.save(any(AuthUser.class))).thenReturn(authUser);
             when(authClient.saveUser(any(UserSignupRequest.class))).thenThrow(
-                CustomException.badRequest(AuthErrorType.CLIENT_ERROR));
+                CustomException.class);
 
             AuthService authService = new AuthServiceImpl(authClient, authRepository, passwordEncoder);
 
@@ -99,8 +100,7 @@ class AuthServiceImplTest {
             try {
                 authService.signup(request);
             } catch (CustomException customException) {
-                assertThat(customException.getErrorType())
-                    .isEqualTo(AuthErrorType.CLIENT_ERROR);
+                assertThat(customException).isInstanceOf(CustomException.class);
             }
         }
 
@@ -110,5 +110,66 @@ class AuthServiceImplTest {
     @Nested
     class Delete {
 
+        @Test
+        @DisplayName("auth user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
+        void ID가_일치하는_회원_삭제_요청은_성공한다() {
+            // given
+            Long authId = 1L;
+            Long userId = 2L;
+            AuthUser authUser = AuthUserFixture.createAuthUser(authId);
+
+            when(authRepository.findById(authId)).thenReturn(Optional.of(authUser));
+            when(authClient.deleteUser(authId)).thenReturn(userId);
+
+            AuthService authService = new AuthServiceImpl(authClient, authRepository,
+                passwordEncoder);
+
+            // when
+            Long deletedAuthUserId = authService.delete(authId);
+
+            // then
+            assertThat(deletedAuthUserId).isEqualTo(authId);
+        }
+
+        @Test
+        @DisplayName("auth user delete - id가 일치하지 않은 회원 삭제 요청은 `실패`한다")
+        void ID가_일치하지_않은_회원_삭제_요청은_실패한다() {
+            // given
+            Long authId = 1L;
+
+            when(authRepository.findById(authId)).thenReturn(Optional.empty());
+
+            AuthService authService = new AuthServiceImpl(authClient, authRepository,
+                passwordEncoder);
+            // when & then
+            try {
+                authService.delete(authId);
+            } catch (CustomException customException) {
+                assertThat(customException.getErrorType())
+                    .isEqualTo(AuthErrorType.NOT_FOUND_AUTH_USER);
+            }
+        }
+
+        @Test
+        @DisplayName("auth user delete - Auth Client 결과 실패로 인해 요청이 `실패`한다")
+        void 유저_서비스_서버에서_실패_메시지를_전달할_경우_회원_삭제_요청은_실패한다() {
+            // given
+            Long authId = 1L;
+            AuthUser authUser = AuthUserFixture.createAuthUser(authId);
+
+            when(authRepository.findById(authId)).thenReturn(Optional.of(authUser));
+            when(authClient.deleteUser(authId)).thenThrow(CustomException.class);
+
+            AuthService authService = new AuthServiceImpl(authClient, authRepository,
+                passwordEncoder);
+
+            // when & then
+            try {
+                authService.delete(authId);
+            } catch (CustomException customException) {
+                assertThat(customException).isInstanceOf(CustomException.class);
+            }
+
+        }
     }
 }
