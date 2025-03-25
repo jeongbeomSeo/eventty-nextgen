@@ -1,6 +1,9 @@
 package com.eventty.eventtynextgen.auth.controller;
 
+import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationRequest;
+import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationValidationRequest;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
+import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
 import com.eventty.eventtynextgen.auth.service.AuthService;
 import com.eventty.eventtynextgen.auth.service.VerificationService;
 import com.eventty.eventtynextgen.shared.annotation.APIV1;
@@ -55,5 +58,22 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
-    // TODO: 이메일 검증
+    @PostMapping(BASE_PATH + "/email-verification")
+    public ResponseEntity<EmailVerificationResponse> emailVerification(@Valid @RequestBody
+        EmailVerificationRequest request) {
+
+        EmailVerificationResponse emailVerificationResponse = verificationService.sendEmailVerificationCode(
+            request);
+
+        return ResponseEntity.ok(emailVerificationResponse);
+    }
+
+    @PostMapping(BASE_PATH + "/email-verification-validation")
+    public ResponseEntity<Void> emailVerificationValidation(@Valid @RequestBody
+        EmailVerificationValidationRequest request) {
+
+        boolean result = verificationService.checkValidationEmail(request);
+
+        return ResponseEntity.ok().build();
+    }
 }

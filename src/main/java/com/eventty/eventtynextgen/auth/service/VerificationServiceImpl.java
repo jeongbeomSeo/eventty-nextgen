@@ -1,5 +1,6 @@
 package com.eventty.eventtynextgen.auth.service;
 
+import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationRequest;
 import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationValidationRequest;
 import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
 import com.eventty.eventtynextgen.auth.redis.EmailVerificationService;
@@ -30,7 +31,9 @@ public class VerificationServiceImpl implements VerificationService {
     }
 
     @Override
-    public EmailVerificationResponse sendEmailVerificationCode(String email) {
+    public EmailVerificationResponse sendEmailVerificationCode(EmailVerificationRequest request) {
+
+        String email = request.getEmail();
 
         String code = codeGenerator.generateVerificationCode(EMAIL_VERIFICATION_CODE_LEN);
 

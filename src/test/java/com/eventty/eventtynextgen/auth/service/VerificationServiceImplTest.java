@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationRequest;
 import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationValidationRequest;
 import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
 import com.eventty.eventtynextgen.auth.redis.EmailVerificationService;
@@ -46,6 +47,7 @@ class VerificationServiceImplTest {
         void 인증_코드를_저장한_뒤_이메일로_인증_코드_발송에_성공한다() {
             // given
             String email = "jeongbeom4693@gmail.com";
+            EmailVerificationRequest request = new EmailVerificationRequest(email);
             String code = "ABCDEF";
             EmailVerification emailVerification = new EmailVerification(email, code);
 
@@ -59,7 +61,7 @@ class VerificationServiceImplTest {
 
             // when
             EmailVerificationResponse result = verificationService.sendEmailVerificationCode(
-                email);
+                request);
 
             // then
             assertThat(result.getMessage()).isNotBlank();
