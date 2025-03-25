@@ -7,8 +7,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
+import com.eventty.eventtynextgen.auth.redis.EmailVerificationService;
 import com.eventty.eventtynextgen.auth.redis.entity.EmailVerification;
+import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.auth.service.utils.CodeGenerator;
+import com.eventty.eventtynextgen.auth.service.utils.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,10 +26,18 @@ class VerificationServiceImplTest {
     @Mock
     private CodeGenerator codeGenerator;
 
+    @Mock
+    private JpaAuthRepository authRepository;
+
+    @Mock
+    private EmailVerificationService emailVerificationService;
+
+    @Mock
+    private EmailService emailService;
+
     @DisplayName("비즈니스 로직 - 이메일 검증")
     @Nested
     class EmailVerificationTest {
-        // TODO: 인증 코드를 Redis에 저장한 후, 이메일로 인증 코드 발송 성공
         @Test
         @DisplayName("auth email verification - 인증 코드를 올바르게 저장하고, 인증 코드 발송까지 성공한다.")
         void 인증_코드를_저장한_뒤_이메일로_인증_코드_발송에_성공한다() {
@@ -36,15 +47,15 @@ class VerificationServiceImplTest {
             EmailVerification emailVerification = new EmailVerification(email, code);
 
             when(codeGenerator.generateVerificationCode(code.length())).thenReturn(code);
-            when(emailVerificationRepository.save(any(EmailVerification.class))).thenReturn(
+            when(emailVerificationService.saveEmailVerification(email, code)).thenReturn(
                 emailVerification);
-            doNothing().when(emailService).sendEmailVerification(email, code);
+            doNothing().when(emailService).sendEmailVerificationMail(email, code);
 
-            AuthService authService = new AuthServiceImpl(authClient, authRepository,
-                passwordEncoder, codeGenerator, emailVerificationRepository, emailService);
+            VerificationService verificationService = new VerificationServiceImpl(authRepository,
+                codeGenerator, emailVerificationService, emailService);
 
             // when
-            EmailVerificationResponse result = authService.sendEmailVerificationCode(
+            EmailVerificationResponse result = verificationService.sendEmailVerificationCode(
                 email);
 
             // then

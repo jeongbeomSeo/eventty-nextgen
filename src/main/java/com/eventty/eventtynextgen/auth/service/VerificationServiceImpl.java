@@ -6,6 +6,7 @@ import com.eventty.eventtynextgen.auth.redis.EmailVerificationService;
 import com.eventty.eventtynextgen.auth.redis.entity.EmailVerification;
 import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.auth.service.utils.CodeGenerator;
+import com.eventty.eventtynextgen.auth.service.utils.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class VerificationServiceImpl implements VerificationService {
     private final JpaAuthRepository authRepository;
     private final CodeGenerator codeGenerator;
     private final EmailVerificationService emailVerificationService;
+    private final EmailService emailService;
 
 
     @Override
@@ -33,9 +35,9 @@ public class VerificationServiceImpl implements VerificationService {
         EmailVerification emailVerification = emailVerificationService.saveEmailVerification(email,
             code);
 
+        emailService.sendEmailVerificationMail(email, code);
 
-
-        return null;
+        return EmailVerificationResponse.createMessage(email, emailVerification.getTtl());
     }
 
     @Override
