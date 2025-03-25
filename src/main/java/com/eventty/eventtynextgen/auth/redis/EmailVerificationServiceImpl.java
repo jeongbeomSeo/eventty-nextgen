@@ -14,14 +14,14 @@ public class EmailVerificationServiceImpl implements EmailVerificationService{
 
     @Override
     public EmailVerification saveEmailVerification(String email, String code) {
-        EmailVerification emailVerification = new EmailVerification(email, code);
+        EmailVerification emailVerification = EmailVerification.createEntity(email, code);
 
         return emailVerificationRepository.save(emailVerification);
     }
 
     @Override
     public Optional<EmailVerification> findEmailVerification(String email) {
-        return emailVerificationRepository.findById(email);
+        return emailVerificationRepository.findByEmail(email);
     }
 
     @Override

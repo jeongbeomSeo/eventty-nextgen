@@ -49,7 +49,7 @@ class VerificationServiceImplTest {
             String email = "jeongbeom4693@gmail.com";
             EmailVerificationRequest request = new EmailVerificationRequest(email);
             String code = "ABCDEF";
-            EmailVerification emailVerification = new EmailVerification(email, code);
+            EmailVerification emailVerification = EmailVerification.createEntity(email, code);
 
             when(codeGenerator.generateVerificationCode(code.length())).thenReturn(code);
             when(emailVerificationService.saveEmailVerification(email, code)).thenReturn(
@@ -76,7 +76,7 @@ class VerificationServiceImplTest {
             String code = "ABCDEF";
             EmailVerificationValidationRequest request = new EmailVerificationValidationRequest(
                 email, code);
-            EmailVerification emailVerification = new EmailVerification(email, code);
+            EmailVerification emailVerification = EmailVerification.createEntity(email, code);
 
             when(emailVerificationService.findEmailVerification(email)).thenReturn(
                 Optional.of(emailVerification));
@@ -125,7 +125,7 @@ class VerificationServiceImplTest {
             String code = "ABCDEF";
             EmailVerificationValidationRequest request = new EmailVerificationValidationRequest(
                 email, code);
-            EmailVerification emailVerification = new EmailVerification(email, "MATCHX");
+            EmailVerification emailVerification = EmailVerification.createEntity(email, code);
 
             when(emailVerificationService.findEmailVerification(email)).thenReturn(
                 Optional.of(emailVerification));
