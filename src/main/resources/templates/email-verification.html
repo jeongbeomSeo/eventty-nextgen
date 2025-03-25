@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>이메일 인증 코드</title>
+</head>
 <body>
 <div style="margin: 50px; font-family: Arial, sans-serif; color: #333;">
   <h1>안녕하세요,</h1>
@@ -7,7 +11,7 @@
   <p>아래 코드를 이메일 인증 화면에 입력해주세요. 인증 코드는 10분 동안 유효합니다.</p>
   <div align="center" style="border: 1px solid #ddd; padding: 20px; margin-top: 20px;">
     <h3 style="color: #007BFF;">이메일 인증 코드</h3>
-    <div style="font-size: 24px; font-weight: bold;" th:text="${code}"></div>
+    <div style="font-size: 24px; font-weight: bold;" th:text="${code}">인증코드</div>
   </div>
   <p style="margin-top: 20px;">감사합니다,<br>EVENTTY 팀</p>
 </div>

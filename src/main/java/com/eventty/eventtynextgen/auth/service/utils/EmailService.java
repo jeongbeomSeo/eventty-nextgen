@@ -31,7 +31,7 @@ public class EmailService {
 
             msgHelper.setTo(receiver);
             msgHelper.setSubject(mailType.getSubject());
-            msgHelper.setText(setContext(code, mailType.getTemplate()));
+            msgHelper.setText(setContext(code, mailType.getTemplate()), true);
             javaMailSender.send(mimeMessage);
 
             log.info("Succeeded to send email");
