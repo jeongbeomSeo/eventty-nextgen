@@ -2,13 +2,16 @@ package com.eventty.eventtynextgen.auth.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.auth.client.AuthClient;
 import com.eventty.eventtynextgen.auth.fixture.AuthUserFixture;
 import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
+import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
 import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
+import com.eventty.eventtynextgen.auth.redis.entity.EmailVerification;
 import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.auth.service.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
@@ -37,7 +40,7 @@ class AuthServiceImplTest {
 
     @DisplayName("비즈니스 로직 - 회원가입")
     @Nested
-    class Signup {
+    class SignupTest {
 
         @Test
         @DisplayName("auth user signup - 새로운 회원은 회원 가입에 `성공`한다.")
@@ -108,7 +111,7 @@ class AuthServiceImplTest {
 
     @DisplayName("비즈니스 로직 - 회원삭제")
     @Nested
-    class Delete {
+    class DeleteTest {
 
         @Test
         @DisplayName("auth user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
@@ -175,12 +178,31 @@ class AuthServiceImplTest {
 
     @DisplayName("비즈니스 로직 - 이메일 검증")
     @Nested
-    class EmailVerification {
-        // TODO: 이메일 Redis에 저장한 후, 해당 이메일로 인증 코드 발송 성공
+    class EmailVerificationTest {
+        // TODO: 인증 코드를 Redis에 저장한 후, 이메일로 인증 코드 발송 성공
+        @Test
+        @DisplayName("auth email verification - 인증 코드를 올바르게 저장하고, 인증 코드 발송까지 성공한다.")
+        void 인증_코드를_저장한_뒤_이메일로_인증_코드_발송에_성공한다() {
+            // given
+            String email = "jeongbeom4693@gmail.com";
+            String code = "ABCDEF";
+            EmailVerification emailVerification = new EmailVerification(email, code);
 
-        // TODO: 이메일 Redis에 저장했지만, 이메일로 발송 실패
+            when(codeGenerator.generateEmailVerificationCode()).thenReturn(code);
+            when(emailVerificationRepository.save(any(EmailVerification.class))).thenReturn(
+                emailVerification);
+            doNothing().when(emailService).sendEmailVerification(email, code);
 
-        // TODO: 이메일 Redis에 저장 실패
+            AuthService authService = new AuthServiceImpl(authClient, authRepository,
+                passwordEncoder, codeGenerator, emailVerificationRepository, emailService);
+
+            // when
+            EmailVerificationResponse result = authService.sendEmailVerificationCode(
+                email);
+
+            // then
+            assertThat(result.getMessage()).isNotBlank();
+        }
 
         // TODO: 이메일 검증 요청시 올바르게 검증 성공
 
