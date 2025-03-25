@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.auth.redis;
 
 import com.eventty.eventtynextgen.auth.redis.entity.EmailVerification;
 import com.eventty.eventtynextgen.auth.redis.repository.JpaEmailVerificationRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,5 +17,10 @@ public class EmailVerificationServiceImpl implements EmailVerificationService{
         EmailVerification emailVerification = new EmailVerification(email, code);
 
         return emailVerificationRepository.save(emailVerification);
+    }
+
+    @Override
+    public Optional<EmailVerification> findEmailVerification(String email) {
+        return Optional.empty();
     }
 }
