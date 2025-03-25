@@ -8,4 +8,6 @@ public interface EmailVerificationService {
     EmailVerification saveEmailVerification(String email, String code);
 
     Optional<EmailVerification> findEmailVerification(String email);
+
+    void deleteEmailVerification(EmailVerification emailVerification);
 }

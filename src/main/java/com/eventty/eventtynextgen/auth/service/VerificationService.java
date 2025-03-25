@@ -9,5 +9,4 @@ public interface VerificationService {
     EmailVerificationResponse sendEmailVerificationCode(String email);
 
     boolean checkValidationEmail(EmailVerificationValidationRequest request);
-
 }

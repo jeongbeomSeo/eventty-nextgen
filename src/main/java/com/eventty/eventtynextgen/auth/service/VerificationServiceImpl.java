@@ -7,6 +7,8 @@ import com.eventty.eventtynextgen.auth.redis.entity.EmailVerification;
 import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.auth.service.utils.CodeGenerator;
 import com.eventty.eventtynextgen.auth.service.utils.EmailService;
+import com.eventty.eventtynextgen.shared.exception.CustomException;
+import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,17 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     public boolean checkValidationEmail(EmailVerificationValidationRequest request) {
-        return false;
+
+        EmailVerification emailVerification = emailVerificationService.findEmailVerification(
+                request.getEmail())
+            .orElseThrow(() -> CustomException.badRequest(AuthErrorType.EXPIRE_EMAIL_VERIFICATION_CODE));
+
+        if (!emailVerification.getCode().equals(request.getCode())) {
+            throw CustomException.badRequest(AuthErrorType.MISMATCH_EMAIL_VERIFICATION_CODE);
+        }
+
+        emailVerificationService.deleteEmailVerification(emailVerification);
+
+        return true;
     }
 }

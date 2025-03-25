@@ -21,6 +21,11 @@ public class EmailVerificationServiceImpl implements EmailVerificationService{
 
     @Override
     public Optional<EmailVerification> findEmailVerification(String email) {
-        return Optional.empty();
+        return emailVerificationRepository.findById(email);
+    }
+
+    @Override
+    public void deleteEmailVerification(EmailVerification emailVerification) {
+        emailVerificationRepository.delete(emailVerification);
     }
 }

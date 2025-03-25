@@ -78,6 +78,7 @@ class VerificationServiceImplTest {
 
             when(emailVerificationService.findEmailVerification(email)).thenReturn(
                 Optional.of(emailVerification));
+            doNothing().when(emailVerificationService).deleteEmailVerification(emailVerification);
 
             VerificationService verificationService = new VerificationServiceImpl(authRepository,
                 codeGenerator, emailVerificationService, emailService);
