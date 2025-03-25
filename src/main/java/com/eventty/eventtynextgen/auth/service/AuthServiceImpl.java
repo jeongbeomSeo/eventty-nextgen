@@ -1,9 +1,12 @@
 package com.eventty.eventtynextgen.auth.service;
 
 import com.eventty.eventtynextgen.auth.client.AuthClient;
+import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationValidationRequest;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
+import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
 import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
 import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
+import com.eventty.eventtynextgen.auth.service.utils.CodeGenerator;
 import com.eventty.eventtynextgen.auth.service.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
@@ -23,6 +26,7 @@ public class AuthServiceImpl implements AuthService {
     private final JpaAuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
 
+
     @Override
     @Transactional
     public Long signup(SignupRequest request) {
@@ -39,11 +43,6 @@ public class AuthServiceImpl implements AuthService {
         Long id = authClient.saveUser(new UserSignupRequest(authUser.getId(), request));
 
         return id;
-    }
-
-    @Override
-    public boolean checkEmail(String email) {
-        return authRepository.existsByEmail(email);
     }
 
     @Override

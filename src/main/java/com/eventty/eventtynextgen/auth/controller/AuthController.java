@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.auth.controller;
 
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.service.AuthService;
+import com.eventty.eventtynextgen.auth.service.VerificationService;
 import com.eventty.eventtynextgen.shared.annotation.APIV1;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -22,6 +23,8 @@ public class AuthController {
 
     private final AuthService authService;
 
+    private final VerificationService verificationService;
+
     @PostMapping(BASE_PATH)
     public ResponseEntity<Void> signup(@RequestBody @Valid SignupRequest signupRequest) {
 
@@ -36,20 +39,20 @@ public class AuthController {
         return ResponseEntity.created(location).build();
     }
 
-    @GetMapping(BASE_PATH + "/email-check")
-    public ResponseEntity<Boolean> checkEmail(@RequestParam(value = "email") String email) {
-
-        boolean result = authService.checkEmail(email);
-
-        return ResponseEntity.ok(result);
-    }
-
     @DeleteMapping(BASE_PATH)
     public ResponseEntity<Void> deleteUser(@RequestParam(value = "auth-id") Long authUserId) {
 
         authService.delete(authUserId);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(BASE_PATH + "/email-check")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam(value = "email") String email) {
+
+        boolean result = verificationService.checkEmail(email);
+
+        return ResponseEntity.ok(result);
     }
 
     // TODO: 이메일 검증
