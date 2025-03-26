@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.auth.model.dto.request;
 
 import com.eventty.eventtynextgen.auth.model.UserRole;
+import com.eventty.eventtynextgen.auth.shared.annotation.EmailRegexp;
 import com.eventty.eventtynextgen.auth.shared.annotation.ValidBirthDate;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -17,7 +18,7 @@ import org.hibernate.validator.constraints.Length;
 @Getter
 public class SignupRequest {
 
-    @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = "이메일은 '@'와 '.'가 포함되어 있어야 합니다.")
+    @EmailRegexp
     private String email;
     @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")
     private String password;

@@ -1,5 +1,6 @@
 package com.eventty.eventtynextgen.auth.model.dto.request;
 
+import com.eventty.eventtynextgen.auth.shared.annotation.EmailRegexp;
 import jakarta.validation.constraints.Email;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EmailVerificationRequest {
 
-    @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = "이메일은 '@'와 '.'가 포함되어 있어야 합니다.")
+    @EmailRegexp
     private String email;
 }

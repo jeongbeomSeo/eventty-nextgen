@@ -11,12 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
 import com.eventty.eventtynextgen.auth.service.AuthService;
+import com.eventty.eventtynextgen.auth.service.VerificationService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.CommonErrorType;
 import com.eventty.eventtynextgen.shared.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.shared.model.ErrorResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -36,7 +36,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@WebMvcTest(AuthController.class)
+@WebMvcTest(value = AuthController.class)
 class AuthControllerTest {
 
     @Autowired
@@ -44,6 +44,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
+
+    @MockitoBean
+    private VerificationService verificationService;
 
     @Autowired
     private ObjectMapper objectMapper;
