@@ -10,7 +10,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 @Configuration
 @RequiredArgsConstructor
-public class MainConfig {
+public class MailConfig {
 
     private static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
     private static final String MAIL_DEBUG = "mail.smtp.debug";
