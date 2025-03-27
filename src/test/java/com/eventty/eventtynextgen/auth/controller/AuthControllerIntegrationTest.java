@@ -5,12 +5,12 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.eventty.eventtynextgen.auth.client.AuthClient;
+import com.eventty.eventtynextgen.user.auth.client.AuthClient;
 import com.eventty.eventtynextgen.auth.fixture.AuthUserFixture;
 import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
-import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
-import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
-import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
+import com.eventty.eventtynextgen.user.model.request.SignupRequest;
+import com.eventty.eventtynextgen.user.auth.model.entity.AuthUser;
+import com.eventty.eventtynextgen.user.auth.repository.JpaAuthRepository;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import com.eventty.eventtynextgen.shared.factory.ErrorResponseFactory;

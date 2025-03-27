@@ -4,14 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationRequest;
-import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationValidationRequest;
-import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
-import com.eventty.eventtynextgen.auth.redis.EmailVerificationService;
-import com.eventty.eventtynextgen.auth.redis.entity.EmailVerification;
-import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
-import com.eventty.eventtynextgen.auth.service.utils.CodeGenerator;
-import com.eventty.eventtynextgen.auth.service.utils.EmailService;
+import com.eventty.eventtynextgen.user.model.request.EmailVerificationRequest;
+import com.eventty.eventtynextgen.user.model.request.EmailVerificationValidationRequest;
+import com.eventty.eventtynextgen.user.model.response.EmailVerificationResponse;
+import com.eventty.eventtynextgen.user.redis.EmailVerificationService;
+import com.eventty.eventtynextgen.user.redis.entity.EmailVerification;
+import com.eventty.eventtynextgen.user.auth.repository.JpaAuthRepository;
+import com.eventty.eventtynextgen.user.service.VerificationService;
+import com.eventty.eventtynextgen.user.service.VerificationServiceImpl;
+import com.eventty.eventtynextgen.user.service.utils.CodeGenerator;
+import com.eventty.eventtynextgen.user.service.utils.EmailSenderService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import java.util.Optional;
@@ -36,7 +38,7 @@ class VerificationServiceImplTest {
     private EmailVerificationService emailVerificationService;
 
     @Mock
-    private EmailService emailService;
+    private EmailSenderService emailService;
 
     @DisplayName("비즈니스 로직 - 이메일 검증")
     @Nested

@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.auth.fixture;
 
-import com.eventty.eventtynextgen.auth.model.UserRole;
-import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
+import com.eventty.eventtynextgen.user.model.UserRole;
+import com.eventty.eventtynextgen.user.model.request.SignupRequest;
 
 public class SignupRequestFixture {
 

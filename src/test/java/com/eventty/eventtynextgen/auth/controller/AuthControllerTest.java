@@ -9,9 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
-import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
-import com.eventty.eventtynextgen.auth.service.AuthService;
-import com.eventty.eventtynextgen.auth.service.VerificationService;
+import com.eventty.eventtynextgen.user.auth.controller.AuthController;
+import com.eventty.eventtynextgen.user.model.request.SignupRequest;
+import com.eventty.eventtynextgen.user.service.VerificationService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.CommonErrorType;
 import com.eventty.eventtynextgen.shared.factory.ErrorMsgFactory;
