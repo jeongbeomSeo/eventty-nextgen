@@ -25,10 +25,28 @@ configurations {
 dependencies {
 	// spring boot
 	implementation ('org.springframework.boot:spring-boot-starter-web')
+	implementation ('org.springframework.boot:spring-boot-starter-data-jpa')
+	implementation ('org.springframework.boot:spring-boot-starter-validation')
+
+	// database
+	runtimeOnly ('com.mysql:mysql-connector-j')
+
+	// redis
+	implementation('org.springframework.boot:spring-boot-starter-data-redis')
 
 	// lombok
 	compileOnly ('org.projectlombok:lombok')
 	annotationProcessor ('org.projectlombok:lombok')
+
+	// Bcrypt
+	implementation("org.mindrot:jbcrypt:0.4")
+
+	// mail
+	implementation ('org.springframework.boot:spring-boot-starter-mail')
+
+	// thymeleaf(for email)
+	implementation ('org.springframework.boot:spring-boot-starter-thymeleaf')
+	implementation ('nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect')
 
 	// test
 	testImplementation ('org.springframework.boot:spring-boot-starter-test')

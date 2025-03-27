@@ -1,5 +1,11 @@
 package com.eventty.eventtynextgen.auth.service;
 
+import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
+
 public interface AuthService {
 
+    Long signup(SignupRequest request);
+
+
+    Long delete(Long authUserId);
 }

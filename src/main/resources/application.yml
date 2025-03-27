@@ -1,3 +1,40 @@
 spring:
   application:
     name: eventty-nextgen
+  profiles:
+    active: local
+  datasource:
+    url: ${db.url}
+    username: ${db.username}
+    password: ${db.password}
+    driver-class-name: ${db.driver-class-name}
+  data:
+    redis:
+      client-type: lettuce
+      port: 6379
+      host: ${redis.host}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${mail.username}
+    password: ${mail.password}
+    default-encoding: UTF-8
+    properties:
+      timeout: 5000 # 5초
+      starttls.enable: true
+      auth: true
+      debug: true
+
+
+
+

@@ -1,0 +1,79 @@
+package com.eventty.eventtynextgen.auth.controller;
+
+import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationRequest;
+import com.eventty.eventtynextgen.auth.model.dto.request.EmailVerificationValidationRequest;
+import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
+import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
+import com.eventty.eventtynextgen.auth.service.AuthService;
+import com.eventty.eventtynextgen.auth.service.VerificationService;
+import com.eventty.eventtynextgen.shared.annotation.APIV1;
+import jakarta.validation.Valid;
+import java.net.URI;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+@APIV1
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final String BASE_PATH = "/auth";
+
+    private final AuthService authService;
+
+    private final VerificationService verificationService;
+
+    @PostMapping(BASE_PATH)
+    public ResponseEntity<Void> signup(@RequestBody @Valid SignupRequest signupRequest) {
+
+        Long userId = authService.signup(signupRequest);
+
+        URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{userId}")
+            .buildAndExpand(userId)
+            .toUri();
+
+        return ResponseEntity.created(location).build();
+    }
+
+    @DeleteMapping(BASE_PATH)
+    public ResponseEntity<Void> deleteUser(@RequestParam(value = "auth-id") Long authUserId) {
+
+        authService.delete(authUserId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(BASE_PATH + "/email-check")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam(value = "email") String email) {
+
+        boolean result = verificationService.checkEmail(email);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping(BASE_PATH + "/email-verification")
+    public ResponseEntity<EmailVerificationResponse> emailVerification(@Valid @RequestBody
+        EmailVerificationRequest request) {
+
+        EmailVerificationResponse emailVerificationResponse = verificationService.sendEmailVerificationCode(
+            request);
+
+        return ResponseEntity.ok(emailVerificationResponse);
+    }
+
+    @PostMapping(BASE_PATH + "/email-verification-validation")
+    public ResponseEntity<Void> emailVerificationValidation(@Valid @RequestBody
+        EmailVerificationValidationRequest request) {
+
+        boolean result = verificationService.checkValidationEmail(request);
+
+        return ResponseEntity.ok().build();
+    }
+}
