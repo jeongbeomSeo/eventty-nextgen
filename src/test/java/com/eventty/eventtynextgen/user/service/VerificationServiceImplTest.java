@@ -1,21 +1,18 @@
-package com.eventty.eventtynextgen.auth.service;
+package com.eventty.eventtynextgen.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import com.eventty.eventtynextgen.shared.exception.CustomException;
+import com.eventty.eventtynextgen.shared.exception.type.VerificationErrorType;
 import com.eventty.eventtynextgen.user.model.request.EmailVerificationRequest;
 import com.eventty.eventtynextgen.user.model.request.EmailVerificationValidationRequest;
 import com.eventty.eventtynextgen.user.model.response.EmailVerificationResponse;
-import com.eventty.eventtynextgen.user.redis.EmailVerificationService;
 import com.eventty.eventtynextgen.user.redis.entity.EmailVerification;
-import com.eventty.eventtynextgen.user.auth.repository.JpaAuthRepository;
-import com.eventty.eventtynextgen.user.service.VerificationService;
-import com.eventty.eventtynextgen.user.service.VerificationServiceImpl;
+import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
 import com.eventty.eventtynextgen.user.service.utils.CodeGenerator;
 import com.eventty.eventtynextgen.user.service.utils.EmailSenderService;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,10 +29,10 @@ class VerificationServiceImplTest {
     private CodeGenerator codeGenerator;
 
     @Mock
-    private JpaAuthRepository authRepository;
+    private JpaUserRepository userRepository;
 
     @Mock
-    private EmailVerificationService emailVerificationService;
+    private com.eventty.eventtynextgen.user.redis.EmailVerificationService emailVerificationService;
 
     @Mock
     private EmailSenderService emailService;
@@ -58,11 +55,11 @@ class VerificationServiceImplTest {
                 emailVerification);
             doNothing().when(emailService).sendEmailVerificationMail(email, code);
 
-            VerificationService verificationService = new VerificationServiceImpl(authRepository,
+            VerificationService verificationService = new EmailVerificationService(userRepository,
                 codeGenerator, emailVerificationService, emailService);
 
             // when
-            EmailVerificationResponse result = verificationService.sendEmailVerificationCode(
+            EmailVerificationResponse result = verificationService.sendVerificationCode(
                 request);
 
             // then
@@ -84,11 +81,11 @@ class VerificationServiceImplTest {
                 Optional.of(emailVerification));
             doNothing().when(emailVerificationService).deleteEmailVerification(emailVerification);
 
-            VerificationService verificationService = new VerificationServiceImpl(authRepository,
+            VerificationService verificationService = new EmailVerificationService(userRepository,
                 codeGenerator, emailVerificationService, emailService);
 
             // when
-            boolean result = verificationService.checkValidationEmail(request);
+            boolean result = verificationService.validateVerificationCode(request);
 
             // then
             assertThat(result).isTrue();
@@ -106,19 +103,18 @@ class VerificationServiceImplTest {
             when(emailVerificationService.findEmailVerification(email)).thenReturn(
                 Optional.empty());
 
-            VerificationService verificationService = new VerificationServiceImpl(authRepository,
+            VerificationService verificationService = new EmailVerificationService(userRepository,
                 codeGenerator, emailVerificationService, emailService);
 
             // when & then
             try {
-                verificationService.checkValidationEmail(request);
+                verificationService.validateVerificationCode(request);
             } catch (CustomException exception) {
                 assertThat(exception.getErrorType()).isEqualTo(
-                    AuthErrorType.EXPIRE_EMAIL_VERIFICATION_CODE);
+                    VerificationErrorType.EXPIRE_EMAIL_VERIFICATION_CODE);
             }
         }
 
-        // TODO: 이메일 검증 요청시 code가 일치하지 않는 경우
         @Test
         @DisplayName("check validation email - 이메일 검증 요청시 입력값과 code가 일치하지 않는 경우 예외를 발생시킨다.")
         void 입력값과_저장되어_있는_코드가_일치하지_않을_경우_예외를_발생시킨다() {
@@ -132,15 +128,15 @@ class VerificationServiceImplTest {
             when(emailVerificationService.findEmailVerification(email)).thenReturn(
                 Optional.of(emailVerification));
 
-            VerificationService verificationService = new VerificationServiceImpl(authRepository,
+            VerificationService verificationService = new EmailVerificationService(userRepository,
                 codeGenerator, emailVerificationService, emailService);
 
             // when & then
             try {
-                verificationService.checkValidationEmail(request);
+                verificationService.validateVerificationCode(request);
             } catch (CustomException exception) {
                 assertThat(exception.getErrorType()).isEqualTo(
-                    AuthErrorType.MISMATCH_EMAIL_VERIFICATION_CODE);
+                    VerificationErrorType.MISMATCH_EMAIL_VERIFICATION_CODE);
             }
         }
     }

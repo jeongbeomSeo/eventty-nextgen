@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.auth.fixture;
+package com.eventty.eventtynextgen.user.fixture;
 
 import com.eventty.eventtynextgen.user.model.UserRole;
 import com.eventty.eventtynextgen.user.model.request.SignupRequest;
@@ -10,8 +10,8 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest successUserRoleRequest() {
-        return new SignupRequest("test@google.com","12345678", "홍길동", "000-0000-0000",
-            "1990-01-01", UserRole.USER);
+        return new SignupRequest("test@google.com","12345678", UserRole.USER, "홍길동", "000-0000-0000",
+            "1990-01-01");
     }
 
     /**
@@ -19,8 +19,8 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest successHostRoleRequest() {
-        return new SignupRequest("test@google.com", "12345678", "홍길동", "000-0000-0000",
-            "1990.12.31", UserRole.HOST);
+        return new SignupRequest("test@google.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+            "1990.12.31");
     }
 
     /**
@@ -28,8 +28,8 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest missingAtSymbolInEmailRequest() {
-        return new SignupRequest("testgoogle.com", "12345678", "홍길동", "000-0000-0000",
-            "1990-01-01", UserRole.USER);
+        return new SignupRequest("testgoogle.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+            "1990-01-01");
     }
 
     /**
@@ -37,8 +37,8 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest missingDotInEmailRequest() {
-        return new SignupRequest("test@googlecom", "12345678", "홍길동", "000-0000-0000",
-            "1990-01-01", UserRole.USER);
+        return new SignupRequest("test@googlecom", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+            "1990-01-01");
     }
 
     /**
@@ -46,8 +46,8 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest shortPasswordRequest() {
-        return new SignupRequest("test@google.com", "12345", "홍길동", "000-0000-0000",
-            "1990-01-01", UserRole.USER);
+        return new SignupRequest("test@google.com", "12345", UserRole.HOST, "홍길동", "000-0000-0000",
+            "1990-01-01");
     }
 
     /**
@@ -55,18 +55,18 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest longPasswordRequest() {
-        return new SignupRequest("test@google.com", "12345678901234567", "홍길동", "000-0000-0000",
-            "1990-01-01", UserRole.USER);
+        return new SignupRequest("test@google.com", "12345678901234567", UserRole.HOST, "홍길동", "000-0000-0000",
+            "1990-01-01");
     }
 
     public static SignupRequest nameIsNullRequest() {
-        return new SignupRequest("test@google.com","12345678", null, "000-0000-0000",
-            "1990-01-01", UserRole.USER);
+        return new SignupRequest("test@google.com","12345678", UserRole.HOST, null, "000-0000-0000",
+            "1990-01-01");
     }
 
     public static SignupRequest nameIsEmptyRequest() {
-        return new SignupRequest("test@google.com","12345678", "", "000-0000-0000",
-            "1990-01-01", UserRole.USER);
+        return new SignupRequest("test@google.com","12345678", UserRole.HOST, "", "000-0000-0000",
+            "1990-01-01");
     }
 
     /**
@@ -74,8 +74,8 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest invalidPhoneNumberRequest() {
-        return new SignupRequest("test@google.com", "12345678", "홍길동", "0000000000",
-            "1990-01-01", UserRole.USER);
+        return new SignupRequest("test@google.com", "12345678", UserRole.HOST, "홍길동", "0000000000",
+            "1990-01-01");
     }
 
     /**
@@ -83,8 +83,8 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest invalidBirthdateFormatRequest() {
-        return new SignupRequest("test@google.com", "12345678", "홍길동", "000-0000-0000",
-            "19900101", UserRole.USER);
+        return new SignupRequest("test@google.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+            "19900101");
     }
 
     /**
@@ -92,7 +92,7 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static SignupRequest invalidUserRoleRequest() {
-        return new SignupRequest("test@google.com", "12345678", "홍길동", "000-0000-0000",
-            "1990-01-01", null);
+        return new SignupRequest("test@google.com", "12345678", null, "홍길동", "000-0000-0000",
+            "1990-01-01");
     }
 }
