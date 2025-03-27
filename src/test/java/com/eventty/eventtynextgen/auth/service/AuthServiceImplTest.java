@@ -2,18 +2,15 @@ package com.eventty.eventtynextgen.auth.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.auth.client.AuthClient;
+import com.eventty.eventtynextgen.user.auth.client.AuthClient;
 import com.eventty.eventtynextgen.auth.fixture.AuthUserFixture;
 import com.eventty.eventtynextgen.auth.fixture.SignupRequestFixture;
-import com.eventty.eventtynextgen.auth.model.dto.request.SignupRequest;
-import com.eventty.eventtynextgen.auth.model.dto.response.EmailVerificationResponse;
-import com.eventty.eventtynextgen.auth.model.entity.AuthUser;
-import com.eventty.eventtynextgen.auth.redis.entity.EmailVerification;
-import com.eventty.eventtynextgen.auth.repository.JpaAuthRepository;
-import com.eventty.eventtynextgen.auth.service.utils.PasswordEncoder;
+import com.eventty.eventtynextgen.user.model.request.SignupRequest;
+import com.eventty.eventtynextgen.user.auth.model.entity.AuthUser;
+import com.eventty.eventtynextgen.user.auth.repository.JpaAuthRepository;
+import com.eventty.eventtynextgen.user.service.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.AuthErrorType;
 import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
