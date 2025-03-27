@@ -25,7 +25,7 @@ public class EmailVerificationController {
     @GetMapping(BASE_PATH + "/exists")
     public ResponseEntity<Boolean> emailExists(@RequestParam(value = "email") String email) {
 
-        boolean result = verificationService.existsEmail(email);
+        boolean result = verificationService.existsCredential(email);
 
         return ResponseEntity.ok(result);
     }
@@ -34,7 +34,7 @@ public class EmailVerificationController {
     public ResponseEntity<EmailVerificationResponse> emailVerification(@Valid @RequestBody
     EmailVerificationRequest request) {
 
-        EmailVerificationResponse emailVerificationResponse = verificationService.sendEmailVerificationCode(
+        EmailVerificationResponse emailVerificationResponse = verificationService.sendVerificationCode(
             request);
 
         return ResponseEntity.ok(emailVerificationResponse);
@@ -44,7 +44,7 @@ public class EmailVerificationController {
     public ResponseEntity<Void> emailVerificationValidation(@Valid @RequestBody
     EmailVerificationValidationRequest request) {
 
-        boolean result = verificationService.checkValidationEmail(request);
+        boolean result = verificationService.validateVerificationCode(request);
 
         return ResponseEntity.ok().build();
     }

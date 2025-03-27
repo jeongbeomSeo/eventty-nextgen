@@ -20,19 +20,6 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    @Transactional
-    public Long updateUser(UpdateUserRequest updateUserRequest) {
-
-        User user = userRepository.findById(updateUserRequest.getId())
-            .orElseThrow(
-                () -> CustomException.of(HttpStatus.NOT_FOUND, UserErrorType.NOT_FOUND_USER));
-
-        user.update(updateUserRequest.getName(), updateUserRequest.getPhone(), updateUserRequest.getBirth());
-
-        return user.getId();
-    }
-
-    @Override
     public Long signup(SignupRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -44,6 +31,19 @@ public class UserServiceImpl implements UserService{
         User user = new User(request.getEmail(), hashedPassword, request.getUserRole(),
             request.getName(), request.getPhone(), request.getBirth());
         user = userRepository.save(user);
+
+        return user.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long updateUser(UpdateUserRequest updateUserRequest) {
+
+        User user = userRepository.findById(updateUserRequest.getId())
+            .orElseThrow(
+                () -> CustomException.of(HttpStatus.NOT_FOUND, UserErrorType.NOT_FOUND_USER));
+
+        user.update(updateUserRequest.getName(), updateUserRequest.getPhone(), updateUserRequest.getBirth());
 
         return user.getId();
     }
