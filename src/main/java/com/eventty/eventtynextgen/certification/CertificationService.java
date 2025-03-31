@@ -10,5 +10,5 @@ public interface CertificationService {
 
     CertificationSendCodeResponseView sendCode(String certTarget);
 
-    CertificationValidateCodeResponseView validateCode(String code);
+    CertificationValidateCodeResponseView validateCode(String email, String code);
 }

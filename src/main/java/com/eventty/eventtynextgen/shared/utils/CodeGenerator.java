@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.component;
+package com.eventty.eventtynextgen.shared.utils;
 
 import com.eventty.eventtynextgen.shared.utils.sequence.ObjectId;
 

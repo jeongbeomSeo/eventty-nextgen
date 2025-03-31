@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CertificationCodeRepository extends JpaRepository<CertificationCode, Long> {
 
-    Optional<CertificationCode> findByCode(String email);
+    Optional<CertificationCode> findByEmailAndCode(String email, String code);
 }

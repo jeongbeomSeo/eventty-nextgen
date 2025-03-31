@@ -41,7 +41,8 @@ public class CertificationController {
     public ResponseEntity<CertificationValidateCodeResponseView> validateCode(
         @RequestBody @Valid CertificationValidateRequestCommand certificationValidateRequestCommand) {
         return ResponseEntity.ok(
-            this.certificationService.validateCode(certificationValidateRequestCommand.code())
+            this.certificationService.validateCode(certificationValidateRequestCommand.email(),
+                certificationValidateRequestCommand.code())
         );
     }
 

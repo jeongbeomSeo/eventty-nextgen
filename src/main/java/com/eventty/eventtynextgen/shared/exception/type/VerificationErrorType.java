@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 public enum VerificationErrorType implements ErrorType {
 
     CERTIFICATION_CODE_SAVE_ERROR("CERTIFICATION_CODE_SAVE_ERROR", "인증 코드 저장 중 오류가 발생했습니다."),
-    NOT_FOUND_CERTIFICATION_CODE("NOT_FOUND_CERTIFICATION_CODE", "인증 코드를 찾을 수 없습니다."),
     EXPIRE_EMAIL_VERIFICATION_CODE("EXPIRE_EMAIL_VERIFICATION",
         "이메일 검증 코드가 만료되었습니다."),
     MISMATCH_EMAIL_VERIFICATION_CODE("MISMATCH_EMAIL_VERIFICATION_CODE",

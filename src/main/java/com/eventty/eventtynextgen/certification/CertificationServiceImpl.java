@@ -5,7 +5,7 @@ import com.eventty.eventtynextgen.certification.repository.CertificationCodeRepo
 import com.eventty.eventtynextgen.certification.response.CertificationExistsResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
-import com.eventty.eventtynextgen.component.CodeGenerator;
+import com.eventty.eventtynextgen.shared.utils.CodeGenerator;
 import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.VerificationErrorType;
@@ -28,7 +28,7 @@ public class CertificationServiceImpl implements CertificationService {
 
     @Override
     public CertificationExistsResponseView checkExists(String certTarget) {
-        return new CertificationExistsResponseView(certTarget, userRepository.existsByEmail(certTarget));
+        return new CertificationExistsResponseView(certTarget, this.userRepository.existsByEmail(certTarget));
     }
 
     @Override
@@ -37,7 +37,7 @@ public class CertificationServiceImpl implements CertificationService {
 
         CertificationCode certificationCode = CertificationCode.of(certTarget, code);
         CertificationCode certificationCodeFromDb = this.certificationCodeRepository.save(certificationCode);
-        if (!certificationCodeFromDb.getId().isBlank()) {
+        if (certificationCodeFromDb.getId() != null) {
             this.emailSenderService.sendEmailVerificationMail(certTarget, code);
         } else {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, VerificationErrorType.CERTIFICATION_CODE_SAVE_ERROR);
@@ -47,12 +47,13 @@ public class CertificationServiceImpl implements CertificationService {
     }
 
     @Override
-    public CertificationValidateCodeResponseView validateCode(String code) {
+    public CertificationValidateCodeResponseView validateCode(String email, String code) {
         boolean validate = true;
         try {
-            CertificationCode certificationCode = this.certificationCodeRepository.findByCode(code)
+            CertificationCode certificationCode = this.certificationCodeRepository.findByEmailAndCode(
+                    email, code)
                 .orElseThrow(() -> CustomException.badRequest(
-                    VerificationErrorType.NOT_FOUND_CERTIFICATION_CODE));
+                    VerificationErrorType.MISMATCH_EMAIL_VERIFICATION_CODE));
 
             if (certificationCode.isExpired()) {
                 throw CustomException.badRequest(
