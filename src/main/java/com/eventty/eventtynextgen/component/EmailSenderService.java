@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.user.service.utils;
+package com.eventty.eventtynextgen.component;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.MailErrorType;
@@ -24,28 +24,26 @@ public class EmailSenderService {
     public void sendEmailVerificationMail(String receiver, String code) {
         MailType mailType = MailType.EMAIL_VERIFICATION;
 
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
         try {
-            MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false,
-                "UTF-8");
+            MimeMessageHelper msgHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
             msgHelper.setTo(receiver);
             msgHelper.setSubject(mailType.getSubject());
             msgHelper.setText(setContext(code, mailType.getTemplate()), true);
-            javaMailSender.send(mimeMessage);
+            this.javaMailSender.send(mimeMessage);
 
             log.info("Succeeded to send email");
         } catch (Exception e) {
             log.error("Failed to send email verification mail");
-            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR,
-                MailErrorType.FAILED_SEND_TO_EMAIL_VERIFICATION_MAIL);
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, MailErrorType.FAILED_SEND_TO_EMAIL_VERIFICATION_MAIL);
         }
     }
 
     private String setContext(String code, String template) {
         Context context = new Context();
         context.setVariable("code", code);
-        return templateEngine.process(template, context);
+        return this.templateEngine.process(template, context);
     }
 
 }

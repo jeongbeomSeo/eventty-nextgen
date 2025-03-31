@@ -16,7 +16,7 @@ import com.eventty.eventtynextgen.shared.model.ErrorResponse;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.model.entity.User;
 import com.eventty.eventtynextgen.user.model.request.SignupRequest;
-import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
+import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -50,7 +50,7 @@ public class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private JpaUserRepository userRepository;
+    private UserRepository userRepository;
 
     @Nested
     @DisplayName("회원 가입 테스트")

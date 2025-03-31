@@ -5,7 +5,7 @@ import com.eventty.eventtynextgen.shared.exception.type.UserErrorType;
 import com.eventty.eventtynextgen.user.model.request.SignupRequest;
 import com.eventty.eventtynextgen.user.model.entity.User;
 import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
-import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
+import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.service.utils.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
 
-    private final JpaUserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override

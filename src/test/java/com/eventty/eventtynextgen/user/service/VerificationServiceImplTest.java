@@ -6,13 +6,9 @@ import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.VerificationErrorType;
-import com.eventty.eventtynextgen.user.model.request.EmailVerificationRequest;
-import com.eventty.eventtynextgen.user.model.request.EmailVerificationValidationRequest;
-import com.eventty.eventtynextgen.user.model.response.EmailVerificationResponse;
 import com.eventty.eventtynextgen.user.redis.entity.EmailVerification;
-import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
-import com.eventty.eventtynextgen.user.service.utils.CodeGenerator;
-import com.eventty.eventtynextgen.user.service.utils.EmailSenderService;
+import com.eventty.eventtynextgen.user.repository.UserRepository;
+import com.eventty.eventtynextgen.component.EmailSenderService;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,7 +25,7 @@ class VerificationServiceImplTest {
     private CodeGenerator codeGenerator;
 
     @Mock
-    private JpaUserRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
     private com.eventty.eventtynextgen.user.redis.EmailVerificationService emailVerificationService;

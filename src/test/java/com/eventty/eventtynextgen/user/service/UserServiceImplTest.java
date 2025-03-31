@@ -12,7 +12,7 @@ import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.model.entity.User;
 import com.eventty.eventtynextgen.user.model.request.SignupRequest;
 import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
-import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
+import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.service.utils.PasswordEncoder;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UserServiceImplTest {
 
     @Mock
-    private JpaUserRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
