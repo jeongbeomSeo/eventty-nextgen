@@ -5,15 +5,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.type.UserErrorType;
+import com.eventty.eventtynextgen.shared.exception.enumtype.UserErrorType;
+import com.eventty.eventtynextgen.user.UserService;
+import com.eventty.eventtynextgen.user.UserServiceImpl;
 import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UpdateUserRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
-import com.eventty.eventtynextgen.user.model.entity.User;
-import com.eventty.eventtynextgen.user.model.request.SignupRequest;
-import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
+import com.eventty.eventtynextgen.user.entity.User;
+import com.eventty.eventtynextgen.user.request.UserSignupRequestCommand;
+import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
-import com.eventty.eventtynextgen.user.service.utils.PasswordEncoder;
+import com.eventty.eventtynextgen.user.component.PasswordEncoder;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,7 +42,7 @@ class UserServiceImplTest {
         @DisplayName("user signup - 새로운 회원은 회원 가입에 `성공`한다.")
         void 새로운_회원은_회원가입에_성공한다() {
             // given
-            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
+            UserSignupRequestCommand request = SignupRequestFixture.successUserRoleRequest();
 
             User user = UserFixture.createUserBySignupRequest(request);
 
@@ -61,7 +63,7 @@ class UserServiceImplTest {
         @DisplayName("user signup - 이메일 중복으로 인하여 회원가입에 `실패`한다.")
         void 이메일이_등록되어_있는_경우_회원가입에_실패한다() {
             // given
-            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
+            UserSignupRequestCommand request = SignupRequestFixture.successUserRoleRequest();
 
             when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
@@ -129,7 +131,7 @@ class UserServiceImplTest {
         @DisplayName("user update - id가 일치하는 요청은 `성공`한다.")
         void 조건에_일치하는_회원_수정_요청은_성공한다() {
             // given
-            UpdateUserRequest updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
+            UserUpdateRequestCommand updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
             User user = UserFixture.createUserByUpdateUserRequest(updateUserRequest);
 
             when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.of(user));
@@ -146,7 +148,7 @@ class UserServiceImplTest {
         @DisplayName("user update - id가 일치하는 회원이 존재하지 않은 요청은 `실패`한다.")
         void ID가_존재하지_않는_회원_수정_요청은_실패한다() {
             // given
-            UpdateUserRequest updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
+            UserUpdateRequestCommand updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
 
             when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.empty());
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);

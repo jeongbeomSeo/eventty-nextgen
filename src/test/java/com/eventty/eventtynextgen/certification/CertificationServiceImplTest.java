@@ -2,7 +2,6 @@ package com.eventty.eventtynextgen.certification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -16,8 +15,7 @@ import com.eventty.eventtynextgen.certification.response.CertificationSendCodeRe
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
 import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.type.VerificationErrorType;
-import com.eventty.eventtynextgen.shared.utils.CodeGenerator;
+import com.eventty.eventtynextgen.shared.exception.enumtype.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -25,8 +23,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)

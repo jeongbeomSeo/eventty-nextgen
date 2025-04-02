@@ -1,8 +1,8 @@
 package com.eventty.eventtynextgen.component;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.type.MailErrorType;
-import com.eventty.eventtynextgen.shared.model.MailType;
+import com.eventty.eventtynextgen.shared.exception.enumtype.MailErrorType;
+import com.eventty.eventtynextgen.shared.enumtype.MailType;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

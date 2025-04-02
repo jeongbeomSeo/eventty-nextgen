@@ -1,0 +1,79 @@
+package com.eventty.eventtynextgen.user.entity;
+
+import com.eventty.eventtynextgen.user.entity.enumtype.UserRole;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+
+@Entity
+@Table(name = "users")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole userRole;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String phone;
+
+    @Column(nullable = false)
+    private String birth;
+
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private boolean isDeleted;
+
+    private LocalDateTime deleteTime;
+
+    // TODO: createAt, ModifyAt 및 추적을 위한 데이터 추가 고려 (abstract class: MappedSuperclass)
+
+    public User(String email, String password, UserRole userRole, String name, String phone,
+        String birth) {
+        this.email = email;
+        this.password = password;
+        this.userRole = userRole;
+        this.name = name;
+        this.phone = phone;
+        this.birth = birth;
+        this.isDeleted = false;
+        this.deleteTime = null;
+    }
+
+    public void update(String name, String phone, String birth) {
+        this.name = name;
+        this.phone = phone;
+        this.birth = birth;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+        this.deleteTime = LocalDateTime.now();
+    }
+}

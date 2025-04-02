@@ -8,7 +8,7 @@ import com.eventty.eventtynextgen.certification.response.CertificationValidateCo
 import com.eventty.eventtynextgen.shared.utils.CodeGenerator;
 import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.type.VerificationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enumtype.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
