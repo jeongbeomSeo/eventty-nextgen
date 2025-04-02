@@ -151,7 +151,7 @@ class UserServiceImplTest {
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
-            UserUpdateResponseView userUpdateResponseView = userService.updateUser(userId, name,
+            UserUpdateResponseView userUpdateResponseView = userService.update(userId, name,
                 phone, birth);
 
             // then
@@ -172,7 +172,7 @@ class UserServiceImplTest {
 
             // when & then
             try {
-                userService.updateUser(userId, "변경후이름",  "010-1234-5678", "2000-12-12");
+                userService.update(userId, "변경후이름",  "010-1234-5678", "2000-12-12");
             } catch (CustomException ex) {
                 assertThat(ex.getErrorType())
                     .isEqualTo(UserErrorType.NOT_FOUND_USER);

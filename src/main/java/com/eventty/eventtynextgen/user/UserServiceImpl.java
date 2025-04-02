@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserUpdateResponseView updateUser(Long userId, String name, String phone, String birth) {
+    public UserUpdateResponseView update(Long userId, String name, String phone, String birth) {
         User user = this.userRepository.findById(userId)
             .orElseThrow(
                 () -> CustomException.of(HttpStatus.NOT_FOUND, UserErrorType.NOT_FOUND_USER));

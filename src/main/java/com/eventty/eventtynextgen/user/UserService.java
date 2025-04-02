@@ -9,7 +9,7 @@ public interface UserService {
 
     UserSignupResponseView signup(String email, String password, UserRole userRole, String name, String phone, String birth);
 
-    UserUpdateResponseView updateUser(Long userId, String name, String phone, String birth);
+    UserUpdateResponseView update(Long userId, String name, String phone, String birth);
 
     UserDeleteResponseView delete(Long userId);
 }

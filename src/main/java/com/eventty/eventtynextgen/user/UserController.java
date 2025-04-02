@@ -41,7 +41,7 @@ public class UserController {
     public ResponseEntity<UserUpdateResponseView> update(
         @RequestBody @Valid UserUpdateRequestCommand updateUserRequest) {
 
-        UserUpdateResponseView userUpdateResponseView = this.userService.updateUser(
+        UserUpdateResponseView userUpdateResponseView = this.userService.update(
             updateUserRequest.id(), updateUserRequest.name(), updateUserRequest.phone(), updateUserRequest.birth());
 
         return ResponseEntity.ok(userUpdateResponseView);
