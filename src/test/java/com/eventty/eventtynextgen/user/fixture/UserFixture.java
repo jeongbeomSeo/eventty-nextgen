@@ -2,12 +2,11 @@ package com.eventty.eventtynextgen.user.fixture;
 
 import com.eventty.eventtynextgen.user.entity.enumtype.UserRole;
 import com.eventty.eventtynextgen.user.entity.User;
-import com.eventty.eventtynextgen.user.request.UserSignupRequestCommand;
-import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
+import com.eventty.eventtynextgen.user.request.UserRequestCommand;
 
 public class UserFixture {
 
-    public static User createUserBySignupRequest(UserSignupRequestCommand userSignupRequestCommand) {
+    public static User createUserBySignupRequest(UserRequestCommand userSignupRequestCommand) {
         return new User(1L, userSignupRequestCommand.email(), userSignupRequestCommand.password(), userSignupRequestCommand.userRole(),
             userSignupRequestCommand.name(), userSignupRequestCommand.phone(), userSignupRequestCommand.birth(), false, null);
     }

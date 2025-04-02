@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.user.fixture;
 
 import com.eventty.eventtynextgen.user.entity.enumtype.UserRole;
-import com.eventty.eventtynextgen.user.request.UserSignupRequestCommand;
+import com.eventty.eventtynextgen.user.request.UserRequestCommand;
 
 public class SignupRequestFixture {
 
@@ -9,8 +9,8 @@ public class SignupRequestFixture {
      * USER 역할을 가진 성공적인 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand successUserRoleRequest() {
-        return new UserSignupRequestCommand("test@google.com","12345678", UserRole.USER, "홍길동", "000-0000-0000",
+    public static UserRequestCommand successUserRoleRequest() {
+        return new UserRequestCommand("test@google.com","12345678", UserRole.USER, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -18,8 +18,8 @@ public class SignupRequestFixture {
      * HOST 역할을 가진 성공적인 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand successHostRoleRequest() {
-        return new UserSignupRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+    public static UserRequestCommand successHostRoleRequest() {
+        return new UserRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
             "1990.12.31");
     }
 
@@ -27,8 +27,8 @@ public class SignupRequestFixture {
      * 이메일에 @가 빠져있는 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand missingAtSymbolInEmailRequest() {
-        return new UserSignupRequestCommand("testgoogle.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+    public static UserRequestCommand missingAtSymbolInEmailRequest() {
+        return new UserRequestCommand("testgoogle.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -36,8 +36,8 @@ public class SignupRequestFixture {
      * 이메일에 .가 빠져있는 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand missingDotInEmailRequest() {
-        return new UserSignupRequestCommand("test@googlecom", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+    public static UserRequestCommand missingDotInEmailRequest() {
+        return new UserRequestCommand("test@googlecom", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -45,8 +45,8 @@ public class SignupRequestFixture {
      * 패스워드가 8자 미만인 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand shortPasswordRequest() {
-        return new UserSignupRequestCommand("test@google.com", "12345", UserRole.HOST, "홍길동", "000-0000-0000",
+    public static UserRequestCommand shortPasswordRequest() {
+        return new UserRequestCommand("test@google.com", "12345", UserRole.HOST, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -54,18 +54,18 @@ public class SignupRequestFixture {
      * 패스워드가 16자 초과인 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand longPasswordRequest() {
-        return new UserSignupRequestCommand("test@google.com", "12345678901234567", UserRole.HOST, "홍길동", "000-0000-0000",
+    public static UserRequestCommand longPasswordRequest() {
+        return new UserRequestCommand("test@google.com", "12345678901234567", UserRole.HOST, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
-    public static UserSignupRequestCommand nameIsNullRequest() {
-        return new UserSignupRequestCommand("test@google.com","12345678", UserRole.HOST, null, "000-0000-0000",
+    public static UserRequestCommand nameIsNullRequest() {
+        return new UserRequestCommand("test@google.com","12345678", UserRole.HOST, null, "000-0000-0000",
             "1990-01-01");
     }
 
-    public static UserSignupRequestCommand nameIsEmptyRequest() {
-        return new UserSignupRequestCommand("test@google.com","12345678", UserRole.HOST, "", "000-0000-0000",
+    public static UserRequestCommand nameIsEmptyRequest() {
+        return new UserRequestCommand("test@google.com","12345678", UserRole.HOST, "", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -73,8 +73,8 @@ public class SignupRequestFixture {
      * 핸드폰 형식이 000-0000-0000가 아닌 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand invalidPhoneNumberRequest() {
-        return new UserSignupRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "0000000000",
+    public static UserRequestCommand invalidPhoneNumberRequest() {
+        return new UserRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "0000000000",
             "1990-01-01");
     }
 
@@ -82,8 +82,8 @@ public class SignupRequestFixture {
      * 생년 월일이 yyyy.mm.dd 혹은 yyyy-mm-dd 형식이 아닌 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand invalidBirthdateFormatRequest() {
-        return new UserSignupRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+    public static UserRequestCommand invalidBirthdateFormatRequest() {
+        return new UserRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
             "19900101");
     }
 
@@ -91,8 +91,8 @@ public class SignupRequestFixture {
      * 사용자 역할이 올바르지 않은 Request를 생성한다.
      * @return SignupRequest
      */
-    public static UserSignupRequestCommand invalidUserRoleRequest() {
-        return new UserSignupRequestCommand("test@google.com", "12345678", null, "홍길동", "000-0000-0000",
+    public static UserRequestCommand invalidUserRoleRequest() {
+        return new UserRequestCommand("test@google.com", "12345678", null, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 }

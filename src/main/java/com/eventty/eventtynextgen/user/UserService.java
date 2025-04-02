@@ -1,8 +1,6 @@
 package com.eventty.eventtynextgen.user;
 
 import com.eventty.eventtynextgen.user.entity.enumtype.UserRole;
-import com.eventty.eventtynextgen.user.request.UserSignupRequestCommand;
-import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;

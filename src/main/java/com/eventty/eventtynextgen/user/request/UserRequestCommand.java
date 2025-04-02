@@ -6,13 +6,9 @@ import com.eventty.eventtynextgen.user.shared.annotation.ValidBirthDate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-public record UserSignupRequestCommand (
+public record UserRequestCommand(
     @EmailRegexp
     String email,
     @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")

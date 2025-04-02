@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.user;
 
 import com.eventty.eventtynextgen.shared.annotation.APIV1;
-import com.eventty.eventtynextgen.user.request.UserSignupRequestCommand;
+import com.eventty.eventtynextgen.user.request.UserRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
@@ -25,11 +25,11 @@ public class UserController {
 
     @PostMapping(BASE_PATH)
     public ResponseEntity<UserSignupResponseView> signup(
-        @RequestBody @Valid UserSignupRequestCommand signupRequest) {
+        @RequestBody @Valid UserRequestCommand userRequestCommand) {
 
         UserSignupResponseView userSignupResponseView = this.userService.signup(
-            signupRequest.email(), signupRequest.password(), signupRequest.userRole(),
-            signupRequest.name(), signupRequest.phone(), signupRequest.birth());
+            userRequestCommand.email(), userRequestCommand.password(), userRequestCommand.userRole(),
+            userRequestCommand.name(), userRequestCommand.phone(), userRequestCommand.birth());
 
 //        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{userId}")
 //            .buildAndExpand(userId).toUri();
