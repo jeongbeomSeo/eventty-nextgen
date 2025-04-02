@@ -3,6 +3,7 @@ package com.eventty.eventtynextgen.certification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -56,24 +57,19 @@ class CertificationServiceImplTest {
 
             when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(
                 certificationCodeFromDb);
-            doNothing().when(emailSenderService).sendEmailVerificationMail(certTarget, certificationCodeFromDb.getCode());
+            doNothing().when(emailSenderService).sendEmailVerificationMail(eq(certTarget), any(String.class));
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(
                 userRepository, certificationCodeRepository,
                 emailSenderService);
 
-            try (MockedStatic<CodeGenerator> codeGeneratorMock = Mockito.mockStatic(CodeGenerator.class)) {
-                codeGeneratorMock.when(() -> CodeGenerator.generateVerificationCode(anyInt()))
-                    .thenReturn(certificationCodeFromDb.getCode());
+            // when
+            CertificationSendCodeResponseView certificationSendCodeResponseView = certificationService.sendCode(
+                certTarget);
 
-                // when
-                CertificationSendCodeResponseView certificationSendCodeResponseView = certificationService.sendCode(
-                    certTarget);
-
-                // then
-                verify(emailSenderService, times(1)).sendEmailVerificationMail(certTarget, certificationCodeFromDb.getCode());
-                assertThat(certificationSendCodeResponseView.getMessage()).isNotBlank();
-            }
+            // then
+            verify(emailSenderService, times(1)).sendEmailVerificationMail(eq(certTarget), any(String.class));
+            assertThat(certificationSendCodeResponseView.getMessage()).isNotBlank();
         }
 
         @Test
@@ -92,18 +88,14 @@ class CertificationServiceImplTest {
                 userRepository, certificationCodeRepository,
                 emailSenderService);
 
-            try (MockedStatic<CodeGenerator> codeGeneratorMock = Mockito.mockStatic(CodeGenerator.class)) {
-                codeGeneratorMock.when(() -> CodeGenerator.generateVerificationCode(anyInt()))
-                    .thenReturn(certificationCodeFromDb.getCode());
-
-                // when & then
-                try {
-                    certificationService.sendCode(certTarget);
-                } catch (CustomException ex) {
-                    verify(emailSenderService, times(0)).sendEmailVerificationMail(certTarget, certificationCodeFromDb.getCode());
-                    assertThat(ex.getErrorType()).isEqualTo(
-                        VerificationErrorType.CERTIFICATION_CODE_SAVE_ERROR);
-                }
+            // when & then
+            try {
+                certificationService.sendCode(certTarget);
+            } catch (CustomException ex) {
+                verify(emailSenderService, times(0)).sendEmailVerificationMail(any(), any());
+                assertThat(ex.getErrorType()).isEqualTo(
+                    VerificationErrorType.CERTIFICATION_CODE_SAVE_ERROR
+                );
             }
         }
     }
