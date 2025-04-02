@@ -1,19 +1,19 @@
 package com.eventty.eventtynextgen.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.auth.fixture.UserSignupRequestFixture;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.UserErrorType;
-import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
+import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UpdateUserRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.model.entity.User;
+import com.eventty.eventtynextgen.user.model.request.SignupRequest;
 import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
-import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
+import com.eventty.eventtynextgen.user.repository.UserRepository;
+import com.eventty.eventtynextgen.user.service.utils.PasswordEncoder;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,23 +27,28 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class UserServiceImplTest {
 
     @Mock
-    private JpaUserRepository userRepository;
+    private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @DisplayName("비즈니스 로직 - 회원가입")
     @Nested
     class Signup {
 
         @Test
-        @DisplayName("user signup - 새로운 회원은 회원가입에 `성공`한다.")
+        @DisplayName("user signup - 새로운 회원은 회원 가입에 `성공`한다.")
         void 새로운_회원은_회원가입에_성공한다() {
             // given
-            UserSignupRequest request = UserSignupRequestFixture.successUserSignupRequest();
-            User user = UserFixture.createUserByUserSignupRequest(request);
+            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
 
-            when(userRepository.existsByAuthUserId(request.getAuthUserId())).thenReturn(false);
+            User user = UserFixture.createUserBySignupRequest(request);
+
+            when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+            when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
             when(userRepository.save(any(User.class))).thenReturn(user);
 
-            UserService userService = new UserServiceImpl(userRepository);
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
             Long result = userService.signup(request);
@@ -53,72 +58,67 @@ class UserServiceImplTest {
         }
 
         @Test
-        @DisplayName("user signup - 이미 auth id가 등록되어 있는 회원 가입 요청은 `실패`한다.")
-        void 이미_가입되어_있는_회원은_회원가입에_실패한다() {
+        @DisplayName("user signup - 이메일 중복으로 인하여 회원가입에 `실패`한다.")
+        void 이메일이_등록되어_있는_경우_회원가입에_실패한다() {
             // given
-            UserSignupRequest request = UserSignupRequestFixture.successUserSignupRequest();
+            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository);
+            when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
-            when(userRepository.existsByAuthUserId(request.getAuthUserId())).thenReturn(true);
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when & then
             try {
                 userService.signup(request);
             } catch (CustomException customException) {
                 assertThat(customException.getErrorType())
-                    .isEqualTo(UserErrorType.AUTH_USER_ID_ALREADY_EXISTS);
+                    .isEqualTo(UserErrorType.EMAIL_ALREADY_EXISTS);
+            }
+        }
+    }
+
+    @DisplayName("비즈니스 로직 - 회원삭제")
+    @Nested
+    class DeleteTest {
+
+        @Test
+        @DisplayName("auth user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
+        void ID가_일치하는_회원_삭제_요청은_성공한다() {
+            // given
+            User user = UserFixture.createBaseUser();
+            Long userId = user.getId();
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when
+            Long deletedAuthUserId = userService.delete(userId);
+
+            // then
+            assertThat(deletedAuthUserId).isEqualTo(userId);
+        }
+
+        @Test
+        @DisplayName("auth user delete - id가 일치하지 않은 회원 삭제 요청은 `실패`한다")
+        void ID가_일치하지_않은_회원_삭제_요청은_실패한다() {
+            // given
+            Long userId = 1L;
+
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when & then
+            try {
+                userService.delete(userId);
+            } catch (CustomException customException) {
+                assertThat(customException.getErrorType())
+                    .isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
         }
 
-        @DisplayName("회원가입 입력값 유효성 검증 테스트")
-        @Nested
-        class UserSignupRequestValidationTest {
 
-            @Test
-            @DisplayName("request validation - auth user id가 null일 경우 이와 관련된 `예외`가 발생한다.")
-            void 회원가입_입력값_AUTH_USER_ID_검증으로_인해_객체_생성에_실패한다() {
-                // given
-
-                // when & then
-                assertThatThrownBy(UserSignupRequestFixture::invalidAuthUserIdRequest)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("authUserID 값은 필수값 입니다.");
-            }
-
-            @Test
-            @DisplayName("request validation - 이름이 null일 경우 이와 관련된 `예외`가 발생한다.")
-            void 회원가입_입력값_이름_검증으로_인해_객체_생성에_실패한다() {
-                // given
-
-                // when & then
-                assertThatThrownBy(UserSignupRequestFixture::invalidNameRequest)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("이름은 필수값 입니다.");
-            }
-
-            @Test
-            @DisplayName("input validation - 핸드폰 번호 포맷이 유효하지 않은 경우 이와 관련된 `예외`가 발생한다.")
-            void 회원가입_입력값_핸드폰_번호_검증으로_인해_객체_생성에_실패한다() {
-                // given
-
-                // when & then
-                assertThatThrownBy(UserSignupRequestFixture::invalidPhoneNumberRequest)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("핸드폰 번호 형식이 올바르지 않습니다. 형식: 000-0000-0000");
-            }
-
-            @Test
-            @DisplayName("input validation - 생년월일 포맷이 유효하지 않은 경우 이와 관련된 `예외`가 발생한다.")
-            void 회원가입_입력값_생년월일_검증으로_인해_객체_생성에_실패한다() {
-                // given
-
-                // when & then
-                assertThatThrownBy(UserSignupRequestFixture::invalidBirthdateFormatRequest)
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("생년 월일 형식이 올바르지 않습니다. 형식: `YYYY.MM.DD` 또는 `YYYY-MM-DD`");
-            }
-        }
     }
 
     @DisplayName("비즈니스 로직 - 회원수정")
@@ -133,7 +133,7 @@ class UserServiceImplTest {
             User user = UserFixture.createUserByUpdateUserRequest(updateUserRequest);
 
             when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.of(user));
-            UserService userService = new UserServiceImpl(userRepository);
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
             Long result = userService.updateUser(updateUserRequest);
@@ -149,7 +149,7 @@ class UserServiceImplTest {
             UpdateUserRequest updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
 
             when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.empty());
-            UserService userService = new UserServiceImpl(userRepository);
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when & then
             try {

@@ -1,7 +1,10 @@
 package com.eventty.eventtynextgen.user.model.entity;
 
+import com.eventty.eventtynextgen.user.model.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,8 +27,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, updatable = false)
-    private Long authUserId;
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole userRole;
 
     @Column(nullable = false)
     private String name;
@@ -42,8 +52,13 @@ public class User {
 
     private LocalDateTime deleteTime;
 
-    public User(Long authUserId, String name, String phone, String birth) {
-        this.authUserId = authUserId;
+    // TODO: createAt, ModifyAt 및 추적을 위한 데이터 추가 고려 (abstract class: MappedSuperclass)
+
+    public User(String email, String password, UserRole userRole, String name, String phone,
+        String birth) {
+        this.email = email;
+        this.password = password;
+        this.userRole = userRole;
         this.name = name;
         this.phone = phone;
         this.birth = birth;

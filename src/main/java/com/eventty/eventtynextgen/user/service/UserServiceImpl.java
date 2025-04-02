@@ -2,31 +2,34 @@ package com.eventty.eventtynextgen.user.service;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.type.UserErrorType;
-import com.eventty.eventtynextgen.shared.model.dto.request.UserSignupRequest;
+import com.eventty.eventtynextgen.user.model.request.SignupRequest;
 import com.eventty.eventtynextgen.user.model.entity.User;
 import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
-import com.eventty.eventtynextgen.user.repository.JpaUserRepository;
+import com.eventty.eventtynextgen.user.repository.UserRepository;
+import com.eventty.eventtynextgen.user.service.utils.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
 
-    private final JpaUserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public Long signup(@Validated UserSignupRequest userSignupRequest) {
+    public Long signup(SignupRequest request) {
 
-        if (userRepository.existsByAuthUserId(userSignupRequest.getAuthUserId())) {
-            throw CustomException.of(HttpStatus.CONFLICT, UserErrorType.AUTH_USER_ID_ALREADY_EXISTS);
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw CustomException.of(HttpStatus.CONFLICT, UserErrorType.EMAIL_ALREADY_EXISTS);
         }
 
-        User user = new User(userSignupRequest.getAuthUserId(), userSignupRequest.getName(),
-            userSignupRequest.getPhone(), userSignupRequest.getBirth());
+        String hashedPassword = passwordEncoder.hashPassword(request.getPassword());
+
+        User user = new User(request.getEmail(), hashedPassword, request.getUserRole(),
+            request.getName(), request.getPhone(), request.getBirth());
         user = userRepository.save(user);
 
         return user.getId();
@@ -46,10 +49,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    @Transactional
-    public Long deleteUserByAuthUserId(Long authUserId) {
-
-        User user = userRepository.findByAuthUserId(authUserId)
+    public Long delete(Long userId) {
+        User user = userRepository.findById(userId)
             .orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
         user.delete();
