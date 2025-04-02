@@ -25,16 +25,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserSignupResponseView signup(String email, String password, UserRole userRole, String name, String phone, String birth) {
-
         if (this.userRepository.existsByEmail(email)) {
             throw CustomException.of(HttpStatus.CONFLICT, UserErrorType.EMAIL_ALREADY_EXISTS);
         }
 
-        String hashedPassword = this.passwordEncoder.hashPassword(password);
-
-        User user = new User(email, hashedPassword, userRole, name, phone, birth);
+        User user = new User(email, this.passwordEncoder.hashPassword(password), userRole, name, phone, birth);
         User userFromDb = this.userRepository.save(user);
-
         if (userFromDb.getId() == null) {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR,
                 UserErrorType.USER_SAVE_ERROR);
@@ -46,19 +42,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserUpdateResponseView updateUser(Long userId, String name, String phone, String birth) {
-
-        User user = userRepository.findById(userId)
+        User user = this.userRepository.findById(userId)
             .orElseThrow(
                 () -> CustomException.of(HttpStatus.NOT_FOUND, UserErrorType.NOT_FOUND_USER));
 
         user.update(name, phone, birth);
 
-        return new UserUpdateResponseView(userId);
+        return new UserUpdateResponseView(user.getId(), user.getName(), user.getPhone(), user.getBirth());
     }
 
     @Override
     public UserDeleteResponseView delete(Long userId) {
-        User user = userRepository.findById(userId)
+        User user = this.userRepository.findById(userId)
             .orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
         user.delete();

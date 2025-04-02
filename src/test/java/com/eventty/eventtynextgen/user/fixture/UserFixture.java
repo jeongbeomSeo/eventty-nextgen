@@ -7,18 +7,23 @@ import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 
 public class UserFixture {
 
-    public static User createUserBySignupRequest(UserSignupRequestCommand request) {
-        return new User(1L, request.getEmail(), request.getPassword(), request.getUserRole(),
-            request.getName(), request.getPhone(), request.getBirth(), false, null);
+    public static User createUserBySignupRequest(UserSignupRequestCommand userSignupRequestCommand) {
+        return new User(1L, userSignupRequestCommand.email(), userSignupRequestCommand.password(), userSignupRequestCommand.userRole(),
+            userSignupRequestCommand.name(), userSignupRequestCommand.phone(), userSignupRequestCommand.birth(), false, null);
     }
 
-    public static User createBaseUser() {
-        return new User(1L, "example@naver.com", "hashed_password", UserRole.USER, "홍길동",
+    public static User createBaseUser(Long userId) {
+        return new User(userId, "example@naver.com", "hashed_password", UserRole.USER, "홍길동",
             "000-0000-0000", "2000-01-01", false, null);
     }
 
-    public static User createUserByUpdateUserRequest(UserUpdateRequestCommand request) {
-        return new User(1L, "example@naver.com", "hashed_password", UserRole.USER,
-            request.getName(), request.getPhone(), request.getBirth(), false, null);
+    public static User createUserFromDb(String email, String hashedPassword, UserRole userRole,
+        String name, String phone, String birth) {
+        return new User(1L, email, hashedPassword, userRole, name, phone, birth, false, null);
+    }
+
+    public static User createBaseUser(Long userId, String name, String phone, String birth) {
+        return new User(userId, "example@naver.com", "hashed_password", UserRole.USER, name, phone,
+            birth, false, null);
     }
 }

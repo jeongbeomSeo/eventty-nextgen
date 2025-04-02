@@ -17,6 +17,7 @@ import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.request.UserSignupRequestCommand;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
+import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -63,7 +64,7 @@ public class UserControllerTest {
             UserSignupRequestCommand signupRequest = SignupRequestFixture.successUserRoleRequest();
             User user = UserFixture.createUserBySignupRequest(signupRequest);
 
-            when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(false);
+            when(userRepository.existsByEmail(signupRequest.email())).thenReturn(false);
             when(userRepository.save(any(User.class))).thenReturn(user);
 
             // when
@@ -72,9 +73,8 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
             // then
-            resultActions.andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.header()
-                    .string("Location", StringEndsWith.endsWith(BASE_URL + "/" + user.getId())));
+            resultActions.andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(new UserSignupResponseView(user.getId()))));
         }
 
         @Test
@@ -85,7 +85,7 @@ public class UserControllerTest {
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.EMAIL_ALREADY_EXISTS));
 
-            when(userRepository.existsByEmail(signupRequest.getEmail())).thenReturn(true);
+            when(userRepository.existsByEmail(signupRequest.email())).thenReturn(true);
 
             ResultActions resultActions = mockMvc.perform(post(BASE_URL)
                 .content(objectMapper.writeValueAsString(signupRequest))
@@ -110,7 +110,7 @@ public class UserControllerTest {
                 // given
                 User user = UserFixture.createUserBySignupRequest(request);
 
-                when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
+                when(userRepository.existsByEmail(request.email())).thenReturn(false);
                 when(userRepository.save(any(User.class))).thenReturn(user);
 
                 // when
@@ -120,9 +120,8 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON));
 
                 // then
-                resultActions.andExpect(status().isCreated())
-                    .andExpect(
-                        header().string("Location", StringEndsWith.endsWith(BASE_URL + "/" + user.getId())));
+                resultActions.andExpect(status().isOk())
+                    .andExpect(MockMvcResultMatchers.content().json(objectMapper.writeValueAsString(new UserSignupResponseView(user.getId()))));
             }
 
             @ParameterizedTest(name = "[{index}] {0}")
