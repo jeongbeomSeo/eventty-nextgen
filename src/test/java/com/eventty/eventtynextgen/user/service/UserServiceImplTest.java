@@ -2,14 +2,14 @@ package com.eventty.eventtynextgen.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enumtype.UserErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.UserService;
 import com.eventty.eventtynextgen.user.UserServiceImpl;
-import com.eventty.eventtynextgen.user.entity.enumtype.UserRole;
-import com.eventty.eventtynextgen.user.fixture.UserFixture;
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.component.PasswordEncoder;
@@ -43,27 +43,22 @@ class UserServiceImplTest {
             // given
             String email = "test@google.com";
             String password = "password";
-            UserRole userRole = UserRole.USER;
-            String name = "홍길동";
-            String phone = "000-0000-0000";
-            String birth = "1990-01-01";
 
             String hashedPassword = "hashed_password";
-            User userFromDb = UserFixture.createUserFromDb(email, hashedPassword,
-                userRole, name, phone, birth);
+            User user = mock(User.class);
 
             when(userRepository.existsByEmail(email)).thenReturn(false);
             when(passwordEncoder.hashPassword(password)).thenReturn(hashedPassword);
-            when(userRepository.save(any(User.class))).thenReturn(userFromDb);
+            when(userRepository.save(any(User.class))).thenReturn(user);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
-            UserSignupResponseView userSignupResponseView = userService.signup(email, password, userRole, name,
-                phone, birth);
+            UserSignupResponseView userSignupResponseView = userService.signup(email, password, UserRoleType.USER, "홍길동",
+                "000-0000-0000", "1990-01-01");
 
             // then
-            assertThat(userSignupResponseView.userId()).isEqualTo(userFromDb.getId());
+            assertThat(userSignupResponseView.userId()).isEqualTo(user.getId());
         }
 
         @Test
@@ -71,11 +66,6 @@ class UserServiceImplTest {
         void 이메일이_등록되어_있는_경우_회원가입에_실패한다() {
             // given
             String email = "test@google.com";
-            String password = "password";
-            UserRole userRole = UserRole.USER;
-            String name = "홍길동";
-            String phone = "000-0000-0000";
-            String birth = "1990-01-01";
 
             when(userRepository.existsByEmail(email)).thenReturn(true);
 
@@ -83,7 +73,7 @@ class UserServiceImplTest {
 
             // when & then
             try {
-                userService.signup(email, password, userRole, name, phone, birth);
+                userService.signup(email, "password", UserRoleType.USER, "홍길동", "000-0000-0000", "1990-01-01");
             } catch (CustomException customException) {
                 assertThat(customException.getErrorType())
                     .isEqualTo(UserErrorType.EMAIL_ALREADY_EXISTS);
@@ -98,8 +88,8 @@ class UserServiceImplTest {
         @DisplayName("auth user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
         void ID가_일치하는_회원_삭제_요청은_성공한다() {
             // given
-            User user = UserFixture.createBaseUser(1L);
-            Long userId = user.getId();
+            Long userId = 1L;
+            User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
@@ -140,25 +130,21 @@ class UserServiceImplTest {
         void 조건에_일치하는_회원_수정_요청은_성공한다() {
             // given
             Long userId = 1L;
-
-            String name = "변경후이름";
-            String phone = "010-1234-5678";
-            String birth = "2000-12-12";
-
-            User user = UserFixture.createBaseUser(userId, "변경전이름", "010-0000-0000", "2000-01-01");
+            User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
-            UserUpdateResponseView userUpdateResponseView = userService.update(userId, name,
-                phone, birth);
+            UserUpdateResponseView userUpdateResponseView = userService.update(userId, "변경후이름",
+                "010-1234-5678", "2000-12-12");
 
             // then
-            assertThat(userUpdateResponseView.userId()).isEqualTo(userId);
-            assertThat(userUpdateResponseView.name()).isEqualTo(name);
-            assertThat(userUpdateResponseView.phone()).isEqualTo(phone);
-            assertThat(userUpdateResponseView.birth()).isEqualTo(birth);
+            assertThat(userUpdateResponseView.userId()).isEqualTo(user.getId());
+            assertThat(userUpdateResponseView.name()).isEqualTo(user.getName());
+            assertThat(userUpdateResponseView.phone()).isEqualTo(user.getPhone());
+            assertThat(userUpdateResponseView.birth()).isEqualTo(user.getBirth());
         }
 
         @Test

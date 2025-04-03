@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.user.entity;
 
-import com.eventty.eventtynextgen.user.entity.enumtype.UserRole;
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -19,7 +19,6 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Table(name = "users")
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
 
@@ -35,7 +34,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole userRole;
+    private UserRoleType userRole;
 
     @Column(nullable = false)
     private String name;
@@ -54,8 +53,8 @@ public class User {
 
     // TODO: createAt, ModifyAt 및 추적을 위한 데이터 추가 고려 (abstract class: MappedSuperclass)
 
-    public User(String email, String password, UserRole userRole, String name, String phone,
-        String birth) {
+    @Builder
+    private User(String email, String password, UserRoleType userRole, String name, String phone, String birth) {
         this.email = email;
         this.password = password;
         this.userRole = userRole;
@@ -64,6 +63,17 @@ public class User {
         this.birth = birth;
         this.isDeleted = false;
         this.deleteTime = null;
+    }
+
+    public static User of(String email, String password, UserRoleType userRole, String name, String phone, String birth) {
+        return User.builder()
+            .email(email)
+            .password(password)
+            .userRole(userRole)
+            .name(name)
+            .phone(phone)
+            .birth(birth)
+            .build();
     }
 
     public void update(String name, String phone, String birth) {

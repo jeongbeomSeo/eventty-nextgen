@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.shared.exception;
 
 
-import com.eventty.eventtynextgen.shared.exception.enumtype.ErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 

@@ -11,13 +11,13 @@ import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Table(name = "certification_code", indexes = {
     @Index(name = "idx_code", columnList = "email, code")
 })
@@ -38,6 +38,7 @@ public class CertificationCode {
     @Transient
     private final Long ttl = 10L;
 
+    @Builder
     private CertificationCode(String email, String code) {
         this.email = email;
         this.code = code;
@@ -45,7 +46,10 @@ public class CertificationCode {
     }
 
     public static CertificationCode of(String email, String code) {
-        return new CertificationCode(email, code);
+        return CertificationCode.builder()
+            .email(email)
+            .code(code)
+            .build();
     }
 
     public boolean isExpired() {

@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.user.request;
 
-import com.eventty.eventtynextgen.user.entity.enumtype.UserRole;
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.shared.annotation.EmailRegexp;
 import com.eventty.eventtynextgen.user.shared.annotation.ValidBirthDate;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +14,7 @@ public record UserRequestCommand(
     @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")
     String password,
     @NotNull(message = "사용자 역할을 USER 혹은 HOST이어야 합니다.")
-    UserRole userRole,
+    UserRoleType userRole,
     @NotBlank(message = "이름은 null이거나 빈 문자열일 수 없습니다.")
     String name,
     @Pattern(regexp = "^\\d{3}-\\d{4}-\\d{4}$", message = "핸드폰 번호는 000-0000-0000의 형식이어야 합니다.")

@@ -1,8 +1,8 @@
 package com.eventty.eventtynextgen.shared.exception.handler;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enumtype.ErrorType;
-import com.eventty.eventtynextgen.shared.exception.enumtype.CommonErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;

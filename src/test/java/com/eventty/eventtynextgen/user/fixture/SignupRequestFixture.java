@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.user.fixture;
 
-import com.eventty.eventtynextgen.user.entity.enumtype.UserRole;
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.request.UserRequestCommand;
 
 public class SignupRequestFixture {
@@ -10,7 +10,7 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static UserRequestCommand successUserRoleRequest() {
-        return new UserRequestCommand("test@google.com","12345678", UserRole.USER, "홍길동", "000-0000-0000",
+        return new UserRequestCommand("test@google.com","12345678", UserRoleType.USER, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -19,7 +19,7 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static UserRequestCommand successHostRoleRequest() {
-        return new UserRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+        return new UserRequestCommand("test@google.com", "12345678", UserRoleType.HOST, "홍길동", "000-0000-0000",
             "1990.12.31");
     }
 
@@ -28,7 +28,7 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static UserRequestCommand missingAtSymbolInEmailRequest() {
-        return new UserRequestCommand("testgoogle.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+        return new UserRequestCommand("testgoogle.com", "12345678", UserRoleType.HOST, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -37,7 +37,7 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static UserRequestCommand missingDotInEmailRequest() {
-        return new UserRequestCommand("test@googlecom", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+        return new UserRequestCommand("test@googlecom", "12345678", UserRoleType.HOST, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -46,7 +46,7 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static UserRequestCommand shortPasswordRequest() {
-        return new UserRequestCommand("test@google.com", "12345", UserRole.HOST, "홍길동", "000-0000-0000",
+        return new UserRequestCommand("test@google.com", "12345", UserRoleType.HOST, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -55,17 +55,17 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static UserRequestCommand longPasswordRequest() {
-        return new UserRequestCommand("test@google.com", "12345678901234567", UserRole.HOST, "홍길동", "000-0000-0000",
+        return new UserRequestCommand("test@google.com", "12345678901234567", UserRoleType.HOST, "홍길동", "000-0000-0000",
             "1990-01-01");
     }
 
     public static UserRequestCommand nameIsNullRequest() {
-        return new UserRequestCommand("test@google.com","12345678", UserRole.HOST, null, "000-0000-0000",
+        return new UserRequestCommand("test@google.com","12345678", UserRoleType.HOST, null, "000-0000-0000",
             "1990-01-01");
     }
 
     public static UserRequestCommand nameIsEmptyRequest() {
-        return new UserRequestCommand("test@google.com","12345678", UserRole.HOST, "", "000-0000-0000",
+        return new UserRequestCommand("test@google.com","12345678", UserRoleType.HOST, "", "000-0000-0000",
             "1990-01-01");
     }
 
@@ -74,7 +74,7 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static UserRequestCommand invalidPhoneNumberRequest() {
-        return new UserRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "0000000000",
+        return new UserRequestCommand("test@google.com", "12345678", UserRoleType.HOST, "홍길동", "0000000000",
             "1990-01-01");
     }
 
@@ -83,7 +83,7 @@ public class SignupRequestFixture {
      * @return SignupRequest
      */
     public static UserRequestCommand invalidBirthdateFormatRequest() {
-        return new UserRequestCommand("test@google.com", "12345678", UserRole.HOST, "홍길동", "000-0000-0000",
+        return new UserRequestCommand("test@google.com", "12345678", UserRoleType.HOST, "홍길동", "000-0000-0000",
             "19900101");
     }
 
