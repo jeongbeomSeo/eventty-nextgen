@@ -9,10 +9,10 @@ import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.UserService;
 import com.eventty.eventtynextgen.user.UserServiceImpl;
-import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
-import com.eventty.eventtynextgen.user.entity.User;
-import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.component.PasswordEncoder;
+import com.eventty.eventtynextgen.user.entity.User;
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
+import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
@@ -37,6 +37,7 @@ class UserServiceImplTest {
     @DisplayName("비즈니스 로직 - 회원가입")
     @Nested
     class Signup {
+
         @Test
         @DisplayName("user signup - 새로운 회원은 회원 가입에 `성공`한다.")
         void 새로운_회원은_회원가입에_성공한다() {
@@ -54,8 +55,13 @@ class UserServiceImplTest {
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
-            UserSignupResponseView userSignupResponseView = userService.signup(email, password, UserRoleType.USER, "홍길동",
-                "000-0000-0000", "1990-01-01");
+            UserSignupResponseView userSignupResponseView = userService.signup(
+                email,
+                password,
+                UserRoleType.USER,
+                "홍길동",
+                "000-0000-0000",
+                "1990-01-01");
 
             // then
             assertThat(userSignupResponseView.userId()).isEqualTo(user.getId());
@@ -84,6 +90,7 @@ class UserServiceImplTest {
     @DisplayName("비즈니스 로직 - 회원삭제")
     @Nested
     class DeleteTest {
+
         @Test
         @DisplayName("auth user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
         void ID가_일치하는_회원_삭제_요청은_성공한다() {
@@ -125,6 +132,7 @@ class UserServiceImplTest {
     @DisplayName("비즈니스 로직 - 회원수정")
     @Nested
     class updateUser {
+
         @Test
         @DisplayName("user update - id가 일치하는 요청은 `성공`한다.")
         void 조건에_일치하는_회원_수정_요청은_성공한다() {
@@ -137,8 +145,7 @@ class UserServiceImplTest {
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
-            UserUpdateResponseView userUpdateResponseView = userService.update(userId, "변경후이름",
-                "010-1234-5678", "2000-12-12");
+            UserUpdateResponseView userUpdateResponseView = userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
 
             // then
             assertThat(userUpdateResponseView.userId()).isEqualTo(user.getId());
@@ -158,7 +165,7 @@ class UserServiceImplTest {
 
             // when & then
             try {
-                userService.update(userId, "변경후이름",  "010-1234-5678", "2000-12-12");
+                userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
             } catch (CustomException ex) {
                 assertThat(ex.getErrorType())
                     .isEqualTo(UserErrorType.NOT_FOUND_USER);

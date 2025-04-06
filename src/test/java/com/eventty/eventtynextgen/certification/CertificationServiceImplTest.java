@@ -17,8 +17,6 @@ import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,17 +49,13 @@ class CertificationServiceImplTest {
             String certTarget = "example@naver.com";
             CertificationCode certificationCode = mock(CertificationCode.class);
 
-            when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(
-                certificationCode);
+            when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(certificationCode);
             doNothing().when(emailSenderService).sendEmailVerificationMail(eq(certTarget), any(String.class));
 
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(
-                userRepository, certificationCodeRepository,
-                emailSenderService);
+            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
 
             // when
-            CertificationSendCodeResponseView certificationSendCodeResponseView = certificationService.sendCode(
-                certTarget);
+            CertificationSendCodeResponseView certificationSendCodeResponseView = certificationService.sendCode(certTarget);
 
             // then
             verify(emailSenderService, times(1)).sendEmailVerificationMail(eq(certTarget), any(String.class));
@@ -74,12 +68,9 @@ class CertificationServiceImplTest {
             // given
             String certTarget = "example@naver.com";
 
-            when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(
-                CertificationCode.of(certTarget, "RANDOM"));
+            when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(CertificationCode.of(certTarget, "RANDOM"));
 
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(
-                userRepository, certificationCodeRepository,
-                emailSenderService);
+            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
 
             // when & then
             try {
@@ -106,13 +97,10 @@ class CertificationServiceImplTest {
 
             CertificationCode certificationCode = mock(CertificationCode.class);
 
-            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(
-                Optional.of(certificationCode));
+            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(Optional.of(certificationCode));
             doNothing().when(certificationCodeRepository).delete(certificationCode);
 
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(
-                userRepository, certificationCodeRepository,
-                emailSenderService);
+            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
 
             // when
             CertificationValidateCodeResponseView result = certificationService.validateCode(
@@ -125,28 +113,20 @@ class CertificationServiceImplTest {
 
         @Test
         @DisplayName("validate code - 요청한 이메일과 인증 코드로 검증 요청을 하지만, 유효 기간 만료로 인해 실패 결과를 받는다.")
-        void 인증_코드_검증을_요청_하지만_유효_기간_만료로_인해_실패_결과를_받는다()
-            throws NoSuchFieldException, IllegalAccessException {
+        void 인증_코드_검증을_요청_하지만_유효_기간_만료로_인해_실패_결과를_받는다() {
             // given
             String email = "example@naver.com";
             String code = "RANDOM";
 
-            CertificationCode certificationCode = CertificationCode.of(email, code);
+            CertificationCode certificationCode = mock(CertificationCode.class);
 
-            Field expiredAtField = CertificationCode.class.getDeclaredField("expiredAt");
-            expiredAtField.setAccessible(true);
-            expiredAtField.set(certificationCode, LocalDateTime.now().minusMinutes(1));
+            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(Optional.of(certificationCode));
+            when(certificationCode.isExpired()).thenReturn(true);
 
-            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(
-                Optional.of(certificationCode));
-
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(
-                userRepository, certificationCodeRepository,
-                emailSenderService);
+            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
 
             // when
-            CertificationValidateCodeResponseView result = certificationService.validateCode(
-                email, code);
+            CertificationValidateCodeResponseView result = certificationService.validateCode(email, code);
 
             // then
             assertThat(result.code()).isEqualTo(code);
@@ -160,16 +140,12 @@ class CertificationServiceImplTest {
             String email = "example@naver.com";
             String code = "RANDOM";
 
-            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(
-                Optional.empty());
+            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(Optional.empty());
 
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(
-                userRepository, certificationCodeRepository,
-                emailSenderService);
+            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
 
             // when
-            CertificationValidateCodeResponseView result = certificationService.validateCode(
-                email, code);
+            CertificationValidateCodeResponseView result = certificationService.validateCode(email, code);
 
             // then
             assertThat(result.code()).isEqualTo(code);
