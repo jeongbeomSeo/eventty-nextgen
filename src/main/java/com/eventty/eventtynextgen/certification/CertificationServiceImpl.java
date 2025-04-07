@@ -8,7 +8,7 @@ import com.eventty.eventtynextgen.certification.response.CertificationValidateCo
 import com.eventty.eventtynextgen.shared.utils.CodeGenerator;
 import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.type.VerificationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,14 +50,11 @@ public class CertificationServiceImpl implements CertificationService {
     public CertificationValidateCodeResponseView validateCode(String email, String code) {
         boolean validate = true;
         try {
-            CertificationCode certificationCode = this.certificationCodeRepository.findByEmailAndCode(
-                    email, code)
-                .orElseThrow(() -> CustomException.badRequest(
-                    VerificationErrorType.MISMATCH_EMAIL_VERIFICATION_CODE));
+            CertificationCode certificationCode = this.certificationCodeRepository.findByEmailAndCode(email, code)
+                .orElseThrow(() -> CustomException.badRequest(VerificationErrorType.MISMATCH_EMAIL_VERIFICATION_CODE));
 
             if (certificationCode.isExpired()) {
-                throw CustomException.badRequest(
-                    VerificationErrorType.EXPIRE_EMAIL_VERIFICATION_CODE);
+                throw CustomException.badRequest(VerificationErrorType.EXPIRE_EMAIL_VERIFICATION_CODE);
             }
 
             this.certificationCodeRepository.delete(certificationCode);

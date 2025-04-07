@@ -2,18 +2,20 @@ package com.eventty.eventtynextgen.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.type.UserErrorType;
-import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
-import com.eventty.eventtynextgen.user.fixture.UpdateUserRequestFixture;
-import com.eventty.eventtynextgen.user.fixture.UserFixture;
-import com.eventty.eventtynextgen.user.model.entity.User;
-import com.eventty.eventtynextgen.user.model.request.SignupRequest;
-import com.eventty.eventtynextgen.user.model.request.UpdateUserRequest;
+import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
+import com.eventty.eventtynextgen.user.UserService;
+import com.eventty.eventtynextgen.user.UserServiceImpl;
+import com.eventty.eventtynextgen.user.component.PasswordEncoder;
+import com.eventty.eventtynextgen.user.entity.User;
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
-import com.eventty.eventtynextgen.user.service.utils.PasswordEncoder;
+import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
+import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
+import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,36 +42,44 @@ class UserServiceImplTest {
         @DisplayName("user signup - 새로운 회원은 회원 가입에 `성공`한다.")
         void 새로운_회원은_회원가입에_성공한다() {
             // given
-            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
+            String email = "test@google.com";
+            String password = "password";
 
-            User user = UserFixture.createUserBySignupRequest(request);
+            String hashedPassword = "hashed_password";
+            User user = mock(User.class);
 
-            when(userRepository.existsByEmail(request.getEmail())).thenReturn(false);
-            when(passwordEncoder.hashPassword(request.getPassword())).thenReturn("hashed_password");
+            when(userRepository.existsByEmail(email)).thenReturn(false);
+            when(passwordEncoder.hashPassword(password)).thenReturn(hashedPassword);
             when(userRepository.save(any(User.class))).thenReturn(user);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
-            Long result = userService.signup(request);
+            UserSignupResponseView userSignupResponseView = userService.signup(
+                email,
+                password,
+                UserRoleType.USER,
+                "홍길동",
+                "000-0000-0000",
+                "1990-01-01");
 
             // then
-            assertThat(result).isEqualTo(user.getId());
+            assertThat(userSignupResponseView.userId()).isEqualTo(user.getId());
         }
 
         @Test
         @DisplayName("user signup - 이메일 중복으로 인하여 회원가입에 `실패`한다.")
         void 이메일이_등록되어_있는_경우_회원가입에_실패한다() {
             // given
-            SignupRequest request = SignupRequestFixture.successUserRoleRequest();
+            String email = "test@google.com";
 
-            when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
+            when(userRepository.existsByEmail(email)).thenReturn(true);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when & then
             try {
-                userService.signup(request);
+                userService.signup(email, "password", UserRoleType.USER, "홍길동", "000-0000-0000", "1990-01-01");
             } catch (CustomException customException) {
                 assertThat(customException.getErrorType())
                     .isEqualTo(UserErrorType.EMAIL_ALREADY_EXISTS);
@@ -85,18 +95,18 @@ class UserServiceImplTest {
         @DisplayName("auth user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
         void ID가_일치하는_회원_삭제_요청은_성공한다() {
             // given
-            User user = UserFixture.createBaseUser();
-            Long userId = user.getId();
+            Long userId = 1L;
+            User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
-            Long deletedAuthUserId = userService.delete(userId);
+            UserDeleteResponseView userDeleteResponseView = userService.delete(userId);
 
             // then
-            assertThat(deletedAuthUserId).isEqualTo(userId);
+            assertThat(userDeleteResponseView.userId()).isEqualTo(userId);
         }
 
         @Test
@@ -117,8 +127,6 @@ class UserServiceImplTest {
                     .isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
         }
-
-
     }
 
     @DisplayName("비즈니스 로직 - 회원수정")
@@ -129,36 +137,39 @@ class UserServiceImplTest {
         @DisplayName("user update - id가 일치하는 요청은 `성공`한다.")
         void 조건에_일치하는_회원_수정_요청은_성공한다() {
             // given
-            UpdateUserRequest updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
-            User user = UserFixture.createUserByUpdateUserRequest(updateUserRequest);
+            Long userId = 1L;
+            User user = mock(User.class);
 
-            when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.of(user));
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when
-            Long result = userService.updateUser(updateUserRequest);
+            UserUpdateResponseView userUpdateResponseView = userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
 
             // then
-            assertThat(result).isEqualTo(updateUserRequest.getId());
+            assertThat(userUpdateResponseView.userId()).isEqualTo(user.getId());
+            assertThat(userUpdateResponseView.name()).isEqualTo(user.getName());
+            assertThat(userUpdateResponseView.phone()).isEqualTo(user.getPhone());
+            assertThat(userUpdateResponseView.birth()).isEqualTo(user.getBirth());
         }
 
         @Test
         @DisplayName("user update - id가 일치하는 회원이 존재하지 않은 요청은 `실패`한다.")
         void ID가_존재하지_않는_회원_수정_요청은_실패한다() {
             // given
-            UpdateUserRequest updateUserRequest = UpdateUserRequestFixture.basicUpdateRequest();
+            Long userId = 1L;
 
-            when(userRepository.findById(updateUserRequest.getId())).thenReturn(Optional.empty());
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when & then
             try {
-                userService.updateUser(updateUserRequest);
+                userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
             } catch (CustomException ex) {
                 assertThat(ex.getErrorType())
                     .isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
         }
     }
-
 }
