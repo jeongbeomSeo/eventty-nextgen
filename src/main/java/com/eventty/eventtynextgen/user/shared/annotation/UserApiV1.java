@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
-@RequestMapping("api/v1/user")
+@RequestMapping("/api/v1/user")
 public @interface UserApiV1 {
 
 }

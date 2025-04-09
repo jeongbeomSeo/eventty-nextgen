@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
-@RequestMapping("api/v1/user/certification")
+@RequestMapping("/api/v1/user/certification")
 public @interface CertificationApiV1 {
 
 }

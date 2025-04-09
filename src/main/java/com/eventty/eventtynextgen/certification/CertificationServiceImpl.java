@@ -59,7 +59,11 @@ public class CertificationServiceImpl implements CertificationService {
 
             this.certificationCodeRepository.delete(certificationCode);
         } catch (Exception ex) {
-            log.error("인증 코드 검증 중 오류가 발생했습니다. code: {}", code, ex);
+            if (ex instanceof CustomException) {
+                log.error("인증 코드 검증 중 CustomException 발생 code: {}, errorType: {}", code, ((CustomException) ex).getErrorType());
+            } else {
+                log.error("인증 코드 검증 중 일반 예외 발생 code: {}", code, ex);
+            }
             validate = false;
         }
 

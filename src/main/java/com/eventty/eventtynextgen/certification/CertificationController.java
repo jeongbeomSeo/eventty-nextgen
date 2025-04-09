@@ -10,6 +10,7 @@ import com.eventty.eventtynextgen.certification.shared.annotation.CertificationA
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -19,7 +20,7 @@ public class CertificationController {
 
     private final CertificationService certificationService;
 
-    @PostMapping("/exists")
+    @GetMapping("/exists")
     public ResponseEntity<CertificationExistsResponseView> exists(@RequestBody @Valid CertificationExistsRequestCommand certificationExistsRequestCommand) {
         return ResponseEntity.ok(this.certificationService.checkExists(certificationExistsRequestCommand.email()));
     }
