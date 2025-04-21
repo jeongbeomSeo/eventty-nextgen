@@ -49,7 +49,7 @@ dependencies {
 	implementation ('nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect')
 
 	// Embedded test
-	testImplementation("com.wix:wix-embedded-mysql:4.6.2")
+	testImplementation ("ch.vorburger.mariaDB4j:mariaDB4j:3.1.0")
 
 	// test
 	testImplementation ('org.springframework.boot:spring-boot-starter-test')

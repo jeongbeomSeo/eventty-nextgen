@@ -6,6 +6,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import ch.vorburger.exec.ManagedProcessException;
+import ch.vorburger.mariadb4j.DB;
+import ch.vorburger.mariadb4j.DBConfiguration;
+import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.eventty.eventtynextgen.certification.request.CertificationExistsRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationValidateRequestCommand;
@@ -13,6 +17,10 @@ import com.eventty.eventtynextgen.certification.response.CertificationExistsResp
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-@Sql({"/user_data.sql"})
 class CertificationControllerTest {
 
     private static final String BASE_URL = "/api/v1/user/certification";
@@ -39,6 +46,31 @@ class CertificationControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private static final DBConfiguration dbConfig = DBConfigurationBuilder.newBuilder()
+        .setPort(13306)
+        .setDataDir(".embedded/mariadb")
+        .build();
+
+    private static DB db;
+
+    @BeforeAll
+    public static void init() throws ManagedProcessException{
+        System.out.println("DB 초기화 시작");
+        db = DB.newEmbeddedDB(dbConfig);
+        try {
+            System.out.println("DB 시작 전");
+            db.start();
+            System.out.println("DB 시작 후");
+            Thread.sleep(2000);
+            Connection conn = DriverManager.getConnection("jdbc://mariadb://localhost:13306/", "root", "");
+            System.out.println("DB 연결 성공");
+            conn.close();
+        } catch (Exception e) {
+            System.out.println("DB 초기화 실패: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     @Nested
     @DisplayName("이메일 사용 가능 여부 검사 테스트")
@@ -68,6 +100,7 @@ class CertificationControllerTest {
         void DB에_이메일이_존재할_경우_TRUE를_응답한다() throws Exception {
             // given
             String email = "test@naver.com";
+//            repository create entity;
             CertificationExistsRequestCommand certificationExistsRequestCommand = new CertificationExistsRequestCommand(email);
 
             // when
@@ -78,6 +111,7 @@ class CertificationControllerTest {
             // then
             resultActions.andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(new CertificationExistsResponseView(email, true))));
+//            repository delete entity;
         }
     }
 

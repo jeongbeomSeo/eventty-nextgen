@@ -17,6 +17,7 @@ import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -98,13 +99,12 @@ class CertificationServiceImplTest {
             CertificationCode certificationCode = mock(CertificationCode.class);
 
             when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(Optional.of(certificationCode));
-            doNothing().when(certificationCodeRepository).delete(certificationCode);
+            when(certificationCode.getExpiredAt()).thenReturn(LocalDateTime.now().plusMinutes(10));
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
 
             // when
-            CertificationValidateCodeResponseView result = certificationService.validateCode(
-                email, code);
+            CertificationValidateCodeResponseView result = certificationService.validateCode(email, code);
 
             // then
             assertThat(result.code()).isEqualTo(code);

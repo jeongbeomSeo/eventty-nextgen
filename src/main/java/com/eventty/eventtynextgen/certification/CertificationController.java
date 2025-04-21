@@ -7,6 +7,7 @@ import com.eventty.eventtynextgen.certification.response.CertificationExistsResp
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
 import com.eventty.eventtynextgen.certification.shared.annotation.CertificationApiV1;
+import com.eventty.eventtynextgen.component.EmailSenderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

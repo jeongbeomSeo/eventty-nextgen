@@ -35,6 +35,8 @@ public class CertificationCode {
 
     private LocalDateTime expiredAt;
 
+    private boolean isExpired;
+
     @Transient
     private final Long ttl = 10L;
 
@@ -43,6 +45,7 @@ public class CertificationCode {
         this.email = email;
         this.code = code;
         this.expiredAt = LocalDateTime.now().plusMinutes(this.getTtl());
+        this.isExpired = false;
     }
 
     public static CertificationCode of(String email, String code) {
@@ -52,7 +55,7 @@ public class CertificationCode {
             .build();
     }
 
-    public boolean isExpired() {
-        return this.expiredAt.isBefore(LocalDateTime.now());
+    public void setExpired() {
+        this.isExpired = true;
     }
 }

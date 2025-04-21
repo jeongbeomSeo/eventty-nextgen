@@ -10,6 +10,7 @@ import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CertificationServiceImpl implements CertificationService {
 
-    private static final int EMAIL_VERIFICATION_CODE_LEN = 6;
+    private final int EMAIL_VERIFICATION_CODE_LEN = 6;
 
     private final UserRepository userRepository;
     private final CertificationCodeRepository certificationCodeRepository;
@@ -53,11 +54,10 @@ public class CertificationServiceImpl implements CertificationService {
             CertificationCode certificationCode = this.certificationCodeRepository.findByEmailAndCode(email, code)
                 .orElseThrow(() -> CustomException.badRequest(VerificationErrorType.MISMATCH_EMAIL_VERIFICATION_CODE));
 
-            if (certificationCode.isExpired()) {
+            if (certificationCode.isExpired() || checkExpired(certificationCode)) {
+                certificationCode.setExpired();
                 throw CustomException.badRequest(VerificationErrorType.EXPIRE_EMAIL_VERIFICATION_CODE);
             }
-
-            this.certificationCodeRepository.delete(certificationCode);
         } catch (Exception ex) {
             if (ex instanceof CustomException) {
                 log.error("인증 코드 검증 중 CustomException 발생 code: {}, errorType: {}", code, ((CustomException) ex).getErrorType());
@@ -68,5 +68,9 @@ public class CertificationServiceImpl implements CertificationService {
         }
 
         return new CertificationValidateCodeResponseView(code, validate);
+    }
+
+    private boolean checkExpired(CertificationCode certificationCode) {
+        return certificationCode.getExpiredAt().isBefore(LocalDateTime.now());
     }
 }
