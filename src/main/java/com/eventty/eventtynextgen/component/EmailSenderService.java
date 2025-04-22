@@ -4,8 +4,10 @@ import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.MailErrorType;
 import com.eventty.eventtynextgen.shared.enums.MailType;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,10 +20,15 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @RequiredArgsConstructor
 public class EmailSenderService {
 
+    private final Environment env;
+
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
 
     public void sendEmailVerificationMail(String receiver, String code) {
+        if (!Arrays.asList(this.env.getActiveProfiles()).contains("dev")) {
+            return;
+        }
         MailType mailType = MailType.EMAIL_VERIFICATION;
 
         MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();

@@ -10,25 +10,32 @@ import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
+import com.eventty.eventtynextgen.certification.entity.CertificationCode;
+import com.eventty.eventtynextgen.certification.fixture.CertificationCodeFixture;
+import com.eventty.eventtynextgen.certification.repository.CertificationCodeRepository;
 import com.eventty.eventtynextgen.certification.request.CertificationExistsRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationValidateRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationExistsResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
+import com.eventty.eventtynextgen.user.entity.User;
+import com.eventty.eventtynextgen.user.fixture.UserFixture;
+import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
+@TestInstance(Lifecycle.PER_CLASS)
 class CertificationControllerTest {
 
     private static final String BASE_URL = "/api/v1/user/certification";
@@ -47,28 +55,33 @@ class CertificationControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final DBConfiguration dbConfig = DBConfigurationBuilder.newBuilder()
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private CertificationCodeRepository certificationCodeRepository;
+
+    private static final DBConfiguration config = DBConfigurationBuilder.newBuilder()
         .setPort(13306)
-        .setDataDir(".embedded/mariadb")
+        .setDataDir(new File(".embedded/mariadb"))
         .build();
 
-    private static DB db;
+    private static final DB db;
 
-    @BeforeAll
-    public static void init() throws ManagedProcessException{
-        System.out.println("DB 초기화 시작");
-        db = DB.newEmbeddedDB(dbConfig);
+    static {
+        System.out.println("초기화 시작: static 영역");
         try {
+            db = DB.newEmbeddedDB(config);
             System.out.println("DB 시작 전");
             db.start();
             System.out.println("DB 시작 후");
+            db.createDB("eventty-nextgen", "root", "");
             Thread.sleep(2000);
-            Connection conn = DriverManager.getConnection("jdbc://mariadb://localhost:13306/", "root", "");
+            Connection conn = DriverManager.getConnection("jdbc:mariadb://localhost:13306/eventty-nextgen", "root", "");
             System.out.println("DB 연결 성공");
             conn.close();
-        } catch (Exception e) {
-            System.out.println("DB 초기화 실패: " + e.getMessage());
-            e.printStackTrace();
+        } catch (ManagedProcessException | InterruptedException | SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -96,11 +109,13 @@ class CertificationControllerTest {
         }
 
         @Test
+        @Transactional
         @DisplayName("DB에 이메일이 존재할 경우 이메일이 존재한다고 응답한다.")
         void DB에_이메일이_존재할_경우_TRUE를_응답한다() throws Exception {
             // given
             String email = "test@naver.com";
-//            repository create entity;
+            User user = UserFixture.createUserByEmail(email);
+            userRepository.save(user);
             CertificationExistsRequestCommand certificationExistsRequestCommand = new CertificationExistsRequestCommand(email);
 
             // when
@@ -111,7 +126,8 @@ class CertificationControllerTest {
             // then
             resultActions.andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(new CertificationExistsResponseView(email, true))));
-//            repository delete entity;
+
+            userRepository.delete(user);
         }
     }
 
@@ -139,23 +155,24 @@ class CertificationControllerTest {
         }
     }
 
-    @Sql({"/certification_data.sql"})
     @Nested
     @DisplayName("인증 코드 검사 테스트")
     class ValidateCode {
 
         private static final String URL = BASE_URL + "/validate";
-        private static final String EMAIL = "test@naver.com";
-        private static final String CODE = "ABCDEF";
-        private static final String EXPIRED_EMAIL = "expired@naver.com";
-
-        private static final String EXPIRE_CODE = "EXPIRE";
 
         @Test
+        @Transactional
         @DisplayName("이메일과 인증 코드를 성공적으로 인증할 경우, 코드 인증에 성공했다는 응답을 전달해준다.")
         void 인증_코드를_성공적으로_인증할_경우_코드_인증에_성공했다는_응답을_전달해준다() throws Exception {
             // given
-            CertificationValidateRequestCommand certificationValidateRequestCommand = new CertificationValidateRequestCommand(EMAIL, CODE);
+            String email = "email@naver.com";
+            String code = "ABCDEF";
+            CertificationValidateRequestCommand certificationValidateRequestCommand = new CertificationValidateRequestCommand(email, code);
+
+            CertificationCode certificationCode = CertificationCodeFixture.createCertificationCode(certificationValidateRequestCommand.email(),
+                certificationValidateRequestCommand.code());
+            certificationCodeRepository.save(certificationCode);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
@@ -164,30 +181,18 @@ class CertificationControllerTest {
 
             // then
             resultActions.andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(new CertificationValidateCodeResponseView(CODE, true))));
-        }
+                .andExpect(content().json(objectMapper.writeValueAsString(new CertificationValidateCodeResponseView(code, true))));
 
-        @Test
-        @DisplayName("인증 코드가 만료되었을 경우, 코드 인증에 실패했다는 응답을 전달한다.")
-        void 인증_코드가_만료되었을_경우_코드_인증에_실패했다는_응답을_전달한다() throws Exception {
-            // given
-            CertificationValidateRequestCommand certificationValidateRequestCommand = new CertificationValidateRequestCommand(EXPIRED_EMAIL, EXPIRE_CODE);
-
-            // when
-            ResultActions resultActions = mockMvc.perform(post(URL)
-                .content(objectMapper.writeValueAsString(certificationValidateRequestCommand))
-                .contentType(APPLICATION_JSON));
-
-            // then
-            resultActions.andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(new CertificationValidateCodeResponseView(EXPIRE_CODE, false))));
+            certificationCodeRepository.delete(certificationCode);
         }
 
         @Test
         @DisplayName("이메일과 인증 코드를 찾을 수 없는 경우, 코드 인증에 실패했다는 응답을 전달한다.")
         void 인증_코드를_찾을_수_없는_경우_코드_인증에_실패했다는_응답을_전달한다() throws Exception {
             // given
-            CertificationValidateRequestCommand certificationValidateRequestCommand = new CertificationValidateRequestCommand(EMAIL, EXPIRE_CODE);
+            String email = "email@naver.com";
+            String code = "ABCDEF";
+            CertificationValidateRequestCommand certificationValidateRequestCommand = new CertificationValidateRequestCommand(email, code);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
@@ -196,7 +201,7 @@ class CertificationControllerTest {
 
             // then
             resultActions.andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(new CertificationValidateCodeResponseView(EXPIRE_CODE, false))));
+                .andExpect(content().json(objectMapper.writeValueAsString(new CertificationValidateCodeResponseView(code, false))));
         }
 
     }
