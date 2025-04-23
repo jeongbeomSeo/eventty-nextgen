@@ -11,7 +11,7 @@ public class CertificationSendCodeResponseView {
         this.message = message;
     }
 
-    public static CertificationSendCodeResponseView createMessage(String email, long ttl) {
+    public static CertificationSendCodeResponseView createMessage(String email, int ttl) {
         String message = String.format("%s로 인증 코드를 발송했습니다. %d분 안에 인증 코드를 입력해 주세요.", email, ttl);
 
         return new CertificationSendCodeResponseView(message);

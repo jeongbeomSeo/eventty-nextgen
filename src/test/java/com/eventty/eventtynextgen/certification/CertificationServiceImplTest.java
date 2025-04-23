@@ -13,7 +13,7 @@ import com.eventty.eventtynextgen.certification.entity.CertificationCode;
 import com.eventty.eventtynextgen.certification.repository.CertificationCodeRepository;
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
-import com.eventty.eventtynextgen.component.EmailSenderService;
+import com.eventty.eventtynextgen.component.EmailSenderServiceImpl;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
@@ -37,17 +37,19 @@ class CertificationServiceImplTest {
     private CertificationCodeRepository certificationCodeRepository;
 
     @Mock
-    private EmailSenderService emailSenderService;
+    private EmailSenderServiceImpl emailSenderService;
 
     @DisplayName("비즈니스 로직 - 인증 코드 발송")
     @Nested
-    class CertificationSendCode {
+    class SendCode {
 
         @Test
         @DisplayName("send code - 인증 코드를 생성하고 엔티티 저장에 성공하여 인증 코드 전송에 성공한다")
         void 인증_코드_생성_저장에_성공하여_인증_코드_전송에_성공한다() {
             // given
             String certTarget = "example@naver.com";
+            String code = "ABCDEF";
+            int ttl = 10;
             CertificationCode certificationCode = mock(CertificationCode.class);
 
             when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(certificationCode);
@@ -68,8 +70,9 @@ class CertificationServiceImplTest {
         void 인증_코드_저장에_실패하여_예외를_발생시킨다() {
             // given
             String certTarget = "example@naver.com";
+            int ttl = 10;
 
-            when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(CertificationCode.of(certTarget, "RANDOM"));
+            when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(CertificationCode.of(certTarget, "RANDOM", ttl));
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
 

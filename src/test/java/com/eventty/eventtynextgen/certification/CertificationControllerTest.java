@@ -15,7 +15,7 @@ import com.eventty.eventtynextgen.certification.fixture.CertificationCodeFixture
 import com.eventty.eventtynextgen.certification.repository.CertificationCodeRepository;
 import com.eventty.eventtynextgen.certification.request.CertificationExistsRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationRequestCommand;
-import com.eventty.eventtynextgen.certification.request.CertificationValidateRequestCommand;
+import com.eventty.eventtynextgen.certification.request.CertificationValidateCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationExistsResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
@@ -38,9 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -109,13 +107,13 @@ class CertificationControllerTest {
         }
 
         @Test
-        @Transactional
         @DisplayName("DB에 이메일이 존재할 경우 이메일이 존재한다고 응답한다.")
         void DB에_이메일이_존재할_경우_TRUE를_응답한다() throws Exception {
             // given
             String email = "test@naver.com";
             User user = UserFixture.createUserByEmail(email);
             userRepository.save(user);
+
             CertificationExistsRequestCommand certificationExistsRequestCommand = new CertificationExistsRequestCommand(email);
 
             // when
@@ -162,17 +160,17 @@ class CertificationControllerTest {
         private static final String URL = BASE_URL + "/validate";
 
         @Test
-        @Transactional
         @DisplayName("이메일과 인증 코드를 성공적으로 인증할 경우, 코드 인증에 성공했다는 응답을 전달해준다.")
         void 인증_코드를_성공적으로_인증할_경우_코드_인증에_성공했다는_응답을_전달해준다() throws Exception {
             // given
             String email = "email@naver.com";
             String code = "ABCDEF";
-            CertificationValidateRequestCommand certificationValidateRequestCommand = new CertificationValidateRequestCommand(email, code);
+            int ttl = 10;
 
-            CertificationCode certificationCode = CertificationCodeFixture.createCertificationCode(certificationValidateRequestCommand.email(),
-                certificationValidateRequestCommand.code());
+            CertificationCode certificationCode = CertificationCodeFixture.createCertificationCode(email, code, ttl);
             certificationCodeRepository.save(certificationCode);
+
+            CertificationValidateCodeRequestCommand certificationValidateRequestCommand = new CertificationValidateCodeRequestCommand(email, code);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
@@ -187,12 +185,38 @@ class CertificationControllerTest {
         }
 
         @Test
+        @DisplayName("만료 기간이 지난 인증 코드를 인증하려고 시도할 경우, 코드 인증에 실패했다는 응답을 전달한다.")
+        void 만료_기간이_지난_인증_코드를_인증하려고_시도할_경우_실패했다는_응답을_전달한다() throws Exception {
+            // given
+            String email = "email@naver.com";
+            String code = "ABCDEF";
+            int ttl = 0;
+
+            CertificationCode expiredCertificationCode = CertificationCodeFixture.createCertificationCode(email, code, ttl);
+            certificationCodeRepository.save(expiredCertificationCode);
+            Thread.sleep(500);
+
+            CertificationValidateCodeRequestCommand certificationValidateRequestCommand = new CertificationValidateCodeRequestCommand(email, code);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .content(objectMapper.writeValueAsString(certificationValidateRequestCommand))
+                .contentType(APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(new CertificationValidateCodeResponseView(code, false))));
+
+            certificationCodeRepository.delete(expiredCertificationCode);
+        }
+
+        @Test
         @DisplayName("이메일과 인증 코드를 찾을 수 없는 경우, 코드 인증에 실패했다는 응답을 전달한다.")
         void 인증_코드를_찾을_수_없는_경우_코드_인증에_실패했다는_응답을_전달한다() throws Exception {
             // given
             String email = "email@naver.com";
             String code = "ABCDEF";
-            CertificationValidateRequestCommand certificationValidateRequestCommand = new CertificationValidateRequestCommand(email, code);
+            CertificationValidateCodeRequestCommand certificationValidateRequestCommand = new CertificationValidateCodeRequestCommand(email, code);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)

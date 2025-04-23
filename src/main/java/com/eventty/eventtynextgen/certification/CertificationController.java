@@ -2,12 +2,11 @@ package com.eventty.eventtynextgen.certification;
 
 import com.eventty.eventtynextgen.certification.request.CertificationExistsRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationRequestCommand;
-import com.eventty.eventtynextgen.certification.request.CertificationValidateRequestCommand;
+import com.eventty.eventtynextgen.certification.request.CertificationValidateCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationExistsResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
 import com.eventty.eventtynextgen.certification.shared.annotation.CertificationApiV1;
-import com.eventty.eventtynextgen.component.EmailSenderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +32,9 @@ public class CertificationController {
 
     @PostMapping("/validate")
     public ResponseEntity<CertificationValidateCodeResponseView> validateCode(
-        @RequestBody @Valid CertificationValidateRequestCommand certificationValidateRequestCommand) {
+        @RequestBody @Valid CertificationValidateCodeRequestCommand certificationValidateCodeRequestCommand) {
         return ResponseEntity.ok(
-            this.certificationService.validateCode(certificationValidateRequestCommand.email(), certificationValidateRequestCommand.code()));
+            this.certificationService.validateCode(certificationValidateCodeRequestCommand.email(), certificationValidateCodeRequestCommand.code()));
     }
 
 }
