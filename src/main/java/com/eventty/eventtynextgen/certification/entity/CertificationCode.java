@@ -35,24 +35,33 @@ public class CertificationCode {
 
     private LocalDateTime expiredAt;
 
-    @Transient
-    private final Long ttl = 10L;
+    private boolean isExpired;
 
     @Builder
-    private CertificationCode(String email, String code) {
+    private CertificationCode(String email, String code, int ttl) {
         this.email = email;
         this.code = code;
-        this.expiredAt = LocalDateTime.now().plusMinutes(this.getTtl());
+        this.expiredAt = LocalDateTime.now().plusMinutes(ttl);
+        this.isExpired = false;
     }
 
-    public static CertificationCode of(String email, String code) {
+    /**
+     * 엔티티를 만들어 주는 팩토리 메서드 함수입니다.
+     *
+     * @param email 사용자 이메일
+     * @param code 인증 코드
+     * @param ttl Time to live (분단위)
+     * @return 엔티티 객체
+     */
+    public static CertificationCode of(String email, String code, int ttl) {
         return CertificationCode.builder()
             .email(email)
             .code(code)
+            .ttl(ttl)
             .build();
     }
 
-    public boolean isExpired() {
-        return this.expiredAt.isBefore(LocalDateTime.now());
+    public void setExpired() {
+        this.isExpired = true;
     }
 }

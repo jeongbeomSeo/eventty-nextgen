@@ -48,6 +48,10 @@ dependencies {
 	implementation ('org.springframework.boot:spring-boot-starter-thymeleaf')
 	implementation ('nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect')
 
+	// Embedded test
+	testImplementation("ch.vorburger.mariaDB4j:mariaDB4j:3.2.0")
+	testImplementation("org.mariadb.jdbc:mariadb-java-client:3.5.3")
+
 	// test
 	testImplementation ('org.springframework.boot:spring-boot-starter-test')
 	testRuntimeOnly ('org.junit.platform:junit-platform-launcher')

@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.user;
 
-import com.eventty.eventtynextgen.user.request.UserRequestCommand;
+import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
@@ -23,14 +23,14 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserSignupResponseView> signup(@RequestBody @Valid UserRequestCommand userRequestCommand) {
+    public ResponseEntity<UserSignupResponseView> signup(@RequestBody @Valid UserSignUpRequestCommand userSignUpRequestCommand) {
         UserSignupResponseView userSignupResponseView = this.userService.signup(
-            userRequestCommand.email(),
-            userRequestCommand.password(),
-            userRequestCommand.userRole(),
-            userRequestCommand.name(),
-            userRequestCommand.phone(),
-            userRequestCommand.birth());
+            userSignUpRequestCommand.email(),
+            userSignUpRequestCommand.password(),
+            userSignUpRequestCommand.userRole(),
+            userSignUpRequestCommand.name(),
+            userSignUpRequestCommand.phone(),
+            userSignUpRequestCommand.birth());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userSignupResponseView);
     }

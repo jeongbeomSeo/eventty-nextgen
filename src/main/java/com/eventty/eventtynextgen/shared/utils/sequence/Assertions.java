@@ -21,6 +21,7 @@ package com.eventty.eventtynextgen.shared.utils.sequence;
  * <p>Design by contract assertions.</p> <p>This class is not part of the public API and may be removed or changed at any time.</p>
  */
 public final class Assertions {
+
     /**
      * Throw IllegalArgumentException if the value is null.
      *

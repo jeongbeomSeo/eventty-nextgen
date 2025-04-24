@@ -7,9 +7,9 @@ public final class ErrorMsgFactory {
     private ErrorMsgFactory() {}
 
     public static Map<String, String> createFieldErrorMsg(String field, String msg) {
-        return Map.ofEntries(
-            Map.entry("field", field),
-            Map.entry("message", msg)
+        return Map.of(
+            "field", field,
+            "message", msg
         );
     }
 

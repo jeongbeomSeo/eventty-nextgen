@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
 
-public record UserRequestCommand(
+public record UserSignUpRequestCommand(
     @EmailRegexp
     String email,
     @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")

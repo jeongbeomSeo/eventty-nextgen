@@ -1,5 +1,7 @@
 package com.eventty.eventtynextgen.user.entity;
 
+import com.eventty.eventtynextgen.shared.exception.CustomException;
+import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +13,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -77,14 +78,24 @@ public class User {
             .build();
     }
 
-    public void update(String name, String phone, String birth) {
+    public void updatePersonalInfo(String name, String phone, String birth) {
         this.name = name;
         this.phone = phone;
         this.birth = birth;
     }
 
-    public void delete() {
-        this.isDeleted = true;
-        this.deleteTime = LocalDateTime.now();
+    public void updateDeleteStatus(UserStatus status) {
+        if (status == UserStatus.ARCHIVE) {
+            this.isDeleted = false;
+            this.deleteTime = null;
+        } else if (status == UserStatus.DELETED) {
+            this.isDeleted = true;
+            this.deleteTime = LocalDateTime.now();
+        }
+    }
+
+    public enum UserStatus {
+        ARCHIVE,
+        DELETED
     }
 }
