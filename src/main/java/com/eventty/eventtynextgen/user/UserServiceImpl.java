@@ -10,6 +10,7 @@ import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserSignupResponseView signup(String email, String password, UserRoleType userRole, String name, String phone, String birth) {
-        if (this.userRepository.existsByEmail(email)) {
-            throw CustomException.of(HttpStatus.CONFLICT, UserErrorType.EMAIL_ALREADY_EXISTS);
-        }
+        this.userRepository.findByEmail(email).ifPresent(user -> {
+            if (!user.isDeleted()) {
+                throw CustomException.badRequest(UserErrorType.EMAIL_ALREADY_EXISTS);
+            } else {
+                // TODO: 삭제 되어 있는 유저 활성화 해주는 메서드 구현
+                throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
+            }
+        });
 
         User user = User.of(email, this.passwordEncoder.hashPassword(password), userRole, name, phone, birth);
-        // 삭제된 유저인지 확인
-
         User userFromDb = this.userRepository.save(user);
         if (userFromDb.getId() == null) {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, UserErrorType.USER_SAVE_ERROR);
@@ -43,7 +47,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserUpdateResponseView update(Long userId, String name, String phone, String birth) {
         return this.userRepository.findById(userId).map(user -> {
-            // 삭제된 유저인지 확인
+            if (user.isDeleted()) {
+                throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
+            }
 
             user.updatePersonalInfo(name, phone, birth);
             return new UserUpdateResponseView(user.getId(), user.getName(), user.getPhone(), user.getBirth());
@@ -54,7 +60,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDeleteResponseView delete(Long userId) {
         return this.userRepository.findById(userId).map(user -> {
-            // 삭제된 유저인지 확인
+            if (user.isDeleted()) {
+                throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
+            }
 
             user.updateDeleteStatus(UserStatus.DELETED);
             return new UserDeleteResponseView(userId);

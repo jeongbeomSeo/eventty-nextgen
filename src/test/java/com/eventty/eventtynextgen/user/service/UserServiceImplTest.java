@@ -48,7 +48,7 @@ class UserServiceImplTest {
             String hashedPassword = "hashed_password";
             User user = mock(User.class);
 
-            when(userRepository.existsByEmail(email)).thenReturn(false);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
             when(passwordEncoder.hashPassword(password)).thenReturn(hashedPassword);
             when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -72,8 +72,10 @@ class UserServiceImplTest {
         void 이메일이_등록되어_있는_경우_회원가입에_실패한다() {
             // given
             String email = "test@google.com";
+            User user = mock(User.class);
 
-            when(userRepository.existsByEmail(email)).thenReturn(true);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(false);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
@@ -85,11 +87,13 @@ class UserServiceImplTest {
                     .isEqualTo(UserErrorType.EMAIL_ALREADY_EXISTS);
             }
         }
+
+        // TODO: 삭제되어 있는 User가 존재할 경우
     }
 
     @DisplayName("비즈니스 로직 - 회원삭제")
     @Nested
-    class DeleteTest {
+    class Delete {
 
         @Test
         @DisplayName("auth user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
@@ -99,6 +103,7 @@ class UserServiceImplTest {
             User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(false);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
@@ -127,6 +132,8 @@ class UserServiceImplTest {
                     .isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
         }
+
+        // TODO: 이미 삭제되어 있는 경우
     }
 
     @DisplayName("비즈니스 로직 - 회원수정")
@@ -141,6 +148,7 @@ class UserServiceImplTest {
             User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(false);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
@@ -171,5 +179,7 @@ class UserServiceImplTest {
                     .isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
         }
+
+        // TODO: 삭제되어 있는 User를 변경하려고 시도할 경우
     }
 }
