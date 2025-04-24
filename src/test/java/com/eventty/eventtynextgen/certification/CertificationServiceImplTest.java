@@ -48,8 +48,6 @@ class CertificationServiceImplTest {
         void 인증_코드_생성_저장에_성공하여_인증_코드_전송에_성공한다() {
             // given
             String certTarget = "example@naver.com";
-            String code = "ABCDEF";
-            int ttl = 10;
             CertificationCode certificationCode = mock(CertificationCode.class);
 
             when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(certificationCode);

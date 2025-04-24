@@ -18,7 +18,7 @@ public class MailProperties {
     private String password;
     private String defaultEncoding;
     private int timeout;
-    private boolean startTlsEnable;
+    private boolean starttlsEnable;
     private boolean auth;
     private boolean debug;
 }

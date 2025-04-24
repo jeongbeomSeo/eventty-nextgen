@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -29,7 +30,7 @@ public class MailConfig {
         properties.put("mail.smtp.auth", mailProperties.isAuth());
         properties.put("mail.smtp.debug", mailProperties.isDebug());
         properties.put("mail.smtp.connectiontimeout", mailProperties.isDebug());
-        properties.put("mail.smtp.starttls.enable", mailProperties.isStartTlsEnable());
+        properties.put("mail.smtp.starttls.enable", mailProperties.isStarttlsEnable());
 
         javaMailSender.setJavaMailProperties(properties);
         javaMailSender.setDefaultEncoding(mailProperties.getDefaultEncoding());
