@@ -2,7 +2,15 @@ spring:
   application:
     name: eventty-nextgen
   profiles:
-    active: local
+    default: local
+    group:
+      local:
+        - local
+        - properties
+      test:
+        - test
+        - properties
+
   datasource:
     url: ${db.url}
     username: ${db.username}

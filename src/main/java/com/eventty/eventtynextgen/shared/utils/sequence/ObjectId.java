@@ -383,5 +383,4 @@ public final class ObjectId implements Comparable<ObjectId>, Serializable {
     private static byte short0(final short x) {
         return (byte) (x);
     }
-
 }

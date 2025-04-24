@@ -9,8 +9,7 @@ import com.eventty.eventtynextgen.certification.response.CertificationExistsResp
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
 import com.eventty.eventtynextgen.component.EmailSenderService;
-import com.eventty.eventtynextgen.shared.utils.CodeGenerator;
-import com.eventty.eventtynextgen.component.EmailSenderServiceImpl;
+import com.eventty.eventtynextgen.shared.utils.CodeGeneratorUtil;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
@@ -37,7 +36,7 @@ public class CertificationServiceImpl implements CertificationService {
 
     @Override
     public CertificationSendCodeResponseView sendCode(String certTarget) {
-        String code = CodeGenerator.generateVerificationCode(EMAIL_VERIFICATION_CODE_LEN);
+        String code = CodeGeneratorUtil.generateVerificationCode(EMAIL_VERIFICATION_CODE_LEN);
 
         CertificationCode certificationCode = CertificationCode.of(certTarget, code, CERTIFICATION_CODE_TTL);
         CertificationCode certificationCodeFromDb = this.certificationCodeRepository.save(certificationCode);

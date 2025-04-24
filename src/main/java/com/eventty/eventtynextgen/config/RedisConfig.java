@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.shared.config;
+package com.eventty.eventtynextgen.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

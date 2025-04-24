@@ -4,6 +4,7 @@ import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.component.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
+import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
@@ -28,6 +29,8 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = User.of(email, this.passwordEncoder.hashPassword(password), userRole, name, phone, birth);
+        // 삭제된 유저인지 확인
+
         User userFromDb = this.userRepository.save(user);
         if (userFromDb.getId() == null) {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, UserErrorType.USER_SAVE_ERROR);
@@ -40,7 +43,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserUpdateResponseView update(Long userId, String name, String phone, String birth) {
         return this.userRepository.findById(userId).map(user -> {
-            user.update(name, phone, birth);
+            // 삭제된 유저인지 확인
+
+            user.updatePersonalInfo(name, phone, birth);
             return new UserUpdateResponseView(user.getId(), user.getName(), user.getPhone(), user.getBirth());
         }).orElseThrow(() -> CustomException.of(HttpStatus.NOT_FOUND, UserErrorType.NOT_FOUND_USER));
     }
@@ -48,7 +53,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDeleteResponseView delete(Long userId) {
         return this.userRepository.findById(userId).map(user -> {
-            user.delete();
+            // 삭제된 유저인지 확인
+
+            user.updateDeleteStatus(UserStatus.DELETED);
             return new UserDeleteResponseView(userId);
         }).orElseThrow(() -> CustomException.of(HttpStatus.NOT_FOUND, UserErrorType.NOT_FOUND_USER));
     }
