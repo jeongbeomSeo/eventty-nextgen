@@ -51,6 +51,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDeleteResponseView delete(Long userId) {
         return this.userRepository.findById(userId).map(user -> {
             // 삭제된 유저인지 확인
