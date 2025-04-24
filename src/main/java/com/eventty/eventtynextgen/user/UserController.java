@@ -50,4 +50,6 @@ public class UserController {
     public ResponseEntity<UserDeleteResponseView> delete(@RequestParam(value = "user-id") Long userId) {
         return ResponseEntity.ok(this.userService.delete(userId));
     }
+
+    // TODO: 삭제 되어 있는 유저 활성화 해주는 API 구현
 }

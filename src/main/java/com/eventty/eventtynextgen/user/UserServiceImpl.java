@@ -27,9 +27,8 @@ public class UserServiceImpl implements UserService {
     public UserSignupResponseView signup(String email, String password, UserRoleType userRole, String name, String phone, String birth) {
         this.userRepository.findByEmail(email).ifPresent(user -> {
             if (!user.isDeleted()) {
-                throw CustomException.badRequest(UserErrorType.EMAIL_ALREADY_EXISTS);
+                throw CustomException.of(HttpStatus.CONFLICT, UserErrorType.EMAIL_ALREADY_EXISTS);
             } else {
-                // TODO: 삭제 되어 있는 유저 활성화 해주는 메서드 구현
                 throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
             }
         });
