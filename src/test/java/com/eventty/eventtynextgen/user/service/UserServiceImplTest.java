@@ -48,7 +48,7 @@ class UserServiceImplTest {
             String hashedPassword = "hashed_password";
             User user = mock(User.class);
 
-            when(userRepository.existsByEmail(email)).thenReturn(false);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
             when(passwordEncoder.hashPassword(password)).thenReturn(hashedPassword);
             when(userRepository.save(any(User.class))).thenReturn(user);
 
@@ -72,8 +72,10 @@ class UserServiceImplTest {
         void 이메일이_등록되어_있는_경우_회원가입에_실패한다() {
             // given
             String email = "test@google.com";
+            User user = mock(User.class);
 
-            when(userRepository.existsByEmail(email)).thenReturn(true);
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(false);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
@@ -81,24 +83,44 @@ class UserServiceImplTest {
             try {
                 userService.signup(email, "password", UserRoleType.USER, "홍길동", "000-0000-0000", "1990-01-01");
             } catch (CustomException customException) {
-                assertThat(customException.getErrorType())
-                    .isEqualTo(UserErrorType.EMAIL_ALREADY_EXISTS);
+                assertThat(customException.getErrorType()).isEqualTo(UserErrorType.EMAIL_ALREADY_EXISTS);
+            }
+        }
+
+        @Test
+        @DisplayName("user signup - 삭제되어 있는 User가 존재할 경우 `삭제된 계정이 존재한다`는 예외를 전달한다.")
+        void 삭제되어_있는_계정이_존재할_경우_이에_맞는_예외를_전달한다() {
+            // given
+            String email = "test@google.com";
+            User user = mock(User.class);
+
+            when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(true);
+
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when & then
+            try {
+                userService.signup(email, "password", UserRoleType.USER, "홍길동", "000-0000-0000", "1990-01-01");
+            } catch (CustomException customException) {
+                assertThat(customException.getErrorType()).isEqualTo(UserErrorType.USER_ALREADY_DELETED);
             }
         }
     }
 
     @DisplayName("비즈니스 로직 - 회원삭제")
     @Nested
-    class DeleteTest {
+    class Delete {
 
         @Test
-        @DisplayName("auth user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
+        @DisplayName("user delete - id가 일치하는 회원 삭제 요청은 `성공`한다")
         void ID가_일치하는_회원_삭제_요청은_성공한다() {
             // given
             Long userId = 1L;
             User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(false);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
@@ -110,7 +132,7 @@ class UserServiceImplTest {
         }
 
         @Test
-        @DisplayName("auth user delete - id가 일치하지 않은 회원 삭제 요청은 `실패`한다")
+        @DisplayName("user delete - id가 일치하지 않은 회원 삭제 요청은 `실패`한다")
         void ID가_일치하지_않은_회원_삭제_요청은_실패한다() {
             // given
             Long userId = 1L;
@@ -123,8 +145,27 @@ class UserServiceImplTest {
             try {
                 userService.delete(userId);
             } catch (CustomException customException) {
-                assertThat(customException.getErrorType())
-                    .isEqualTo(UserErrorType.NOT_FOUND_USER);
+                assertThat(customException.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+            }
+        }
+
+        @Test
+        @DisplayName("user delete - 삭제되어 있는 User가 존재할 경우 삭제 작업에 실패한다.")
+        void 이미_삭제되어_있는_경우_회원_삭제_요청은_실패한다() {
+            // given
+            Long userId = 1L;
+            User user = mock(User.class);
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(true);
+
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when & then
+            try {
+                userService.delete(userId);
+            } catch (CustomException customException) {
+                assertThat(customException.getErrorType()).isEqualTo(UserErrorType.USER_ALREADY_DELETED);
             }
         }
     }
@@ -141,6 +182,7 @@ class UserServiceImplTest {
             User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(false);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
@@ -161,14 +203,35 @@ class UserServiceImplTest {
             Long userId = 1L;
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
 
             // when & then
             try {
                 userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType())
-                    .isEqualTo(UserErrorType.NOT_FOUND_USER);
+                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+            }
+        }
+
+        // TODO: 삭제되어 있는 User를 변경하려고 시도할 경우
+        @Test
+        @DisplayName("user update - 삭제되어 있는 User는 회원 변경 요청에 `실패`한다.")
+        void 삭제되어_있는_계정은_회원_변경_요청에_실패한다() {
+            // given
+            Long userId = 1L;
+            User user = mock(User.class);
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(user.isDeleted()).thenReturn(true);
+
+            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when & then
+            try {
+                userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
+            } catch (CustomException ex) {
+                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.USER_ALREADY_DELETED);
             }
         }
     }

@@ -40,7 +40,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 @SpringBootTest
-@ActiveProfiles({"test", "properties"})
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 @TestInstance(Lifecycle.PER_CLASS)
 class CertificationControllerTest {
