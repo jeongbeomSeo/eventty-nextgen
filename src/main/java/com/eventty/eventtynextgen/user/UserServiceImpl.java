@@ -7,6 +7,7 @@ import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
+import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
@@ -66,5 +67,10 @@ public class UserServiceImpl implements UserService {
             user.updateDeleteStatus(UserStatus.DELETED);
             return new UserDeleteResponseView(userId);
         }).orElseThrow(() -> CustomException.of(HttpStatus.NOT_FOUND, UserErrorType.NOT_FOUND_USER));
+    }
+
+    @Override
+    public UserActivateDeletedUserResponseView activateDeletedUser(Long userId) {
+        return null;
     }
 }
