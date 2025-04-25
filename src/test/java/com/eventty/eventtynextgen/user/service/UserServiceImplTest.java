@@ -263,7 +263,7 @@ class UserServiceImplTest {
             UserActivateDeletedUserResponseView result = userService.activateDeletedUser(userId);
 
             // then
-            assertThat(result.id()).isEqualTo(userId);
+            assertThat(result.userId()).isEqualTo(userId);
             assertThat(result.email()).isNotBlank();
             assertThat(result.name()).isNotBlank();
         }
