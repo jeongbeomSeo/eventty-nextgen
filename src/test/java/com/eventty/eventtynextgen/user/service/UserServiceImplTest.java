@@ -253,6 +253,7 @@ class UserServiceImplTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(true);
+            when(user.getId()).thenReturn(userId);
             when(user.getEmail()).thenReturn(email);
             when(user.getName()).thenReturn(name);
 
