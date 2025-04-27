@@ -95,6 +95,10 @@ public class User {
         }
     }
 
+    public void changePassword(String updatedPassword) {
+        this.password = updatedPassword;
+    }
+
     public enum UserStatus {
         ACTIVE,
         DELETED

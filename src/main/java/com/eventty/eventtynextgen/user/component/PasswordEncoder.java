@@ -11,9 +11,13 @@ public class PasswordEncoder {
      * @param plainPassword 사용자가 입력한 평문 비밀번호
      * @return 해싱된 비밀번호 (salt 포함)
      */
-    public String hashPassword(String plainPassword) {
+    public String encode(CharSequence plainPassword) {
         String salt = BCrypt.gensalt();
 
-        return BCrypt.hashpw(plainPassword, salt);
+        return BCrypt.hashpw(plainPassword.toString(), salt);
+    }
+
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        return encode(rawPassword).equals(encodedPassword);
     }
 }

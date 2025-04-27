@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.user;
 
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
+import com.eventty.eventtynextgen.user.response.UserChangePasswordResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
@@ -18,4 +19,6 @@ public interface UserService {
     UserActivateDeletedUserResponseView activateDeletedUser(Long userId);
 
     UserFindAccountResponseView findAccount(String name, String phone);
+
+    UserChangePasswordResponseView changePassword(Long userId, String currentPassword, String updatedPassword);
 }

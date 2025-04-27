@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +15,7 @@ import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
+import com.eventty.eventtynextgen.user.response.UserChangePasswordResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
@@ -52,7 +54,7 @@ class UserServiceImplTest {
             User user = mock(User.class);
 
             when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-            when(passwordEncoder.hashPassword(password)).thenReturn(hashedPassword);
+            when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
             when(userRepository.save(any(User.class))).thenReturn(user);
 
             UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
@@ -405,5 +407,79 @@ class UserServiceImplTest {
             }
         }
 
+    }
+
+    @DisplayName("비즈니스 로직 - 비밀번호 변경")
+    @Nested
+    class ChangePassword {
+
+        @Test
+        @DisplayName("현재_비밀번호_검증에 통과할_경우 새로운 비밀번호로 변경하는데 `성공`한다.")
+        void 현재_비밀번호_검증에_통과할_경우_새로운_비밀번호로_변경하는데_성공한다() {
+            // given
+            Long userId = 1L;
+            String currentPassword = "current_password";
+            String updatedPassword = "updated_password";
+            String encodedUpdatedPassword = "encoded_updated_password";
+            User user = mock(User.class);
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(user.getPassword()).thenReturn(currentPassword);
+            when(passwordEncoder.matches(currentPassword, user.getPassword())).thenReturn(true);
+            when(passwordEncoder.encode(updatedPassword)).thenReturn("encoded_updated_password");
+            doNothing().when(user).changePassword(encodedUpdatedPassword);
+            when(user.getId()).thenReturn(userId);
+
+            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when
+            UserChangePasswordResponseView result = userService.changePassword(userId, currentPassword, updatedPassword);
+
+            // then
+            assertThat(result.userId()).isEqualTo(userId);
+        }
+
+        @Test
+        @DisplayName("현재 비밀번호 검증에 실패할 경우 적절한 예외와 함께 새로운 비밀번호로 변경하는데 `실패`한다.")
+        void 현재_비밀번호_검증에_실패할_경우_새로운_비밀번호로_변경하는데_실패한다() {
+            // given
+            Long userId = 1L;
+            String currentPassword = "current_password";
+            String updatedPassword = "updated_password";
+            User user = mock(User.class);
+
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(user.getPassword()).thenReturn(currentPassword);
+            when(passwordEncoder.matches(currentPassword, user.getPassword())).thenReturn(false);
+
+            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when & then
+            try {
+                userService.changePassword(userId, currentPassword, updatedPassword);
+            } catch (CustomException ex) {
+                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.MISMATCH_CURRENT_PASSWORD);
+            }
+        }
+
+        @Test
+        @DisplayName("일치하는 userId를 찾지 못할 경우 적절한 예외와 함께 요청에 `실패`한다.")
+        void 일치하는_계정을_찾지_못할_경우_예외와_함께_요청에_실패한다() {
+            // given
+            Long userId = 1L;
+            String currentPassword = "current_password";
+            String updatedPassword = "updated_password";
+
+            when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when & then
+            try {
+                userService.changePassword(userId, currentPassword, updatedPassword);
+            } catch (CustomException ex) {
+                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+            }
+        }
     }
 }
