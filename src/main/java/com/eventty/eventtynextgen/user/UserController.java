@@ -1,10 +1,13 @@
 package com.eventty.eventtynextgen.user;
 
-import com.eventty.eventtynextgen.user.request.UserActivateDeletedUserRequestCommand;
+import com.eventty.eventtynextgen.user.request.UserChangePasswordRequestCommand;
+import com.eventty.eventtynextgen.user.request.UserFindAccountRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
+import com.eventty.eventtynextgen.user.response.UserChangePasswordResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
+import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
 import com.eventty.eventtynextgen.user.shared.annotation.UserApiV1;
@@ -13,12 +16,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @UserApiV1
 @RequiredArgsConstructor
@@ -59,5 +62,19 @@ public class UserController {
     public ResponseEntity<UserActivateDeletedUserResponseView> activateDeletedUser(
         @PathVariable("user-id") Long userId) {
         return ResponseEntity.ok(this.userService.activateDeletedUser(userId));
+    }
+
+    @GetMapping("/accounts")
+    public ResponseEntity<UserFindAccountResponseView> findAccount(@RequestBody @Valid UserFindAccountRequestCommand userFindAccountRequestCommand) {
+        return ResponseEntity.ok(this.userService.findAccount(userFindAccountRequestCommand.name(), userFindAccountRequestCommand.phone()));
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<UserChangePasswordResponseView> changePassword(
+        @RequestBody @Valid UserChangePasswordRequestCommand userChangePasswordRequestCommand) {
+        return ResponseEntity.ok(this.userService.changePassword(
+            userChangePasswordRequestCommand.userId(),
+            userChangePasswordRequestCommand.currentPassword(),
+            userChangePasswordRequestCommand.updatedPassword()));
     }
 }
