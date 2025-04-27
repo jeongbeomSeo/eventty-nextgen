@@ -9,6 +9,7 @@ import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
+import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
 import lombok.RequiredArgsConstructor;
@@ -78,5 +79,10 @@ public class UserServiceImpl implements UserService {
             user.updateDeleteStatus(UserStatus.ACTIVE);
             return new UserActivateDeletedUserResponseView(user.getId(), user.getEmail(), user.getName());
         }).orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+    }
+
+    @Override
+    public UserFindAccountResponseView findAccount(String name, String phone) {
+        return null;
     }
 }

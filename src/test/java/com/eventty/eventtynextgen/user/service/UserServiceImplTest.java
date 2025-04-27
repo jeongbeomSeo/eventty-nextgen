@@ -15,8 +15,10 @@ import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
+import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -305,5 +307,99 @@ class UserServiceImplTest {
                 assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
         }
+    }
+
+    @DisplayName("비즈니스 로직 - 계정 찾기")
+    @Nested
+    class FindAccount {
+
+        @Test
+        @DisplayName("인자값으로 들어온 데이터를 통해 활성화되어 있는 사용자를 찾을 경우 요청에 `성공`한다.")
+        void 인자값으로_들어온_데이터를_통해_활성_사용자를_찾을_경우_요청에_성공한다() {
+            // given
+            String name = "홍길동";
+            String phone = "010-0000-0000";
+            User user = mock(User.class);
+
+            when(user.isDeleted()).thenReturn(false);
+            when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user));
+
+            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when
+            UserFindAccountResponseView result = userService.findAccount(name, phone);
+
+            // then
+            assertThat(result.accounts().size()).isEqualTo(1);
+            assertThat(result.accounts().get(0).userId()).isNotNull();
+            assertThat(result.accounts().get(0).email()).isNotBlank();
+            assertThat(result.accounts().get(0).isDeleted()).isFalse();
+        }
+
+        @Test
+        @DisplayName("인자값으로 들어온 데이터를 통해 삭제되어 있는 사용자를 찾을 경우 요청에 `성공`힌디.")
+        void 인자값으로_들어온_데이터를_통해_삭제된_사용자를_찾을_경우_요청에_성공한다() {
+            // given
+            String name = "홍길동";
+            String phone = "010-0000-0000";
+            User user = mock(User.class);
+
+            when(user.isDeleted()).thenReturn(true);
+            when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user));
+
+            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when
+            UserFindAccountResponseView result = userService.findAccount(name, phone);
+
+            // then
+            assertThat(result.accounts().size()).isEqualTo(1);
+            assertThat(result.accounts().get(0).userId()).isNotNull();
+            assertThat(result.accounts().get(0).email()).isNotBlank();
+            assertThat(result.accounts().get(0).isDeleted()).isTrue();
+        }
+
+        @Test
+        @DisplayName("인자값으로 들어온 데이터를 통해 2개 이상의 계정을 찾을 경우 `모든 계정의 정보를 반환`한다.")
+        void 인자값으로_들어온_데이터를_통해_다수의_계정을_찾을_경우_모든_계정의_정보를_반환한다() {
+            // given
+            String name = "홍길동";
+            String phone = "010-0000-0000";
+            User user1 = mock(User.class);
+            User user2 = mock(User.class);
+
+            when(user1.isDeleted()).thenReturn(false);
+            when(user2.isDeleted()).thenReturn(true);
+            when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user1, user2));
+
+
+            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when
+            UserFindAccountResponseView result = userService.findAccount(name, phone);
+
+            // then
+            assertThat(result.accounts().size()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("인자값으로 들어온 데이터를 통해 사용자를 찾지 못했을 경우 요청에 `성공`한다.")
+        void 인자값으로_들어온_데이터를_통해_사용자를_찾지_못했을_경우_요청에_실패한다() {
+            // given
+            String name = "홍길동";
+            String phone = "010-0000-0000";
+
+            when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of());
+
+            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+
+            // when & then
+            try {
+                userService.findAccount(name, phone);
+            } catch (CustomException ex) {
+                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+            }
+        }
+
     }
 }
