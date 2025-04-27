@@ -10,8 +10,10 @@ import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
+import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView.Account;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -83,6 +85,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserFindAccountResponseView findAccount(String name, String phone) {
-        return null;
+        List<Account> accounts = userRepository.findByNameAndPhone(name, phone).stream()
+            .map(user -> new Account(user.getId(), user.getEmail(), user.isDeleted()))
+            .toList();
+
+        return new UserFindAccountResponseView(accounts);
     }
 }

@@ -321,6 +321,8 @@ class UserServiceImplTest {
             String phone = "010-0000-0000";
             User user = mock(User.class);
 
+            when(user.getId()).thenReturn(1L);
+            when(user.getEmail()).thenReturn("test@naver.com");
             when(user.isDeleted()).thenReturn(false);
             when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user));
 
@@ -344,6 +346,8 @@ class UserServiceImplTest {
             String phone = "010-0000-0000";
             User user = mock(User.class);
 
+            when(user.getId()).thenReturn(1L);
+            when(user.getEmail()).thenReturn("test@naver.com");
             when(user.isDeleted()).thenReturn(true);
             when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user));
 
