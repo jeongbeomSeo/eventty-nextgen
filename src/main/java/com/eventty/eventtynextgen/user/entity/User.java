@@ -1,7 +1,5 @@
 package com.eventty.eventtynextgen.user.entity;
 
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -88,7 +86,7 @@ public class User {
     }
 
     public void updateDeleteStatus(UserStatus status) {
-        if (status == UserStatus.ARCHIVE) {
+        if (status == UserStatus.ACTIVE) {
             this.isDeleted = false;
             this.deleteTime = null;
         } else if (status == UserStatus.DELETED) {
@@ -98,7 +96,7 @@ public class User {
     }
 
     public enum UserStatus {
-        ARCHIVE,
+        ACTIVE,
         DELETED
     }
 }

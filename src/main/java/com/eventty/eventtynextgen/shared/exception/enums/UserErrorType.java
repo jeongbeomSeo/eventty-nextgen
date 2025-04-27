@@ -11,6 +11,7 @@ public enum UserErrorType implements ErrorType {
     NOT_FOUND_USER("NOT_FOUND_USER", "해당 사용자를 찾을 수 없습니다."),
     USER_SAVE_ERROR("USER_SAVE_ERROR", "사용자 저장 중 오류가 발생했습니다."),
     USER_ALREADY_DELETED("USER_ALREADY_DELETED", "삭제되어 있는 유저입니다."),
+    USER_NOT_DELETED("USER_NOT_DELETED", "삭제되어 있지 않은 유저입니다."),
 
     // Input Validation
     INVALID_EMAIL_FORMAT("INVALID_EMAIL_FORMAT", "이메일 형식이 올바르지 않습니다: 이메일은 '@'와 '.'가 포함되어 있어야 합니다."),

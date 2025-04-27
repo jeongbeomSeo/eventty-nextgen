@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.certification;
 
 import com.eventty.eventtynextgen.certification.request.CertificationExistsRequestCommand;
-import com.eventty.eventtynextgen.certification.request.CertificationRequestCommand;
+import com.eventty.eventtynextgen.certification.request.CertificationSendCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationValidateCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationExistsResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
@@ -26,8 +26,8 @@ public class CertificationController {
     }
 
     @PostMapping
-    public ResponseEntity<CertificationSendCodeResponseView> sendCode(@RequestBody @Valid CertificationRequestCommand certificationRequestCommand) {
-        return ResponseEntity.ok(this.certificationService.sendCode(certificationRequestCommand.email()));
+    public ResponseEntity<CertificationSendCodeResponseView> sendCode(@RequestBody @Valid CertificationSendCodeRequestCommand certificationSendCodeRequestCommand) {
+        return ResponseEntity.ok(this.certificationService.sendCode(certificationSendCodeRequestCommand.email()));
     }
 
     @PostMapping("/validate")

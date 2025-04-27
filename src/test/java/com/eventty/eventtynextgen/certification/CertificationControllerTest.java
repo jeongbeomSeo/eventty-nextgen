@@ -14,7 +14,7 @@ import com.eventty.eventtynextgen.certification.entity.CertificationCode;
 import com.eventty.eventtynextgen.certification.fixture.CertificationCodeFixture;
 import com.eventty.eventtynextgen.certification.repository.CertificationCodeRepository;
 import com.eventty.eventtynextgen.certification.request.CertificationExistsRequestCommand;
-import com.eventty.eventtynextgen.certification.request.CertificationRequestCommand;
+import com.eventty.eventtynextgen.certification.request.CertificationSendCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationValidateCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationExistsResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
@@ -140,7 +140,7 @@ class CertificationControllerTest {
         void 인증_코드를_성공적으로_발생했다면_사용자에게_인증_코드를_전달해준다() throws Exception {
             // given
             String certTarget = "test@naver.com";
-            CertificationRequestCommand certificationRequestCommand = new CertificationRequestCommand(certTarget);
+            CertificationSendCodeRequestCommand certificationRequestCommand = new CertificationSendCodeRequestCommand(certTarget);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)

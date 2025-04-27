@@ -3,6 +3,8 @@ package com.eventty.eventtynextgen.user.controller;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import ch.vorburger.exec.ManagedProcessException;
@@ -48,12 +50,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @TestInstance(Lifecycle.PER_CLASS)
+@DisplayName("User Controller 통합 테스트")
 public class UserControllerTest {
 
     private static final String BASE_URL = "/api/v1/user";
@@ -107,7 +109,7 @@ public class UserControllerTest {
 
 
         @Test
-        @DisplayName("signup - 이메일이 존재하지 않는 경우 회원가입 요청은 `성공`한다.")
+        @DisplayName("이메일이 존재하지 않는 경우 회원가입 요청은 `성공`한다.")
         void 이메일이_존재하지_않는_경우_회원가입_요청_성공한다() throws Exception {
             // given
             UserSignUpRequestCommand signupRequest = SignupRequestFixture.successUserSignUpRequest(email);
@@ -119,12 +121,12 @@ public class UserControllerTest {
 
             // then
             resultActions.andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.userId").isNotEmpty())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").isNotEmpty());
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.email").isNotEmpty());
         }
 
         @Test
-        @DisplayName("signup - 이메일이 존재하는 경우 회원가입 요청은 `실패하고 예외를 전달`한다.")
+        @DisplayName("이메일이 존재하는 경우 회원가입 요청은 `실패하고 예외를 전달`한다.")
         void 이메일이_존재하는_경우_회원가입_요청_실패한다() throws Exception {
             // given
             UserSignUpRequestCommand signupRequest = SignupRequestFixture.successUserSignUpRequest(email);
@@ -142,13 +144,13 @@ public class UserControllerTest {
             // then
             resultActions.andExpect(status().isConflict())
                 .andExpect(
-                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
 
             userRepository.delete(userFromDb);
         }
 
         @Test
-        @DisplayName("signup - 이미 삭제되어 있는 계정이 존재할 경우 회원가입 요청은 `실패하고 예외를 전달`한다.")
+        @DisplayName("이미 삭제되어 있는 계정이 존재할 경우 회원가입 요청은 `실패하고 예외를 전달`한다.")
         void 이미_삭제되어_있는_계정이_존재할_경우_요청에_실패하고_예외를_전달한다() throws Exception {
             // given
             UserSignUpRequestCommand signupRequest = SignupRequestFixture.successUserSignUpRequest(email);
@@ -167,7 +169,7 @@ public class UserControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
-                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
 
             userRepository.delete(userFromDb);
         }
@@ -191,8 +193,8 @@ public class UserControllerTest {
 
                 // then
                 resultActions.andExpect(status().isCreated())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.userId").isNotEmpty())
-                    .andExpect(MockMvcResultMatchers.jsonPath("$.email").isNotEmpty());
+                    .andExpect(jsonPath("$.userId").isNotEmpty())
+                    .andExpect(jsonPath("$.email").isNotEmpty());
             }
 
             @ParameterizedTest(name = "[{index}] {0}")
@@ -215,7 +217,7 @@ public class UserControllerTest {
                 // then
                 resultActions.andExpect(status().isBadRequest())
                     .andExpect(
-                        MockMvcResultMatchers.content()
+                        content()
                             .string(objectMapper.writeValueAsString(responseEntity.getBody())));
             }
 
@@ -239,7 +241,7 @@ public class UserControllerTest {
                 // then
                 resultActions.andExpect(status().isBadRequest())
                     .andExpect(
-                        MockMvcResultMatchers.content()
+                        content()
                             .string(objectMapper.writeValueAsString(responseEntity.getBody())));
             }
 
@@ -263,7 +265,7 @@ public class UserControllerTest {
                 // then
                 resultActions.andExpect(status().isBadRequest())
                     .andExpect(
-                        MockMvcResultMatchers.content()
+                        content()
                             .string(objectMapper.writeValueAsString(responseEntity.getBody())));
             }
 
@@ -287,7 +289,7 @@ public class UserControllerTest {
                 // then
                 resultActions.andExpect(status().isBadRequest())
                     .andExpect(
-                        MockMvcResultMatchers.content()
+                        content()
                             .string(objectMapper.writeValueAsString(responseEntity.getBody())));
             }
 
@@ -311,7 +313,7 @@ public class UserControllerTest {
                 // then
                 resultActions.andExpect(status().isBadRequest())
                     .andExpect(
-                        MockMvcResultMatchers.content()
+                        content()
                             .string(objectMapper.writeValueAsString(responseEntity.getBody())));
             }
 
@@ -335,7 +337,7 @@ public class UserControllerTest {
                 // then
                 resultActions.andExpect(status().isBadRequest())
                     .andExpect(
-                        MockMvcResultMatchers.content()
+                        content()
                             .string(objectMapper.writeValueAsString(responseEntity.getBody())));
             }
 
@@ -387,13 +389,12 @@ public class UserControllerTest {
         }
     }
 
-    // TODO: update
     @Nested
     @DisplayName("회원 수정 테스트")
     class update {
 
         @Test
-        @DisplayName("update - 삭제되어 있지 않는 회원 수정 요청은 `성공`한다.")
+        @DisplayName("삭제되어 있지 않는 회원 수정 요청은 `성공`한다.")
         void 삭제되어_있지_않는_회원_수정_요청은_성공한다() throws Exception {
             // given
             User user = UserFixture.createUser();
@@ -408,16 +409,16 @@ public class UserControllerTest {
 
             // then
             resultActions.andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.userId").isNotEmpty())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").isNotEmpty())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.phone").isNotEmpty())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.birth").isNotEmpty());
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.name").isNotEmpty())
+                .andExpect(jsonPath("$.phone").isNotEmpty())
+                .andExpect(jsonPath("$.birth").isNotEmpty());
 
             userRepository.delete(userFromDb);
         }
 
         @Test
-        @DisplayName("update - 존재하지 않은 회원의 수정 요청은 `실패`한다.")
+        @DisplayName("존재하지 않은 회원의 수정 요청은 `실패`한다.")
         void 존재하지_않는_회원의_수정_요청은_실패한다() throws Exception {
             // given
             UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest(1L);
@@ -433,11 +434,11 @@ public class UserControllerTest {
             // then
             resultActions.andExpect(status().isNotFound())
                 .andExpect(
-                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
         @Test
-        @DisplayName("update - 이미 삭제된 회원 수정 요청은 `실패`한다.")
+        @DisplayName("이미 삭제된 회원 수정 요청은 `실패`한다.")
         void 삭제된_회원_수정_요청은_실패한다() throws Exception {
             // given
             User user = UserFixture.createUser();
@@ -456,18 +457,18 @@ public class UserControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
-                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
 
             userRepository.delete(userFromDb);
         }
     }
 
-    // TODO: delete
     @Nested
+    @DisplayName("회원 삭제 테스트")
     class Delete {
 
         @Test
-        @DisplayName("delete - 삭제되지 않은 회원의 삭제 요청은 `성공`한다.")
+        @DisplayName("삭제되지 않은 회원의 삭제 요청은 `성공`한다.")
         void 삭제되지_않은_회원의_삭제_요청은_성공한다() throws Exception {
             // given
             User user = UserFixture.createUser();
@@ -479,13 +480,13 @@ public class UserControllerTest {
 
             // then
             resultActions.andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.userId").isNotEmpty());
+                .andExpect(jsonPath("$.userId").isNotEmpty());
 
             userRepository.delete(userFromDb);
         }
 
         @Test
-        @DisplayName("delete - 존재하지 않는 회원의 삭제 요청은 `실패`한다.")
+        @DisplayName("존재하지 않는 회원의 삭제 요청은 `실패`한다.")
         void 존재하지_않는_회원_삭제_요청은_실패한다() throws Exception {
             // given
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
@@ -497,12 +498,11 @@ public class UserControllerTest {
 
             // then
             resultActions.andExpect(status().isNotFound())
-                .andExpect(
-                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
         @Test
-        @DisplayName("delete - 이미 삭제된 회원의 삭제 요청은 `실패`한다.")
+        @DisplayName("이미 삭제된 회원의 삭제 요청은 `실패`한다.")
         void 이미_삭제된_회원의_삭제_요청은_실패한다() throws Exception {
             // given
             User user = UserFixture.createUser();
@@ -518,10 +518,75 @@ public class UserControllerTest {
 
             // then
             resultActions.andExpect(status().isBadRequest())
-                .andExpect(
-                    MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
 
             userRepository.delete(userFromDb);
+        }
+    }
+
+    @Nested
+    @DisplayName("회원 상태 활성화 테스트")
+    class ActivateDeletedUser {
+
+        @Test
+        @DisplayName("삭제된 회원일 경우 활성화 요청에 `성공`한다.")
+        void 삭제된_회원일_경우_활성화_요청예_성공한다() throws Exception {
+            // given
+            User user = UserFixture.createUser();
+            user.updateDeleteStatus(UserStatus.DELETED);
+            User userFromDb = userRepository.save(user);
+
+            String url = BASE_URL + "/" + userFromDb.getId() + "/status";
+
+            // when
+            ResultActions resultActions = mockMvc.perform(patch(url));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(userFromDb.getId()))
+                .andExpect(jsonPath("$.email").value(userFromDb.getEmail()))
+                .andExpect(jsonPath("$.name").value(userFromDb.getName()));
+
+            userRepository.delete(userFromDb);
+        }
+
+        @Test
+        @DisplayName("삭제되지 않은 회원일 경우 활성화 요청에 `실패`한다.")
+        void 삭제되지_않은_회원일_경우_활성화_요청에_실패한다() throws Exception {
+            // given
+            User user = UserFixture.createUser();
+            User userFromDb = userRepository.save(user);
+
+            String url = BASE_URL + "/" + userFromDb.getId() + "/status";
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                CustomException.badRequest(UserErrorType.USER_NOT_DELETED));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(patch(url));
+
+            // then
+            resultActions.andExpect(status().isBadRequest())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+
+            userRepository.delete(userFromDb);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 회원일 경우 활성화 요청에 `실패`한다.")
+        void 존재하지_않는_회원일_경우_활성화_요청에_실패한다() throws Exception {
+            // given
+            String url = BASE_URL + "/" + "1" + "/status";
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(patch(url));
+
+            // then
+            resultActions.andExpect(status().isBadRequest())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.eventty.eventtynextgen.user;
 
+import com.eventty.eventtynextgen.user.request.UserActivateDeletedUserRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
+import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
@@ -12,9 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @UserApiV1
 @RequiredArgsConstructor
@@ -51,5 +55,9 @@ public class UserController {
         return ResponseEntity.ok(this.userService.delete(userId));
     }
 
-    // TODO: 삭제 되어 있는 유저 활성화 해주는 API 구현
+    @PatchMapping("/{user-id}/status")
+    public ResponseEntity<UserActivateDeletedUserResponseView> activateDeletedUser(
+        @PathVariable("user-id") Long userId) {
+        return ResponseEntity.ok(this.userService.activateDeletedUser(userId));
+    }
 }

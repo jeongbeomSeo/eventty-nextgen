@@ -44,7 +44,7 @@ class CertificationServiceImplTest {
     class SendCode {
 
         @Test
-        @DisplayName("send code - 인증 코드를 생성하고 엔티티 저장에 성공하여 인증 코드 전송에 성공한다")
+        @DisplayName("인증 코드를 생성하고 엔티티 저장에 성공하여 인증 코드 전송에 성공한다")
         void 인증_코드_생성_저장에_성공하여_인증_코드_전송에_성공한다() {
             // given
             String certTarget = "example@naver.com";
@@ -64,7 +64,7 @@ class CertificationServiceImplTest {
         }
 
         @Test
-        @DisplayName("send code - 인증 코드 엔티티 저장에 실패하여 예외를 발생시킨다.")
+        @DisplayName("인증 코드 엔티티 저장에 실패하여 예외를 발생시킨다.")
         void 인증_코드_저장에_실패하여_예외를_발생시킨다() {
             // given
             String certTarget = "example@naver.com";
@@ -91,7 +91,7 @@ class CertificationServiceImplTest {
     class ValidateCode {
 
         @Test
-        @DisplayName("validate code - 요청한 이메일과 인증 코드로 검증을 요청하여, 유효한 검증 결과를 확인한다.")
+        @DisplayName("요청한 이메일과 인증 코드로 검증을 요청하여, 유효한 검증 결과를 확인한다.")
         void 인증_코드_검증을_요청하여_유효한_검증_결과를_확인한다() {
             // given
             String email = "example@naver.com";
@@ -113,7 +113,7 @@ class CertificationServiceImplTest {
         }
 
         @Test
-        @DisplayName("validate code - 요청한 이메일과 인증 코드로 검증 요청을 하지만, 유효 기간 만료로 인해 실패 결과를 받는다.")
+        @DisplayName("요청한 이메일과 인증 코드로 검증 요청을 하지만, 유효 기간 만료로 인해 실패 결과를 받는다.")
         void 인증_코드_검증을_요청_하지만_유효_기간_만료로_인해_실패_결과를_받는다() {
             // given
             String email = "example@naver.com";
@@ -135,7 +135,7 @@ class CertificationServiceImplTest {
         }
 
         @Test
-        @DisplayName("validate code - 요청한 이메일과 인증 코드로 검증 요청을 하지만, 일치하는 인증 코드를 찾지 못하여 실패 결과를 받는다.")
+        @DisplayName("요청한 이메일과 인증 코드로 검증 요청을 하지만, 일치하는 인증 코드를 찾지 못하여 실패 결과를 받는다.")
         void 인증_코드_검증을_요청_하지만_저장되어_있는_인증_코드를_찾지_못하여_실패_결과를_받는다() {
             // given
             String email = "example@naver.com";
