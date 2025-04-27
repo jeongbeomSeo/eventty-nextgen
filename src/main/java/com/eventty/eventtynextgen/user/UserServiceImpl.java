@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserActivateDeletedUserResponseView activateDeletedUser(Long userId) {
-        return userRepository.findById(userId).map(user -> {
+        return this.userRepository.findById(userId).map(user -> {
             if (!user.isDeleted()) {
                 throw CustomException.badRequest(UserErrorType.USER_NOT_DELETED);
             }
@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserFindAccountResponseView findAccount(String name, String phone) {
-        List<Account> accounts = userRepository.findByNameAndPhone(name, phone).stream()
+        List<Account> accounts = this.userRepository.findByNameAndPhone(name, phone).stream()
             .map(user -> new Account(user.getId(), user.getEmail(), user.isDeleted()))
             .toList();
 

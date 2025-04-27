@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.user.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -19,10 +20,12 @@ import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
+import com.eventty.eventtynextgen.user.fixture.FindAccountRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UpdateRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
+import com.eventty.eventtynextgen.user.request.UserFindAccountRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,8 +33,11 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import javax.print.attribute.standard.MediaSize.NA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -587,6 +593,89 @@ public class UserControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+    }
+
+    @Nested
+    @DisplayName("회원 계정 찾기")
+    class FindAccount {
+
+        private static final String NAME = "홍길동";
+        private static final String PHONE = "010-0000-0000";
+
+        @BeforeEach
+        void cleanup() {
+            jdbcTemplate.update("DELETE FROM users WHERE name = ? AND phone = ?", NAME, PHONE);
+        }
+
+        private final String URL = BASE_URL + "/accounts";
+
+        @Test
+        @DisplayName("요청으로 들어온 데이터를 통해 1개의 계정을 찾을 경우 요청에 `성공`한다.")
+        void 요청으로_들어온_데이터를_통해_1개의_계정을_찾을_경우_요청에_성공한다() throws Exception {
+            // given
+            User user = UserFixture.createUserByNameAndPhone(NAME, PHONE);
+            User userFromDb = userRepository.save(user);
+            UserFindAccountRequestCommand findAccountRequest = FindAccountRequestFixture.createFindAccountRequest(NAME, PHONE);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .content(objectMapper.writeValueAsString(findAccountRequest))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.accounts.size()").value(1))
+                .andExpect(jsonPath("$.accounts[*].userId").isNotEmpty())
+                .andExpect(jsonPath("$.accounts[*].email").isNotEmpty())
+                .andExpect(jsonPath("$.accounts[*].isDeleted").isNotEmpty());
+
+            userRepository.delete(userFromDb);
+        }
+
+        @Test
+        @DisplayName("요청으로 들어온 데이터를 통해 2개 이상의 계정을 찾을 경우 요청에 `성공`한다.")
+        void 요청으로_들어온_데이터를_통해_2개_이상의_계정을_찾을_경우_요청에_성공한다() throws Exception {
+            // given
+            List<User> users = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                String email = "test" + i + "@naver.com";
+                User user = UserFixture.createUserByEmailAndNameAndPhone(email, NAME, PHONE);
+                User userFromDb = userRepository.save(user);
+
+                users.add(userFromDb);
+            }
+            UserFindAccountRequestCommand findAccountRequest = FindAccountRequestFixture.createFindAccountRequest(NAME, PHONE);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .content(objectMapper.writeValueAsString(findAccountRequest))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.accounts.size()").value(5))
+                .andExpect(jsonPath("$.accounts[*].userId").isNotEmpty())
+                .andExpect(jsonPath("$.accounts[*].email").isNotEmpty())
+                .andExpect(jsonPath("$.accounts[*].isDeleted").isNotEmpty());
+
+            userRepository.deleteAll(users);
+        }
+
+        @Test
+        @DisplayName("요청으로 들어온 데이터를 통해 0개의 계정을 찾을 경우 요청에 `성공`한다.")
+        void 요청으로_들어온_데이터를_통해_0개의_계정을_찾을_경우_요청에_성공한다() throws Exception {
+            // given
+            UserFindAccountRequestCommand findAccountRequest = FindAccountRequestFixture.createFindAccountRequest(NAME, PHONE);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .content(objectMapper.writeValueAsString(findAccountRequest))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.accounts.size()").value(0));
         }
     }
 }
