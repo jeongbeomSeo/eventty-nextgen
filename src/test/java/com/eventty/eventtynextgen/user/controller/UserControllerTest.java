@@ -18,6 +18,7 @@ import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
+import com.eventty.eventtynextgen.user.component.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.fixture.FindAccountRequestFixture;
@@ -25,6 +26,7 @@ import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UpdateRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
+import com.eventty.eventtynextgen.user.request.UserChangePasswordRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserFindAccountRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
@@ -37,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import javax.print.attribute.standard.MediaSize.NA;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -74,6 +75,9 @@ public class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -688,31 +692,127 @@ public class UserControllerTest {
         @Test
         @DisplayName("현재 비밀번호 매칭 검증과 변경 비밀번호 확인 검증에 통과할 경우 요청에 `성공`한다.")
         void 현재_비밀번호_매칭_검증과_변경_비밀번호_확인_검증에_통과할_경우_요청에_성공한다() throws Exception {
+            // given
+            String currentPassword = "currentPassword";
+            User user = UserFixture.createUserByPassword(passwordEncoder.encode(currentPassword));
+            User userFromDb = userRepository.save(user);
+            String updatedPassword = "updatedPassword";
 
+            UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), currentPassword,
+                updatedPassword, updatedPassword);
+
+            // when
+            ResultActions result = mockMvc.perform(patch(URL)
+                .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId").value(userFromDb.getId()))
+                .andExpect(jsonPath("$.name").value(userFromDb.getName()))
+                .andExpect(jsonPath("$.email").value(userFromDb.getEmail()));
+
+            userRepository.delete(userFromDb);
         }
 
         @Test
         @DisplayName("현재 비밀번호 매칭 검증에 실패할 경우 요청에 `실패`한다.")
         void 현재_비밀번호_매칭_검증에_실패할_경우_요청에_실패한다() throws Exception {
+            // given
+            String currentPassword = "currentPassword";
+            User user = UserFixture.createUserByPassword(passwordEncoder.encode(currentPassword));
+            User userFromDb = userRepository.save(user);
+            String updatedPassword = "updatedPassword";
 
+            UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), "mismatchPassword",
+                updatedPassword, updatedPassword);
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                CustomException.badRequest(UserErrorType.MISMATCH_CURRENT_PASSWORD));
+
+            // when
+            ResultActions result = mockMvc.perform(patch(URL)
+                .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            result.andExpect(status().isBadRequest())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+
+            userRepository.delete(userFromDb);
         }
 
         @Test
         @DisplayName("변경 비밀번호 확인 검증에 실패할 경우 요청에 `실패`한다.")
         void 변경_비밀번호_확인_검증에_실패할_경우_요청에_실패한다() throws Exception {
+            // given
+            String currentPassword = "currentPassword";
+            User user = UserFixture.createUserByPassword(passwordEncoder.encode(currentPassword));
+            User userFromDb = userRepository.save(user);
+            String updatedPassword = "updatedPassword";
 
+            UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), currentPassword,
+                updatedPassword, updatedPassword + "2");
+
+            // when
+            ResultActions result = mockMvc.perform(patch(URL)
+                .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").isNotEmpty())
+                .andExpect(jsonPath("$.msg").isNotEmpty())
+                .andExpect(jsonPath("$.detail").isNotEmpty());
+
+            userRepository.delete(userFromDb);
         }
 
         @Test
         @DisplayName("삭제된 계정일 경우 요청에 `실패`한다.")
         void 삭제된_계정일_경우_요청에_실패한다() throws Exception {
+            // given
+            String currentPassword = "currentPassword";
+            User user = UserFixture.createUserByPassword(passwordEncoder.encode(currentPassword));
+            user.updateDeleteStatus(UserStatus.DELETED);
+            User userFromDb = userRepository.save(user);
+            String updatedPassword = "updatedPassword";
 
+            UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), currentPassword,
+                updatedPassword, updatedPassword);
+
+            // when
+            ResultActions result = mockMvc.perform(patch(URL)
+                .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").isNotEmpty())
+                .andExpect(jsonPath("$.msg").isNotEmpty());
+
+            userRepository.delete(userFromDb);
         }
 
         @Test
         @DisplayName("비밀번호를 변경하고자 하는 계정을 찾을 수 없는 경우 요청에 `실패`한다.")
         void 계정을_찾을_수_없는_경우_요청에_실패한다() throws Exception {
+            // given
+            String currentPassword = "currentPassword";
+            String updatedPassword = "updatedPassword";
 
+            UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(1L, currentPassword,
+                updatedPassword, updatedPassword);
+
+            // when
+            ResultActions result = mockMvc.perform(patch(URL)
+                .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").isNotEmpty())
+                .andExpect(jsonPath("$.msg").isNotEmpty());
         }
     }
 }

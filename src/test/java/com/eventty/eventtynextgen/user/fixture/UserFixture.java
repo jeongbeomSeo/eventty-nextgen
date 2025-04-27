@@ -18,4 +18,9 @@ public class UserFixture {
     public static User createUserByNameAndPhone(String name, String phone) {
         return User.of("test@naver.com", "password", UserRoleType.USER, name, phone, "2000-01-01");
     }
+
+    public static User createUserByPassword(String password) {
+        return User.of("test@naver.com", password, UserRoleType.USER, "name", "000-0000-0000", "2000-01-01");
+
+    }
 }

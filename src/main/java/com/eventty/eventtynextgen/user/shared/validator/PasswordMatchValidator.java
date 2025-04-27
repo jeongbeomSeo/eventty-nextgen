@@ -8,11 +8,23 @@ import jakarta.validation.ConstraintValidatorContext;
 public class PasswordMatchValidator implements ConstraintValidator<PasswordMatch, UserChangePasswordRequestCommand> {
 
     @Override
-    public boolean isValid(UserChangePasswordRequestCommand command, ConstraintValidatorContext context) {
-        if (command == null) {
-            return false;
+    public boolean isValid(
+        UserChangePasswordRequestCommand cmd,
+        ConstraintValidatorContext context) {
+
+        if (cmd == null) return false;
+        if (cmd.updatedPassword().equals(cmd.updatedPasswordConfirm())) {
+            return true;
         }
-        return command.updatedPassword().equals(command.updatedPasswordConfirm());
+
+        // 기본 글로벌 에러 억제
+        context.disableDefaultConstraintViolation();
+        // 'updatedPasswordConfirm' 필드에 에러를 붙여서 FieldError 로 만들어 준다
+        context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+            .addPropertyNode("updatedPasswordConfirm")
+            .addConstraintViolation();
+
+        return false;
     }
 
     @Override

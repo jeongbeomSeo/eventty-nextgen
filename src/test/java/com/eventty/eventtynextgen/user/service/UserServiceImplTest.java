@@ -219,7 +219,6 @@ class UserServiceImplTest {
             }
         }
 
-        // TODO: 삭제되어 있는 User를 변경하려고 시도할 경우
         @Test
         @DisplayName("삭제되어 있는 User는 회원 변경 요청에 `실패`한다.")
         void 삭제되어_있는_계정은_회원_변경_요청에_실패한다() {
