@@ -678,4 +678,41 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.accounts.size()").value(0));
         }
     }
+
+    @Nested
+    @DisplayName("화원 비밀번호 변경")
+    class ChangePassword {
+
+        private static final String URL = BASE_URL + "/password";
+
+        @Test
+        @DisplayName("현재 비밀번호 매칭 검증과 변경 비밀번호 확인 검증에 통과할 경우 요청에 `성공`한다.")
+        void 현재_비밀번호_매칭_검증과_변경_비밀번호_확인_검증에_통과할_경우_요청에_성공한다() throws Exception {
+
+        }
+
+        @Test
+        @DisplayName("현재 비밀번호 매칭 검증에 실패할 경우 요청에 `실패`한다.")
+        void 현재_비밀번호_매칭_검증에_실패할_경우_요청에_실패한다() throws Exception {
+
+        }
+
+        @Test
+        @DisplayName("변경 비밀번호 확인 검증에 실패할 경우 요청에 `실패`한다.")
+        void 변경_비밀번호_확인_검증에_실패할_경우_요청에_실패한다() throws Exception {
+
+        }
+
+        @Test
+        @DisplayName("삭제된 계정일 경우 요청에 `실패`한다.")
+        void 삭제된_계정일_경우_요청에_실패한다() throws Exception {
+
+        }
+
+        @Test
+        @DisplayName("비밀번호를 변경하고자 하는 계정을 찾을 수 없는 경우 요청에 `실패`한다.")
+        void 계정을_찾을_수_없는_경우_요청에_실패한다() throws Exception {
+
+        }
+    }
 }

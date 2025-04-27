@@ -1,9 +1,11 @@
 package com.eventty.eventtynextgen.user;
 
+import com.eventty.eventtynextgen.user.request.UserChangePasswordRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserFindAccountRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
+import com.eventty.eventtynextgen.user.response.UserChangePasswordResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
@@ -65,5 +67,14 @@ public class UserController {
     @GetMapping("/accounts")
     public ResponseEntity<UserFindAccountResponseView> findAccount(@RequestBody @Valid UserFindAccountRequestCommand userFindAccountRequestCommand) {
         return ResponseEntity.ok(this.userService.findAccount(userFindAccountRequestCommand.name(), userFindAccountRequestCommand.phone()));
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<UserChangePasswordResponseView> changePassword(
+        @RequestBody @Valid UserChangePasswordRequestCommand userChangePasswordRequestCommand) {
+        return ResponseEntity.ok(this.userService.changePassword(
+            userChangePasswordRequestCommand.userId(),
+            userChangePasswordRequestCommand.currentPassword(),
+            userChangePasswordRequestCommand.updatedPassword()));
     }
 }

@@ -97,6 +97,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserChangePasswordResponseView changePassword(Long userId, String currentPassword, String updatedPassword) {
         return this.userRepository.findById(userId).map(user -> {
+            if (user.isDeleted()) {
+                throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
+            }
+
             if (!this.passwordEncoder.matches(currentPassword, user.getPassword())) {
                 throw CustomException.badRequest(UserErrorType.MISMATCH_CURRENT_PASSWORD);
             }
