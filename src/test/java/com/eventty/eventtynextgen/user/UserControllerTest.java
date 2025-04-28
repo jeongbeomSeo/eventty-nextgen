@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.user.controller;
+package com.eventty.eventtynextgen.user;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -53,7 +53,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -78,9 +77,6 @@ public class UserControllerTest {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     private static final DBConfiguration config = DBConfigurationBuilder.newBuilder()
         .setPort(13306)
@@ -114,7 +110,7 @@ public class UserControllerTest {
 
         @BeforeEach
         void cleanup() {
-            jdbcTemplate.update("DELETE FROM users WHERE email = ?", email);
+            userRepository.deleteAll();
         }
 
 
@@ -609,7 +605,7 @@ public class UserControllerTest {
 
         @BeforeEach
         void cleanup() {
-            jdbcTemplate.update("DELETE FROM users WHERE name = ? AND phone = ?", NAME, PHONE);
+            userRepository.deleteAll();
         }
 
         private final String URL = BASE_URL + "/accounts";
