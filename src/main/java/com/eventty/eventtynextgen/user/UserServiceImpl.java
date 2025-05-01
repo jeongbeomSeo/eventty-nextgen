@@ -2,7 +2,7 @@ package com.eventty.eventtynextgen.user;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
-import com.eventty.eventtynextgen.user.component.PasswordEncoder;
+import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserSignupResponseView signup(String email, String password, UserRoleType userRole, String name, String phone, String birth) {
@@ -37,7 +36,7 @@ public class UserServiceImpl implements UserService {
             }
         });
 
-        User user = User.of(email, this.passwordEncoder.encode(password), userRole, name, phone, birth);
+        User user = User.of(email, PasswordEncoder.encode(password), userRole, name, phone, birth);
         User userFromDb = this.userRepository.save(user);
         if (userFromDb.getId() == null) {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, UserErrorType.USER_SAVE_ERROR);
@@ -102,11 +101,11 @@ public class UserServiceImpl implements UserService {
                 throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
             }
 
-            if (!this.passwordEncoder.matches(currentPassword, user.getPassword())) {
+            if (!PasswordEncoder.matches(currentPassword, user.getPassword())) {
                 throw CustomException.badRequest(UserErrorType.MISMATCH_CURRENT_PASSWORD);
             }
 
-            user.changePassword(this.passwordEncoder.encode(updatedPassword));
+            user.changePassword(PasswordEncoder.encode(updatedPassword));
 
             return new UserChangePasswordResponseView(user.getId(), user.getName(), user.getEmail());
         }).orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));

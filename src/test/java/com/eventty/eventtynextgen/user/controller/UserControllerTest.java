@@ -18,7 +18,7 @@ import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
-import com.eventty.eventtynextgen.user.component.PasswordEncoder;
+import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
@@ -73,9 +73,6 @@ public class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -716,7 +713,8 @@ public class UserControllerTest {
         void 현재_비밀번호_매칭_검증과_변경_비밀번호_확인_검증에_통과할_경우_요청에_성공한다() throws Exception {
             // given
             String currentPassword = "currentPassword";
-            User user = UserFixture.createUserByPassword(passwordEncoder.encode(currentPassword));
+            String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
+            User user = UserFixture.createUserByPassword(encodedCurrentPassword);
             User userFromDb = userRepository.save(user);
             String updatedPassword = "updatedPassword";
 
@@ -742,7 +740,8 @@ public class UserControllerTest {
         void 현재_비밀번호_매칭_검증에_실패할_경우_요청에_실패한다() throws Exception {
             // given
             String currentPassword = "currentPassword";
-            User user = UserFixture.createUserByPassword(passwordEncoder.encode(currentPassword));
+            String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
+            User user = UserFixture.createUserByPassword(encodedCurrentPassword);
             User userFromDb = userRepository.save(user);
             String updatedPassword = "updatedPassword";
 
@@ -769,7 +768,8 @@ public class UserControllerTest {
         void 변경_비밀번호_확인_검증에_실패할_경우_요청에_실패한다() throws Exception {
             // given
             String currentPassword = "currentPassword";
-            User user = UserFixture.createUserByPassword(passwordEncoder.encode(currentPassword));
+            String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
+            User user = UserFixture.createUserByPassword(encodedCurrentPassword);
             User userFromDb = userRepository.save(user);
             String updatedPassword = "updatedPassword";
 
@@ -795,7 +795,8 @@ public class UserControllerTest {
         void 삭제된_계정일_경우_요청에_실패한다() throws Exception {
             // given
             String currentPassword = "currentPassword";
-            User user = UserFixture.createUserByPassword(passwordEncoder.encode(currentPassword));
+            String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
+            User user = UserFixture.createUserByPassword(encodedCurrentPassword);
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
             String updatedPassword = "updatedPassword";
