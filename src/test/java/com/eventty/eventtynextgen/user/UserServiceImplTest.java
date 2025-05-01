@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.user.service;
+package com.eventty.eventtynextgen.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,9 +8,6 @@ import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
-import com.eventty.eventtynextgen.user.UserService;
-import com.eventty.eventtynextgen.user.UserServiceImpl;
-import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
@@ -20,6 +17,7 @@ import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
+import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -365,7 +363,6 @@ class UserServiceImplTest {
             when(user1.isDeleted()).thenReturn(false);
             when(user2.isDeleted()).thenReturn(true);
             when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user1, user2));
-
 
             UserServiceImpl userService = new UserServiceImpl(userRepository);
 
