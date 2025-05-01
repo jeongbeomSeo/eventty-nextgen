@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserActivateDeletedUserResponseView activateDeletedUser(Long userId) {
+    public UserActivateDeletedUserResponseView activateToDeletedUser(Long userId) {
         return this.userRepository.findById(userId).map(user -> {
             if (!user.isDeleted()) {
                 throw CustomException.badRequest(UserErrorType.USER_NOT_DELETED);

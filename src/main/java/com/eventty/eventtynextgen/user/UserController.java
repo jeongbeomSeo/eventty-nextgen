@@ -64,7 +64,7 @@ public class UserController {
     @PatchMapping("/{user-id}/status")
     public ResponseEntity<UserActivateDeletedUserResponseView> activateDeletedUser(
         @PathVariable("user-id") Long userId) {
-        return ResponseEntity.ok(this.userService.activateDeletedUser(userId));
+        return ResponseEntity.ok(this.userService.activateToDeletedUser(userId));
     }
 
     @GetMapping(value = "/email", params = {"name", "phone"})

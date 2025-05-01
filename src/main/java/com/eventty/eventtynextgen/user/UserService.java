@@ -16,7 +16,7 @@ public interface UserService {
 
     UserDeleteResponseView delete(Long userId);
 
-    UserActivateDeletedUserResponseView activateDeletedUser(Long userId);
+    UserActivateDeletedUserResponseView activateToDeletedUser(Long userId);
 
     UserFindEmailResponseView findEmailByPersonalInfo(String name, String phone);
 

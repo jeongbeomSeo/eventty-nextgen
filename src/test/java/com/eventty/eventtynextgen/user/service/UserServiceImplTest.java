@@ -258,7 +258,7 @@ class UserServiceImplTest {
             UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when
-            UserActivateDeletedUserResponseView result = userService.activateDeletedUser(userId);
+            UserActivateDeletedUserResponseView result = userService.activateToDeletedUser(userId);
 
             // then
             assertThat(result.userId()).isEqualTo(userId);
@@ -280,7 +280,7 @@ class UserServiceImplTest {
 
             // when & then
             try {
-                userService.activateDeletedUser(userId);
+                userService.activateToDeletedUser(userId);
             } catch (CustomException ex) {
                 assertThat(ex.getErrorType()).isEqualTo(UserErrorType.USER_NOT_DELETED);
             }
@@ -298,7 +298,7 @@ class UserServiceImplTest {
 
             // when & then
             try {
-                userService.activateDeletedUser(userId);
+                userService.activateToDeletedUser(userId);
             } catch (CustomException ex) {
                 assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
