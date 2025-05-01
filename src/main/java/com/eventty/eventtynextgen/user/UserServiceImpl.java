@@ -10,8 +10,8 @@ import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserChangePasswordResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
-import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
-import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView.Account;
+import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView;
+import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView.UserEmailInfo;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
 import java.util.List;
@@ -85,12 +85,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserFindAccountResponseView findAccount(String name, String phone) {
-        List<Account> accounts = this.userRepository.findByNameAndPhone(name, phone).stream()
-            .map(user -> new Account(user.getId(), user.getEmail(), user.isDeleted()))
+    public UserFindEmailResponseView findEmailByPersonalInfo(String name, String phone) {
+        List<UserEmailInfo> emailInfos = this.userRepository.findByNameAndPhone(name, phone).stream()
+            .filter(user -> !user.isDeleted())
+            .map(user -> new UserEmailInfo(user.getId(), user.getEmail()))
             .toList();
 
-        return new UserFindAccountResponseView(accounts);
+        return new UserFindEmailResponseView(emailInfos);
     }
 
     @Override

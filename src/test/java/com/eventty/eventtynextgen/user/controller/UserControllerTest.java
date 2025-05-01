@@ -21,13 +21,11 @@ import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.user.component.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
-import com.eventty.eventtynextgen.user.fixture.FindAccountRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UpdateRequestFixture;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.request.UserChangePasswordRequestCommand;
-import com.eventty.eventtynextgen.user.request.UserFindAccountRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -601,8 +599,8 @@ public class UserControllerTest {
     }
 
     @Nested
-    @DisplayName("회원 계정 찾기")
-    class FindAccount {
+    @DisplayName("이름과 핸드폰 번호로 회원 이메일 찾기")
+    class FindEmail {
 
         private static final String NAME = "홍길동";
         private static final String PHONE = "010-0000-0000";
@@ -612,7 +610,7 @@ public class UserControllerTest {
             jdbcTemplate.update("DELETE FROM users WHERE name = ? AND phone = ?", NAME, PHONE);
         }
 
-        private final String URL = BASE_URL + "/accounts";
+        private final String URL = BASE_URL + "/email";
 
         @Test
         @DisplayName("요청으로 들어온 데이터를 통해 1개의 계정을 찾을 경우 요청에 `성공`한다.")
@@ -620,25 +618,22 @@ public class UserControllerTest {
             // given
             User user = UserFixture.createUserByNameAndPhone(NAME, PHONE);
             User userFromDb = userRepository.save(user);
-            UserFindAccountRequestCommand findAccountRequest = FindAccountRequestFixture.createFindAccountRequest(NAME, PHONE);
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
-                .content(objectMapper.writeValueAsString(findAccountRequest))
-                .contentType(MediaType.APPLICATION_JSON));
+                .param("name", NAME)
+                .param("phone", PHONE));
 
             // then
             resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.accounts.size()").value(1))
-                .andExpect(jsonPath("$.accounts[*].userId").isNotEmpty())
-                .andExpect(jsonPath("$.accounts[*].email").isNotEmpty())
-                .andExpect(jsonPath("$.accounts[*].isDeleted").isNotEmpty());
-
+                .andExpect(jsonPath("$.userEmailInfos.size()").value(1))
+                .andExpect(jsonPath("$.userEmailInfos[*].userId").isNotEmpty())
+                .andExpect(jsonPath("$.userEmailInfos[*].email").isNotEmpty());
             userRepository.delete(userFromDb);
         }
 
         @Test
-        @DisplayName("요청으로 들어온 데이터를 통해 2개 이상의 계정을 찾을 경우 요청에 `성공`한다.")
+        @DisplayName("요청으로 들어온 데이터를 통해 모든 활성화 계정 찾아서 요청에 `모든 계정의 정보를 담아서 반환`한다.")
         void 요청으로_들어온_데이터를_통해_2개_이상의_계정을_찾을_경우_요청에_성공한다() throws Exception {
             // given
             List<User> users = new ArrayList<>();
@@ -649,19 +644,47 @@ public class UserControllerTest {
 
                 users.add(userFromDb);
             }
-            UserFindAccountRequestCommand findAccountRequest = FindAccountRequestFixture.createFindAccountRequest(NAME, PHONE);
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
-                .content(objectMapper.writeValueAsString(findAccountRequest))
-                .contentType(MediaType.APPLICATION_JSON));
+                .param("name", NAME)
+                .param("phone", PHONE));
 
             // then
             resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.accounts.size()").value(5))
-                .andExpect(jsonPath("$.accounts[*].userId").isNotEmpty())
-                .andExpect(jsonPath("$.accounts[*].email").isNotEmpty())
-                .andExpect(jsonPath("$.accounts[*].isDeleted").isNotEmpty());
+                .andExpect(jsonPath("$.userEmailInfos.size()").value(5))
+                .andExpect(jsonPath("$.userEmailInfos[*].userId").isNotEmpty())
+                .andExpect(jsonPath("$.userEmailInfos[*].email").isNotEmpty());
+
+            userRepository.deleteAll(users);
+        }
+
+        @Test
+        @DisplayName("요청으로 들어온 데이터를 통해 3개의 활성화 계정과 2개의 삭제된 계정을 찾을 경우 요청에 `3개의 계정만 반환`한다.")
+        void 요청으로_들어온_데이터를_통해_3개의_활성화_계정과_2개의_삭제된_계정을_찾을_경우_요청에_성공한다() throws Exception {
+            // given
+            List<User> users = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                String email = "test" + i + "@naver.com";
+                User user = UserFixture.createUserByEmailAndNameAndPhone(email, NAME, PHONE);
+                if (i >= 3) {
+                    user.updateDeleteStatus(UserStatus.DELETED);
+                }
+                User userFromDb = userRepository.save(user);
+
+                users.add(userFromDb);
+            }
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .param("name", NAME)
+                .param("phone", PHONE));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.userEmailInfos.size()").value(3))
+                .andExpect(jsonPath("$.userEmailInfos[*].userId").isNotEmpty())
+                .andExpect(jsonPath("$.userEmailInfos[*].email").isNotEmpty());
 
             userRepository.deleteAll(users);
         }
@@ -670,16 +693,15 @@ public class UserControllerTest {
         @DisplayName("요청으로 들어온 데이터를 통해 0개의 계정을 찾을 경우 요청에 `성공`한다.")
         void 요청으로_들어온_데이터를_통해_0개의_계정을_찾을_경우_요청에_성공한다() throws Exception {
             // given
-            UserFindAccountRequestCommand findAccountRequest = FindAccountRequestFixture.createFindAccountRequest(NAME, PHONE);
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
-                .content(objectMapper.writeValueAsString(findAccountRequest))
-                .contentType(MediaType.APPLICATION_JSON));
+                .param("name", NAME)
+                .param("phone", PHONE));
 
             // then
             resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.accounts.size()").value(0));
+                .andExpect(jsonPath("$.userEmailInfos.size()").value(0));
         }
     }
 

@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.shared.exception.handler;
+package com.eventty.eventtynextgen.shared.exception.advice;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
@@ -6,6 +6,8 @@ import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +25,37 @@ public class GlobalExceptionAdvice {
         MethodArgumentNotValidException ex) {
         FieldError fieldError = ex.getBindingResult().getFieldError();
 
-        Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg(fieldError.getField(),
-            fieldError.getDefaultMessage());
+        Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg(fieldError.getField(), fieldError.getDefaultMessage());
 
-        CustomException customException = CustomException.badRequest(
-            CommonErrorType.INVALID_INPUT_DATA, errorMsg);
+        CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
 
         // TODO: 반복되는 Error logging 작업을 분리 고려중
         log.warn(String.format("http-status={%s} code={%s} msg={%s} detail={%s}",
-            customException.getHttpStatus().value(), CommonErrorType.INVALID_INPUT_DATA.getCode(),
-            CommonErrorType.INVALID_INPUT_DATA.getMsg(), errorMsg));
+            customException.getHttpStatus().value(),
+            CommonErrorType.INVALID_INPUT_DATA.getCode(),
+            CommonErrorType.INVALID_INPUT_DATA.getMsg(),
+            errorMsg));
+
+        return ErrorResponseFactory.toResponseEntity(customException);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+        ConstraintViolation<?> violation = ex.getConstraintViolations().iterator().next();
+        String field = violation.getPropertyPath().toString();
+        String message = violation.getMessage();
+
+        Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg(field, message);
+
+        CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
+
+        log.warn(String.format(
+            "http-status={%s} code={%s} msg={%s} detail={%s}",
+            customException.getHttpStatus().value(),
+            CommonErrorType.INVALID_INPUT_DATA.getCode(),
+            CommonErrorType.INVALID_INPUT_DATA.getMsg(),
+            errorMsg
+        ));
 
         return ErrorResponseFactory.toResponseEntity(customException);
     }
