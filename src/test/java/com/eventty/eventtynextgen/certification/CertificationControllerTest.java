@@ -13,7 +13,6 @@ import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.eventty.eventtynextgen.certification.entity.CertificationCode;
 import com.eventty.eventtynextgen.certification.fixture.CertificationCodeFixture;
 import com.eventty.eventtynextgen.certification.repository.CertificationCodeRepository;
-import com.eventty.eventtynextgen.certification.request.CertificationExistsRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationSendCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationValidateCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationExistsResponseView;
@@ -27,6 +26,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -83,6 +84,13 @@ class CertificationControllerTest {
         }
     }
 
+    @AfterEach
+    void tearDown() {
+        certificationCodeRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+
     @Nested
     @DisplayName("이메일 사용 가능 여부 검사 테스트")
     class Exists {
@@ -94,13 +102,10 @@ class CertificationControllerTest {
         void DB에_이메일이_존재하지_않을_경우_FALSE를_응답하다() throws Exception {
             // given
             String email = "NON_exist@naver.com";
-            CertificationExistsRequestCommand certificationExistsRequestCommand = new CertificationExistsRequestCommand(email);
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
-                .content(objectMapper.writeValueAsString(certificationExistsRequestCommand))
-                .contentType(APPLICATION_JSON));
-
+                .param("email", email));
             // then
             resultActions.andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(new CertificationExistsResponseView(email, false))));
@@ -114,18 +119,13 @@ class CertificationControllerTest {
             User user = UserFixture.createUserByEmail(email);
             userRepository.save(user);
 
-            CertificationExistsRequestCommand certificationExistsRequestCommand = new CertificationExistsRequestCommand(email);
-
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
-                .content(objectMapper.writeValueAsString(certificationExistsRequestCommand))
-                .contentType(APPLICATION_JSON));
+                .param("email", email));
 
             // then
             resultActions.andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(new CertificationExistsResponseView(email, true))));
-
-            userRepository.delete(user);
         }
     }
 
@@ -180,8 +180,6 @@ class CertificationControllerTest {
             // then
             resultActions.andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(new CertificationValidateCodeResponseView(code, true))));
-
-            certificationCodeRepository.delete(certificationCode);
         }
 
         @Test
@@ -206,8 +204,6 @@ class CertificationControllerTest {
             // then
             resultActions.andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(new CertificationValidateCodeResponseView(code, false))));
-
-            certificationCodeRepository.delete(expiredCertificationCode);
         }
 
         @Test

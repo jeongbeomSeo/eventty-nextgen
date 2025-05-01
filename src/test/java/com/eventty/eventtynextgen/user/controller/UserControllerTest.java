@@ -18,7 +18,6 @@ import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
-import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
@@ -28,6 +27,7 @@ import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.request.UserChangePasswordRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
+import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.sql.Connection;
@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -51,7 +52,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -73,9 +73,6 @@ public class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
 
     private static final DBConfiguration config = DBConfigurationBuilder.newBuilder()
         .setPort(13306)
@@ -101,17 +98,16 @@ public class UserControllerTest {
         }
     }
 
+    @AfterEach
+    void tearDown() {
+        userRepository.deleteAll();
+    }
+
     @Nested
     @DisplayName("회원 가입 테스트")
     class Signup {
 
         private static final String email = "test@naver.com";
-
-        @BeforeEach
-        void cleanup() {
-            jdbcTemplate.update("DELETE FROM users WHERE email = ?", email);
-        }
-
 
         @Test
         @DisplayName("이메일이 존재하지 않는 경우 회원가입 요청은 `성공`한다.")
@@ -150,8 +146,6 @@ public class UserControllerTest {
             resultActions.andExpect(status().isConflict())
                 .andExpect(
                     content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -175,8 +169,6 @@ public class UserControllerTest {
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
                     content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
-
-            userRepository.delete(userFromDb);
         }
 
         @DisplayName("회원가입 입력값 유효성 검증 테스트")
@@ -418,8 +410,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.name").isNotEmpty())
                 .andExpect(jsonPath("$.phone").isNotEmpty())
                 .andExpect(jsonPath("$.birth").isNotEmpty());
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -463,8 +453,6 @@ public class UserControllerTest {
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
                     content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
-
-            userRepository.delete(userFromDb);
         }
     }
 
@@ -486,8 +474,6 @@ public class UserControllerTest {
             // then
             resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").isNotEmpty());
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -524,8 +510,6 @@ public class UserControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
-
-            userRepository.delete(userFromDb);
         }
     }
 
@@ -551,8 +535,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.userId").value(userFromDb.getId()))
                 .andExpect(jsonPath("$.email").value(userFromDb.getEmail()))
                 .andExpect(jsonPath("$.name").value(userFromDb.getName()));
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -573,8 +555,6 @@ public class UserControllerTest {
             // then
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -602,11 +582,6 @@ public class UserControllerTest {
         private static final String NAME = "홍길동";
         private static final String PHONE = "010-0000-0000";
 
-        @BeforeEach
-        void cleanup() {
-            jdbcTemplate.update("DELETE FROM users WHERE name = ? AND phone = ?", NAME, PHONE);
-        }
-
         private final String URL = BASE_URL + "/email";
 
         @Test
@@ -626,7 +601,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.userEmailInfos.size()").value(1))
                 .andExpect(jsonPath("$.userEmailInfos[*].userId").isNotEmpty())
                 .andExpect(jsonPath("$.userEmailInfos[*].email").isNotEmpty());
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -652,8 +626,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.userEmailInfos.size()").value(5))
                 .andExpect(jsonPath("$.userEmailInfos[*].userId").isNotEmpty())
                 .andExpect(jsonPath("$.userEmailInfos[*].email").isNotEmpty());
-
-            userRepository.deleteAll(users);
         }
 
         @Test
@@ -682,8 +654,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.userEmailInfos.size()").value(3))
                 .andExpect(jsonPath("$.userEmailInfos[*].userId").isNotEmpty())
                 .andExpect(jsonPath("$.userEmailInfos[*].email").isNotEmpty());
-
-            userRepository.deleteAll(users);
         }
 
         @Test
@@ -731,8 +701,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.userId").value(userFromDb.getId()))
                 .andExpect(jsonPath("$.name").value(userFromDb.getName()))
                 .andExpect(jsonPath("$.email").value(userFromDb.getEmail()));
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -759,8 +727,6 @@ public class UserControllerTest {
             // then
             result.andExpect(status().isBadRequest())
                 .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -786,8 +752,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.code").isNotEmpty())
                 .andExpect(jsonPath("$.msg").isNotEmpty())
                 .andExpect(jsonPath("$.detail").isNotEmpty());
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
@@ -813,8 +777,6 @@ public class UserControllerTest {
             result.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").isNotEmpty())
                 .andExpect(jsonPath("$.msg").isNotEmpty());
-
-            userRepository.delete(userFromDb);
         }
 
         @Test
