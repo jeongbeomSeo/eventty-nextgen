@@ -14,8 +14,6 @@ import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
-import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
-import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.user.entity.User;
@@ -72,6 +70,9 @@ public class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ErrorResponseFactory errorResponseFactory;
 
     private static final DBConfiguration config = DBConfigurationBuilder.newBuilder()
         .setPort(13306)
@@ -133,8 +134,8 @@ public class UserControllerTest {
             User user = UserFixture.createUserByEmail(email);
             User userFromDb = userRepository.save(user);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.EMAIL_ALREADY_EXISTS));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("EMAIL_ALREADY_EXISTS"));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(BASE_URL)
@@ -156,8 +157,8 @@ public class UserControllerTest {
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("USER_ALREADY_DELETED"));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(BASE_URL)
@@ -378,8 +379,8 @@ public class UserControllerTest {
                 Map<String, String> errorMsg = ErrorMsgFactory.createFieldErrorMsg(field,
                     msg);
                 CustomException customException = CustomException.badRequest(
-                    CommonErrorType.INVALID_INPUT_DATA, errorMsg);
-                return ErrorResponseFactory.toResponseEntity(
+                    "INVALID_INPUT_DATA", errorMsg);
+                return errorResponseFactory.toResponseEntity(
                     customException);
             }
         }
@@ -417,8 +418,8 @@ public class UserControllerTest {
             // given
             UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest(1L);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("NOT_FOUND_USER"));
 
             // when
             ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
@@ -440,8 +441,8 @@ public class UserControllerTest {
             User userFromDb = userRepository.save(user);
             UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest(userFromDb.getId());
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("USER_ALREADY_DELETED"));
 
             // when
             ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
@@ -479,8 +480,8 @@ public class UserControllerTest {
         @DisplayName("존재하지 않는 회원의 삭제 요청은 `실패`한다.")
         void 존재하지_않는_회원_삭제_요청은_실패한다() throws Exception {
             // given
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("NOT_FOUND_USER"));
 
             // when
             ResultActions resultActions = mockMvc.perform(delete(BASE_URL)
@@ -499,8 +500,8 @@ public class UserControllerTest {
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("USER_ALREADY_DELETED"));
 
             // when
             ResultActions resultActions = mockMvc.perform(delete(BASE_URL)
@@ -545,8 +546,8 @@ public class UserControllerTest {
 
             String url = BASE_URL + "/" + userFromDb.getId() + "/status";
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.USER_NOT_DELETED));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("USER_NOT_DELETED"));
 
             // when
             ResultActions resultActions = mockMvc.perform(patch(url));
@@ -562,8 +563,8 @@ public class UserControllerTest {
             // given
             String url = BASE_URL + "/" + "1" + "/status";
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("NOT_FOUND_USER"));
 
             // when
             ResultActions resultActions = mockMvc.perform(patch(url));
@@ -715,8 +716,8 @@ public class UserControllerTest {
             UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), "mismatchPassword",
                 updatedPassword, updatedPassword);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.MISMATCH_CURRENT_PASSWORD));
+            ResponseEntity<ErrorResponse> responseEntity = errorResponseFactory.toResponseEntity(
+                CustomException.badRequest("MISMATCH_CURRENT_PASSWORD"));
 
             // when
             ResultActions result = mockMvc.perform(patch(URL)

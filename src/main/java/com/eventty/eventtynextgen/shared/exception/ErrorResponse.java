@@ -1,6 +1,5 @@
 package com.eventty.eventtynextgen.shared.exception;
 
-import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
 import lombok.Getter;
 
 @Getter
@@ -16,8 +15,11 @@ public class ErrorResponse {
         this.detail = detail;
     }
 
-    public static ErrorResponse of(ErrorType errorType, Object detail) {
-        return new ErrorResponse(errorType.getCode(), errorType.getMsg(), detail);
+    public static ErrorResponse of(String code, String msg) {
+        return new ErrorResponse(code, msg, null);
     }
 
+    public static ErrorResponse of(String code, String msg, Object detail) {
+        return new ErrorResponse(code, msg, detail);
+    }
 }

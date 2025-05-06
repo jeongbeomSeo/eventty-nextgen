@@ -15,11 +15,9 @@ import com.eventty.eventtynextgen.certification.response.CertificationSendCodeRe
 import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
 import com.eventty.eventtynextgen.component.EmailSenderServiceImpl;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -80,8 +78,8 @@ class CertificationServiceImplTest {
                 certificationService.sendCode(certTarget);
             } catch (CustomException ex) {
                 verify(emailSenderService, times(0)).sendEmailVerificationMail(any(), any());
-                assertThat(ex.getErrorType()).isEqualTo(
-                    VerificationErrorType.CERTIFICATION_CODE_SAVE_ERROR
+                assertThat(ex.getErrorCode()).isEqualTo(
+                    "CERTIFICATION_CODE_SAVE_ERROR"
                 );
             }
         }

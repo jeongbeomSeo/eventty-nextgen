@@ -1,7 +1,6 @@
 package com.eventty.eventtynextgen.shared.exception;
 
 
-import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
@@ -9,28 +8,28 @@ import org.springframework.http.HttpStatus;
 public class CustomException extends RuntimeException {
 
     private final HttpStatus httpStatus;
-    private final ErrorType errorType;
+    private final String errorCode;
     private final Object detail;
 
-    private CustomException(HttpStatus httpStatus, ErrorType errorType, Object detail) {
+    private CustomException(HttpStatus httpStatus, String errorCode, Object detail) {
         this.httpStatus = httpStatus;
-        this.errorType = errorType;
+        this.errorCode = errorCode;
         this.detail = detail;
     }
 
-    public static CustomException of(HttpStatus httpStatus, ErrorType errorType, Object detail) {
-        return new CustomException(httpStatus, errorType, detail);
+    public static CustomException of(HttpStatus httpStatus, String errorCode, Object detail) {
+        return new CustomException(httpStatus, errorCode, detail);
     }
 
-    public static CustomException of(HttpStatus httpStatus, ErrorType errorType) {
-        return new CustomException(httpStatus, errorType, "");
+    public static CustomException of(HttpStatus httpStatus, String errorCode) {
+        return new CustomException(httpStatus, errorCode, "");
     }
 
-    public static CustomException badRequest(ErrorType errorType) {
-        return new CustomException(HttpStatus.BAD_REQUEST, errorType, "");
+    public static CustomException badRequest(String errorCode) {
+        return new CustomException(HttpStatus.BAD_REQUEST, errorCode, "");
     }
 
-    public static CustomException badRequest(ErrorType errorType, Object detail) {
-        return new CustomException(HttpStatus.BAD_REQUEST, errorType, detail);
+    public static CustomException badRequest(String errorCode, Object detail) {
+        return new CustomException(HttpStatus.BAD_REQUEST, errorCode, detail);
     }
 }

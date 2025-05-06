@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
@@ -81,7 +80,7 @@ class UserServiceImplTest {
             try {
                 userService.signup(email, "password", UserRoleType.USER, "홍길동", "000-0000-0000", "1990-01-01");
             } catch (CustomException customException) {
-                assertThat(customException.getErrorType()).isEqualTo(UserErrorType.EMAIL_ALREADY_EXISTS);
+                assertThat(customException.getErrorCode()).isEqualTo("EMAIL_ALREADY_EXISTS");
             }
         }
 
@@ -101,7 +100,7 @@ class UserServiceImplTest {
             try {
                 userService.signup(email, "password", UserRoleType.USER, "홍길동", "000-0000-0000", "1990-01-01");
             } catch (CustomException customException) {
-                assertThat(customException.getErrorType()).isEqualTo(UserErrorType.USER_ALREADY_DELETED);
+                assertThat(customException.getErrorCode()).isEqualTo("USER_ALREADY_DELETED");
             }
         }
     }
@@ -143,7 +142,7 @@ class UserServiceImplTest {
             try {
                 userService.delete(userId);
             } catch (CustomException customException) {
-                assertThat(customException.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+                assertThat(customException.getErrorCode()).isEqualTo("NOT_FOUND_USER");
             }
         }
 
@@ -163,7 +162,7 @@ class UserServiceImplTest {
             try {
                 userService.delete(userId);
             } catch (CustomException customException) {
-                assertThat(customException.getErrorType()).isEqualTo(UserErrorType.USER_ALREADY_DELETED);
+                assertThat(customException.getErrorCode()).isEqualTo("USER_ALREADY_DELETED");
             }
         }
     }
@@ -208,7 +207,7 @@ class UserServiceImplTest {
             try {
                 userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+                assertThat(ex.getErrorCode()).isEqualTo("NOT_FOUND_USER");
             }
         }
 
@@ -228,7 +227,7 @@ class UserServiceImplTest {
             try {
                 userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.USER_ALREADY_DELETED);
+                assertThat(ex.getErrorCode()).isEqualTo("USER_ALREADY_DELETED");
             }
         }
     }
@@ -280,7 +279,7 @@ class UserServiceImplTest {
             try {
                 userService.activateToDeletedUser(userId);
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.USER_NOT_DELETED);
+                assertThat(ex.getErrorCode()).isEqualTo("USER_NOT_DELETED");
             }
         }
 
@@ -298,7 +297,7 @@ class UserServiceImplTest {
             try {
                 userService.activateToDeletedUser(userId);
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+                assertThat(ex.getErrorCode()).isEqualTo("NOT_FOUND_USER");
             }
         }
     }
@@ -388,7 +387,7 @@ class UserServiceImplTest {
             try {
                 userService.findEmailByPersonalInfo(name, phone);
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+                assertThat(ex.getErrorCode()).isEqualTo("NOT_FOUND_USER");
             }
         }
 
@@ -442,7 +441,7 @@ class UserServiceImplTest {
             try {
                 userService.changePassword(userId, currentPassword, updatedPassword);
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.MISMATCH_CURRENT_PASSWORD);
+                assertThat(ex.getErrorCode()).isEqualTo("MISMATCH_CURRENT_PASSWORD");
             }
         }
 
@@ -462,7 +461,7 @@ class UserServiceImplTest {
             try {
                 userService.changePassword(userId, currentPassword, updatedPassword);
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
+                assertThat(ex.getErrorCode()).isEqualTo("NOT_FOUND_USER");
             }
         }
     }

@@ -11,7 +11,6 @@ import com.eventty.eventtynextgen.certification.response.CertificationValidateCo
 import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.utils.CodeGeneratorUtil;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,7 @@ public class CertificationServiceImpl implements CertificationService {
         if (certificationCodeFromDb.getId() != null) {
             this.emailSenderService.sendEmailVerificationMail(certTarget, code);
         } else {
-            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, VerificationErrorType.CERTIFICATION_CODE_SAVE_ERROR);
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, "CERTIFICATION_CODE_SAVE_ERROR");
         }
 
         return CertificationSendCodeResponseView.createMessage(certTarget, CERTIFICATION_CODE_TTL);
@@ -54,15 +53,15 @@ public class CertificationServiceImpl implements CertificationService {
         boolean validate = true;
         try {
             CertificationCode certificationCode = this.certificationCodeRepository.findByEmailAndCode(email, code)
-                .orElseThrow(() -> CustomException.badRequest(VerificationErrorType.MISMATCH_EMAIL_VERIFICATION_CODE));
+                .orElseThrow(() -> CustomException.badRequest("MISMATCH_EMAIL_VERIFICATION_CODE"));
 
             if (certificationCode.isExpired() || checkExpired(certificationCode)) {
                 certificationCode.setExpired();
-                throw CustomException.badRequest(VerificationErrorType.EXPIRE_EMAIL_VERIFICATION_CODE);
+                throw CustomException.badRequest("EXPIRE_EMAIL_VERIFICATION_CODE");
             }
         } catch (Exception ex) {
             if (ex instanceof CustomException) {
-                log.error("인증 코드 검증 중 CustomException 발생 code: {}, errorType: {}", code, ((CustomException) ex).getErrorType());
+                log.error("인증 코드 검증 중 CustomException 발생 code: {}, errorCode: {}", code, ((CustomException) ex).getErrorCode());
             } else {
                 log.error("인증 코드 검증 중 일반 예외 발생 code: {}", code, ex);
             }

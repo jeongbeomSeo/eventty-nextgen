@@ -2,7 +2,6 @@ package com.eventty.eventtynextgen.component;
 
 import com.eventty.eventtynextgen.shared.enums.MailType;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.MailErrorType;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +38,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
             log.info("Succeeded to send email");
         } catch (Exception e) {
             log.error("Failed to send email verification mail");
-            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, MailErrorType.FAILED_SEND_TO_EMAIL_VERIFICATION_MAIL);
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, "FAILED_SEND_TO_EMAIL_VERIFICATION_MAIL");
         }
     }
 
