@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.user.service;
+package com.eventty.eventtynextgen.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -8,18 +8,16 @@ import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
-import com.eventty.eventtynextgen.user.UserService;
-import com.eventty.eventtynextgen.user.UserServiceImpl;
-import com.eventty.eventtynextgen.user.component.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserChangePasswordResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
-import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
+import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
+import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -36,9 +34,6 @@ class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
     @DisplayName("비즈니스 로직 - 회원가입")
     @Nested
     class Signup {
@@ -50,14 +45,12 @@ class UserServiceImplTest {
             String email = "test@google.com";
             String password = "password";
 
-            String hashedPassword = "hashed_password";
             User user = mock(User.class);
 
             when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-            when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
             when(userRepository.save(any(User.class))).thenReturn(user);
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when
             UserSignupResponseView userSignupResponseView = userService.signup(
@@ -82,7 +75,7 @@ class UserServiceImplTest {
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(false);
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
@@ -102,7 +95,7 @@ class UserServiceImplTest {
             when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(true);
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
@@ -127,7 +120,7 @@ class UserServiceImplTest {
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(false);
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when
             UserDeleteResponseView userDeleteResponseView = userService.delete(userId);
@@ -144,7 +137,7 @@ class UserServiceImplTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
@@ -164,7 +157,7 @@ class UserServiceImplTest {
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(true);
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
@@ -189,7 +182,7 @@ class UserServiceImplTest {
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(false);
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when
             UserUpdateResponseView userUpdateResponseView = userService.update(userId, "변경후이름", "010-1234-5678", "2000-12-12");
@@ -209,7 +202,7 @@ class UserServiceImplTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
@@ -229,7 +222,7 @@ class UserServiceImplTest {
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(true);
 
-            UserService userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserService userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
@@ -260,10 +253,10 @@ class UserServiceImplTest {
             when(user.getEmail()).thenReturn(email);
             when(user.getName()).thenReturn(name);
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when
-            UserActivateDeletedUserResponseView result = userService.activateDeletedUser(userId);
+            UserActivateDeletedUserResponseView result = userService.activateToDeletedUser(userId);
 
             // then
             assertThat(result.userId()).isEqualTo(userId);
@@ -281,11 +274,11 @@ class UserServiceImplTest {
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(false);
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
-                userService.activateDeletedUser(userId);
+                userService.activateToDeletedUser(userId);
             } catch (CustomException ex) {
                 assertThat(ex.getErrorType()).isEqualTo(UserErrorType.USER_NOT_DELETED);
             }
@@ -299,23 +292,23 @@ class UserServiceImplTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
-                userService.activateDeletedUser(userId);
+                userService.activateToDeletedUser(userId);
             } catch (CustomException ex) {
                 assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
         }
     }
 
-    @DisplayName("비즈니스 로직 - 계정 찾기")
+    @DisplayName("비즈니스 로직 - 이름과 핸드폰 번호로 이메일 찾기")
     @Nested
-    class FindAccount {
+    class FindEmail {
 
         @Test
-        @DisplayName("인자값으로 들어온 데이터를 통해 활성화되어 있는 사용자를 찾을 경우 요청에 `성공`한다.")
+        @DisplayName("인자값으로 들어온 데이터를 통해 활성화되어 있는 계정을 찾을 경우 요청에 `성공`한다.")
         void 인자값으로_들어온_데이터를_통해_활성_사용자를_찾을_경우_요청에_성공한다() {
             // given
             String name = "홍길동";
@@ -327,45 +320,39 @@ class UserServiceImplTest {
             when(user.isDeleted()).thenReturn(false);
             when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user));
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when
-            UserFindAccountResponseView result = userService.findAccount(name, phone);
+            UserFindEmailResponseView result = userService.findEmailByPersonalInfo(name, phone);
 
             // then
-            assertThat(result.accounts().size()).isEqualTo(1);
-            assertThat(result.accounts().get(0).userId()).isNotNull();
-            assertThat(result.accounts().get(0).email()).isNotBlank();
-            assertThat(result.accounts().get(0).isDeleted()).isFalse();
+            assertThat(result.userEmailInfos().size()).isEqualTo(1);
+            assertThat(result.userEmailInfos().get(0).userId()).isNotNull();
+            assertThat(result.userEmailInfos().get(0).email()).isNotBlank();
         }
 
         @Test
-        @DisplayName("인자값으로 들어온 데이터를 통해 삭제되어 있는 사용자를 찾을 경우 요청에 `성공`힌디.")
+        @DisplayName("인자값으로 들어온 데이터를 통해 삭제되어 있는 계정 1개만 찾을 경우 `0개의 계정을 반환`한다.")
         void 인자값으로_들어온_데이터를_통해_삭제된_사용자를_찾을_경우_요청에_성공한다() {
             // given
             String name = "홍길동";
             String phone = "010-0000-0000";
             User user = mock(User.class);
 
-            when(user.getId()).thenReturn(1L);
-            when(user.getEmail()).thenReturn("test@naver.com");
             when(user.isDeleted()).thenReturn(true);
             when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user));
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when
-            UserFindAccountResponseView result = userService.findAccount(name, phone);
+            UserFindEmailResponseView result = userService.findEmailByPersonalInfo(name, phone);
 
             // then
-            assertThat(result.accounts().size()).isEqualTo(1);
-            assertThat(result.accounts().get(0).userId()).isNotNull();
-            assertThat(result.accounts().get(0).email()).isNotBlank();
-            assertThat(result.accounts().get(0).isDeleted()).isTrue();
+            assertThat(result.userEmailInfos().size()).isEqualTo(0);
         }
 
         @Test
-        @DisplayName("인자값으로 들어온 데이터를 통해 2개 이상의 계정을 찾을 경우 `모든 계정의 정보를 반환`한다.")
+        @DisplayName("인자값으로 들어온 데이터를 통해 2개 이상의 계정을 찾을 경우 `활성화 상태인 계정의 정보만 반환`한다.")
         void 인자값으로_들어온_데이터를_통해_다수의_계정을_찾을_경우_모든_계정의_정보를_반환한다() {
             // given
             String name = "홍길동";
@@ -377,14 +364,13 @@ class UserServiceImplTest {
             when(user2.isDeleted()).thenReturn(true);
             when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of(user1, user2));
 
-
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when
-            UserFindAccountResponseView result = userService.findAccount(name, phone);
+            UserFindEmailResponseView result = userService.findEmailByPersonalInfo(name, phone);
 
             // then
-            assertThat(result.accounts().size()).isEqualTo(2);
+            assertThat(result.userEmailInfos().size()).isEqualTo(1);
         }
 
         @Test
@@ -396,11 +382,11 @@ class UserServiceImplTest {
 
             when(userRepository.findByNameAndPhone(name, phone)).thenReturn(List.of());
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
-                userService.findAccount(name, phone);
+                userService.findEmailByPersonalInfo(name, phone);
             } catch (CustomException ex) {
                 assertThat(ex.getErrorType()).isEqualTo(UserErrorType.NOT_FOUND_USER);
             }
@@ -418,18 +404,17 @@ class UserServiceImplTest {
             // given
             Long userId = 1L;
             String currentPassword = "current_password";
+            String encodedCurrentPassword = PasswordEncoder.encode("current_password");
             String updatedPassword = "updated_password";
-            String encodedUpdatedPassword = "encoded_updated_password";
+            String encodedUpdatedPassword = PasswordEncoder.encode("updated_password");
             User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            when(user.getPassword()).thenReturn(currentPassword);
-            when(passwordEncoder.matches(currentPassword, user.getPassword())).thenReturn(true);
-            when(passwordEncoder.encode(updatedPassword)).thenReturn("encoded_updated_password");
+            when(user.getPassword()).thenReturn(encodedCurrentPassword);
             doNothing().when(user).changePassword(encodedUpdatedPassword);
             when(user.getId()).thenReturn(userId);
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when
             UserChangePasswordResponseView result = userService.changePassword(userId, currentPassword, updatedPassword);
@@ -444,14 +429,14 @@ class UserServiceImplTest {
             // given
             Long userId = 1L;
             String currentPassword = "current_password";
+            String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
             String updatedPassword = "updated_password";
             User user = mock(User.class);
 
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-            when(user.getPassword()).thenReturn(currentPassword);
-            when(passwordEncoder.matches(currentPassword, user.getPassword())).thenReturn(false);
+            when(user.getPassword()).thenReturn(encodedCurrentPassword);
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {
@@ -471,7 +456,7 @@ class UserServiceImplTest {
 
             when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-            UserServiceImpl userService = new UserServiceImpl(userRepository, passwordEncoder);
+            UserServiceImpl userService = new UserServiceImpl(userRepository);
 
             // when & then
             try {

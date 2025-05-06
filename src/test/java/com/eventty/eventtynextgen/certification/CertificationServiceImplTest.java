@@ -19,6 +19,7 @@ import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

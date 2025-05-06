@@ -2,7 +2,7 @@ package com.eventty.eventtynextgen.user;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
-import com.eventty.eventtynextgen.user.component.PasswordEncoder;
+import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
@@ -10,8 +10,8 @@ import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserChangePasswordResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
-import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
-import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView.Account;
+import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView;
+import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView.UserEmailInfo;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
 import java.util.List;
@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserSignupResponseView signup(String email, String password, UserRoleType userRole, String name, String phone, String birth) {
@@ -37,7 +36,7 @@ public class UserServiceImpl implements UserService {
             }
         });
 
-        User user = User.of(email, this.passwordEncoder.encode(password), userRole, name, phone, birth);
+        User user = User.of(email, PasswordEncoder.encode(password), userRole, name, phone, birth);
         User userFromDb = this.userRepository.save(user);
         if (userFromDb.getId() == null) {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, UserErrorType.USER_SAVE_ERROR);
@@ -73,7 +72,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserActivateDeletedUserResponseView activateDeletedUser(Long userId) {
+    public UserActivateDeletedUserResponseView activateToDeletedUser(Long userId) {
         return this.userRepository.findById(userId).map(user -> {
             if (!user.isDeleted()) {
                 throw CustomException.badRequest(UserErrorType.USER_NOT_DELETED);
@@ -85,12 +84,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserFindAccountResponseView findAccount(String name, String phone) {
-        List<Account> accounts = this.userRepository.findByNameAndPhone(name, phone).stream()
-            .map(user -> new Account(user.getId(), user.getEmail(), user.isDeleted()))
+    public UserFindEmailResponseView findEmailByPersonalInfo(String name, String phone) {
+        List<UserEmailInfo> emailInfos = this.userRepository.findByNameAndPhone(name, phone).stream()
+            .filter(user -> !user.isDeleted())
+            .map(user -> new UserEmailInfo(user.getId(), user.getEmail()))
             .toList();
 
-        return new UserFindAccountResponseView(accounts);
+        return new UserFindEmailResponseView(emailInfos);
     }
 
     @Override
@@ -101,11 +101,11 @@ public class UserServiceImpl implements UserService {
                 throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
             }
 
-            if (!this.passwordEncoder.matches(currentPassword, user.getPassword())) {
+            if (!PasswordEncoder.matches(currentPassword, user.getPassword())) {
                 throw CustomException.badRequest(UserErrorType.MISMATCH_CURRENT_PASSWORD);
             }
 
-            user.changePassword(this.passwordEncoder.encode(updatedPassword));
+            user.changePassword(PasswordEncoder.encode(updatedPassword));
 
             return new UserChangePasswordResponseView(user.getId(), user.getName(), user.getEmail());
         }).orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));

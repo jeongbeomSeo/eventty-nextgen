@@ -31,7 +31,7 @@ public class CertificationServiceImpl implements CertificationService {
 
     @Override
     public CertificationExistsResponseView checkExists(String certTarget) {
-        return new CertificationExistsResponseView(certTarget, this.userRepository.existsByEmail(certTarget));
+        return new CertificationExistsResponseView(certTarget, this.userRepository.findByEmail(certTarget).isPresent());
     }
 
     @Override

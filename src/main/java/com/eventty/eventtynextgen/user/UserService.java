@@ -4,7 +4,7 @@ import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import com.eventty.eventtynextgen.user.response.UserActivateDeletedUserResponseView;
 import com.eventty.eventtynextgen.user.response.UserChangePasswordResponseView;
 import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
-import com.eventty.eventtynextgen.user.response.UserFindAccountResponseView;
+import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
 
@@ -16,9 +16,9 @@ public interface UserService {
 
     UserDeleteResponseView delete(Long userId);
 
-    UserActivateDeletedUserResponseView activateDeletedUser(Long userId);
+    UserActivateDeletedUserResponseView activateToDeletedUser(Long userId);
 
-    UserFindAccountResponseView findAccount(String name, String phone);
+    UserFindEmailResponseView findEmailByPersonalInfo(String name, String phone);
 
     UserChangePasswordResponseView changePassword(Long userId, String currentPassword, String updatedPassword);
 }
