@@ -10,6 +10,8 @@ import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
 import com.eventty.eventtynextgen.user.shared.annotation.UserApiV1;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -28,11 +30,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @UserApiV1
 @Validated
 @RequiredArgsConstructor
+@Tag(name = "사용자 관리 API", description = "사용자 관리 및 조작을 위한 API")
 public class UserController {
 
     private final UserService userService;
 
     @PostMapping
+    @Operation(summary = "회원가입 API")
     public ResponseEntity<UserSignupResponseView> signup(@RequestBody @Valid UserSignUpRequestCommand userSignUpRequestCommand) {
         UserSignupResponseView userSignupResponseView = this.userService.signup(
             userSignUpRequestCommand.email(),
@@ -46,6 +50,7 @@ public class UserController {
     }
 
     @PatchMapping
+    @Operation(summary = "사용자 정보 수정 API")
     public ResponseEntity<UserUpdateResponseView> update(@RequestBody @Valid UserUpdateRequestCommand updateUserRequest) {
         UserUpdateResponseView userUpdateResponseView = this.userService.update(
             updateUserRequest.id(),
@@ -57,17 +62,20 @@ public class UserController {
     }
 
     @DeleteMapping
+    @Operation(summary = "사용자 삭제 API")
     public ResponseEntity<UserDeleteResponseView> delete(@RequestParam(value = "user-id") Long userId) {
         return ResponseEntity.ok(this.userService.delete(userId));
     }
 
     @PatchMapping("/{user-id}/status")
+    @Operation(summary = "삭제된 사용자의 상태를 활성화 상태로 변경 API")
     public ResponseEntity<UserActivateDeletedUserResponseView> activateDeletedUser(
         @PathVariable("user-id") Long userId) {
         return ResponseEntity.ok(this.userService.activateToDeletedUser(userId));
     }
 
     @GetMapping(value = "/email", params = {"name", "phone"})
+    @Operation(summary = "사용자 이름과 전화번호를 통해서 이메일 찾기 API")
     public ResponseEntity<UserFindEmailResponseView> findEmail(
         @NotBlank(message = "이름은 null이거나 빈 문자열일 수 없습니다.")
         @RequestParam("name") String name,
@@ -77,6 +85,7 @@ public class UserController {
     }
 
     @PatchMapping("/password")
+    @Operation(summary = "사용자 패스워드 변경 API")
     public ResponseEntity<UserChangePasswordResponseView> changePassword(
         @RequestBody @Valid UserChangePasswordRequestCommand userChangePasswordRequestCommand) {
         return ResponseEntity.ok(this.userService.changePassword(
