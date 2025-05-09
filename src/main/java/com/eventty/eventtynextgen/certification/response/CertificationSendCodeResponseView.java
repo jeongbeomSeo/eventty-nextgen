@@ -1,10 +1,12 @@
 package com.eventty.eventtynextgen.certification.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
 public class CertificationSendCodeResponseView {
 
+    @Schema(description = "사용자에게 전달할 메시지")
     private final String message;
 
     private CertificationSendCodeResponseView(String message) {
