@@ -10,8 +10,6 @@ public record UserChangePasswordRequestCommand(
     @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")
     String currentPassword,
     @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")
-    String updatedPassword,
-    @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")
-    String updatedPasswordConfirm
+    String updatedPassword
 ){
 }

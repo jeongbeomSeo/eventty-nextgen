@@ -9,7 +9,6 @@ import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
-import com.eventty.eventtynextgen.user.shared.annotation.FieldsMatch;
 import com.eventty.eventtynextgen.user.shared.annotation.UserApiV1;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -77,9 +76,6 @@ public class UserController {
         return ResponseEntity.ok(this.userService.findEmailByPersonalInfo(name, phone));
     }
 
-    @FieldsMatch(base = "updatedPassword",
-        match = "updatedPasswordConfirm",
-        message = "두 패스워드가 알치하지 않습니다.")
     @PatchMapping("/password")
     public ResponseEntity<UserChangePasswordResponseView> changePassword(
         @RequestBody @Valid UserChangePasswordRequestCommand userChangePasswordRequestCommand) {
