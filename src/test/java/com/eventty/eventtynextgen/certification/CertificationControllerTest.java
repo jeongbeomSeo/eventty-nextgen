@@ -46,7 +46,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @TestInstance(Lifecycle.PER_CLASS)
 class CertificationControllerTest {
 
-    private static final String BASE_URL = "/api/v1/user/certification";
+    private static final String BASE_URL = "/api/v1/certification";
 
     @Autowired
     private MockMvc mockMvc;
