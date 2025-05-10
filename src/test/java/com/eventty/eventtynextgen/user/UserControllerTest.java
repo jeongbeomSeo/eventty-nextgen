@@ -688,7 +688,7 @@ public class UserControllerTest {
             String updatedPassword = "updatedPassword";
 
             UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), currentPassword,
-                updatedPassword, updatedPassword);
+                updatedPassword);
 
             // when
             ResultActions result = mockMvc.perform(patch(URL)
@@ -713,7 +713,7 @@ public class UserControllerTest {
             String updatedPassword = "updatedPassword";
 
             UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), "mismatchPassword",
-                updatedPassword, updatedPassword);
+                updatedPassword);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.MISMATCH_CURRENT_PASSWORD));
@@ -729,31 +729,6 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("변경 비밀번호 확인 검증에 실패할 경우 요청에 `실패`한다.")
-        void 변경_비밀번호_확인_검증에_실패할_경우_요청에_실패한다() throws Exception {
-            // given
-            String currentPassword = "currentPassword";
-            String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
-            User user = UserFixture.createUserByPassword(encodedCurrentPassword);
-            User userFromDb = userRepository.save(user);
-            String updatedPassword = "updatedPassword";
-
-            UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), currentPassword,
-                updatedPassword, updatedPassword + "2");
-
-            // when
-            ResultActions result = mockMvc.perform(patch(URL)
-                .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
-                .contentType(MediaType.APPLICATION_JSON));
-
-            // then
-            result.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").isNotEmpty())
-                .andExpect(jsonPath("$.msg").isNotEmpty())
-                .andExpect(jsonPath("$.detail").isNotEmpty());
-        }
-
-        @Test
         @DisplayName("삭제된 계정일 경우 요청에 `실패`한다.")
         void 삭제된_계정일_경우_요청에_실패한다() throws Exception {
             // given
@@ -765,7 +740,7 @@ public class UserControllerTest {
             String updatedPassword = "updatedPassword";
 
             UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), currentPassword,
-                updatedPassword, updatedPassword);
+                updatedPassword);
 
             // when
             ResultActions result = mockMvc.perform(patch(URL)
@@ -786,7 +761,7 @@ public class UserControllerTest {
             String updatedPassword = "updatedPassword";
 
             UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(1L, currentPassword,
-                updatedPassword, updatedPassword);
+                updatedPassword);
 
             // when
             ResultActions result = mockMvc.perform(patch(URL)

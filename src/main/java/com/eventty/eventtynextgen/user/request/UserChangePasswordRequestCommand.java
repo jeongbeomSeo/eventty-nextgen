@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 
-@PasswordMatch
 public record UserChangePasswordRequestCommand(
 
     @Schema(description = "사용자 PK")
@@ -17,8 +16,5 @@ public record UserChangePasswordRequestCommand(
     @Schema(description = "변경할 비밀번호", minLength = 8, maxLength = 16)
     @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")
     String updatedPassword,
-    @Schema(description = "비밀번호 변경값 검증에 사용될 값", minLength = 8, maxLength = 16)
-    @Length(min = 8, max = 16, message = "패스워드는 8자 이상 16자 이하여야 합니다.")
-    String updatedPasswordConfirm
 ){
 }
