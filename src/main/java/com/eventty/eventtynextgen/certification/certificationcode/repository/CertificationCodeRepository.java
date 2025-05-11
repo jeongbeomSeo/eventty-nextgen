@@ -1,6 +1,6 @@
-package com.eventty.eventtynextgen.certification.repository;
+package com.eventty.eventtynextgen.certification.certificationcode.repository;
 
-import com.eventty.eventtynextgen.certification.entity.CertificationCode;
+import com.eventty.eventtynextgen.certification.certificationcode.entity.CertificationCode;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.certification.response;
+package com.eventty.eventtynextgen.certification.certificationcode.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

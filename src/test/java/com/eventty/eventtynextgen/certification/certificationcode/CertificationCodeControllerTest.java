@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.certification;
+package com.eventty.eventtynextgen.certification.certificationcode;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -10,14 +10,14 @@ import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
-import com.eventty.eventtynextgen.certification.entity.CertificationCode;
-import com.eventty.eventtynextgen.certification.fixture.CertificationCodeFixture;
-import com.eventty.eventtynextgen.certification.repository.CertificationCodeRepository;
-import com.eventty.eventtynextgen.certification.request.CertificationSendCodeRequestCommand;
-import com.eventty.eventtynextgen.certification.request.CertificationValidateCodeRequestCommand;
-import com.eventty.eventtynextgen.certification.response.CertificationExistsResponseView;
-import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
-import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
+import com.eventty.eventtynextgen.certification.certificationcode.entity.CertificationCode;
+import com.eventty.eventtynextgen.certification.certificationcode.fixture.CertificationCodeFixture;
+import com.eventty.eventtynextgen.certification.certificationcode.repository.CertificationCodeRepository;
+import com.eventty.eventtynextgen.certification.certificationcode.request.CertificationSendCodeRequestCommand;
+import com.eventty.eventtynextgen.certification.certificationcode.request.CertificationValidateCodeRequestCommand;
+import com.eventty.eventtynextgen.certification.certificationcode.response.CertificationExistsResponseView;
+import com.eventty.eventtynextgen.certification.certificationcode.response.CertificationSendCodeResponseView;
+import com.eventty.eventtynextgen.certification.certificationcode.response.CertificationValidateCodeResponseView;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
@@ -27,7 +27,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @TestInstance(Lifecycle.PER_CLASS)
-class CertificationControllerTest {
+class CertificationCodeControllerTest {
 
     private static final String BASE_URL = "/api/v1/certification";
 

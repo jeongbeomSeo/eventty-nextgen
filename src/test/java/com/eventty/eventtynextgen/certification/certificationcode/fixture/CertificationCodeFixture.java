@@ -1,6 +1,6 @@
-package com.eventty.eventtynextgen.certification.fixture;
+package com.eventty.eventtynextgen.certification.certificationcode.fixture;
 
-import com.eventty.eventtynextgen.certification.entity.CertificationCode;
+import com.eventty.eventtynextgen.certification.certificationcode.entity.CertificationCode;
 
 public class CertificationCodeFixture {
 
