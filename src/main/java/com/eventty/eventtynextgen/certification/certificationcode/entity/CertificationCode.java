@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.certification.entity;
+package com.eventty.eventtynextgen.certification.certificationcode.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -7,10 +7,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

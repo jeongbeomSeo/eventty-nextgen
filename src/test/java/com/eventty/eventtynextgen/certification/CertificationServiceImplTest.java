@@ -1,158 +1,69 @@
 package com.eventty.eventtynextgen.certification;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.certification.entity.CertificationCode;
-import com.eventty.eventtynextgen.certification.repository.CertificationCodeRepository;
-import com.eventty.eventtynextgen.certification.response.CertificationSendCodeResponseView;
-import com.eventty.eventtynextgen.certification.response.CertificationValidateCodeResponseView;
-import com.eventty.eventtynextgen.component.EmailSenderServiceImpl;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
-import com.eventty.eventtynextgen.user.repository.UserRepository;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
+import com.eventty.eventtynextgen.certification.certificationcode.CertificationCodeServiceImpl;
+import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
+import com.eventty.eventtynextgen.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("VerificationService 단위 테스트")
-class CertificationServiceImplTest {
+@DisplayName("CertificationServiceImpl 단위 테스트")
+public class CertificationServiceImplTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private CertificationCodeRepository certificationCodeRepository;
-
-    @Mock
-    private EmailSenderServiceImpl emailSenderService;
-
-    @DisplayName("비즈니스 로직 - 인증 코드 발송")
+    @DisplayName("비즈니스 로직 - 로그인")
     @Nested
-    class SendCode {
+    class Login {
 
         @Test
-        @DisplayName("인증 코드를 생성하고 엔티티 저장에 성공하여 인증 코드 전송에 성공한다")
-        void 인증_코드_생성_저장에_성공하여_인증_코드_전송에_성공한다() {
+        @DisplayName("이메일과 비밀번호로 활성화 상태인 유저를 찾을 경우 로그인에 성공하고 생성한 토큰을 반환한다.")
+        void 이메일과_비밀번호로_활성화_상태인_유저를_찾을_경우_로그인에_성공하고_생성한_토큰을_반환한다() {
             // given
-            String certTarget = "example@naver.com";
-            CertificationCode certificationCode = mock(CertificationCode.class);
+            String loginId = "example@gmail.com";
+            String password = "password1234";
 
-            when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(certificationCode);
-            doNothing().when(emailSenderService).sendEmailVerificationMail(eq(certTarget), any(String.class));
+            User user = mock(User.class);
+            when(user.getId()).thenReturn(1L);
+            when(user.getEmail()).thenReturn(loginId);
+            when(user.getName()).thenReturn("홍길동");
 
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
+            CertificationService certificationService = new CertificationServiceImpl();
 
             // when
-            CertificationSendCodeResponseView certificationSendCodeResponseView = certificationService.sendCode(certTarget);
+            CertificationLoginResponseView result = certificationService.login(loginId, password);
 
             // then
-            verify(emailSenderService, times(1)).sendEmailVerificationMail(eq(certTarget), any(String.class));
-            assertThat(certificationSendCodeResponseView.getMessage()).isNotBlank();
+            assertThat(result.userId()).isNotNull();
+            assertThat(result.email()).isEqualTo(loginId);
+            assertThat(result.name()).isNotBlank();
+            assertThat(result.tokenInfo().tokenType()).isNotBlank();
+            assertThat(result.tokenInfo().accessToken()).isNotBlank();
         }
 
         @Test
-        @DisplayName("인증 코드 엔티티 저장에 실패하여 예외를 발생시킨다.")
-        void 인증_코드_저장에_실패하여_예외를_발생시킨다() {
-            // given
-            String certTarget = "example@naver.com";
-            int ttl = 10;
+        @DisplayName("비밀번호가 일치하지 않을 경우 로그인에 실패하고 예외를 발생시킨다.")
+        void 비밀번호가_일치하지_않을_경우_로그인에_실패하고_예외를_발생시킨다() {
 
-            when(certificationCodeRepository.save(any(CertificationCode.class))).thenReturn(CertificationCode.of(certTarget, "RANDOM", ttl));
-
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
-
-            // when & then
-            try {
-                certificationService.sendCode(certTarget);
-            } catch (CustomException ex) {
-                verify(emailSenderService, times(0)).sendEmailVerificationMail(any(), any());
-                assertThat(ex.getErrorType()).isEqualTo(
-                    VerificationErrorType.CERTIFICATION_CODE_SAVE_ERROR
-                );
-            }
-        }
-    }
-
-    @DisplayName("비즈니스 로직 - 인증 코드 검증")
-    @Nested
-    class ValidateCode {
-
-        @Test
-        @DisplayName("요청한 이메일과 인증 코드로 검증을 요청하여, 유효한 검증 결과를 확인한다.")
-        void 인증_코드_검증을_요청하여_유효한_검증_결과를_확인한다() {
-            // given
-            String email = "example@naver.com";
-            String code = "RANDOM";
-
-            CertificationCode certificationCode = mock(CertificationCode.class);
-
-            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(Optional.of(certificationCode));
-            when(certificationCode.getExpiredAt()).thenReturn(LocalDateTime.now().plusMinutes(10));
-
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
-
-            // when
-            CertificationValidateCodeResponseView result = certificationService.validateCode(email, code);
-
-            // then
-            assertThat(result.code()).isEqualTo(code);
-            assertThat(result.validate()).isTrue();
         }
 
         @Test
-        @DisplayName("요청한 이메일과 인증 코드로 검증 요청을 하지만, 유효 기간 만료로 인해 실패 결과를 받는다.")
-        void 인증_코드_검증을_요청_하지만_유효_기간_만료로_인해_실패_결과를_받는다() {
-            // given
-            String email = "example@naver.com";
-            String code = "RANDOM";
+        @DisplayName("이메일과 비밀번호로 삭제 상태인 유저를 찾을 경우 로그인에 실패하고 예외를 발생시킨다.")
+        void 이메일과_비밀번호로_삭제_상태인_유저를_찾을_경우_로그인에_실패하고_예외를_발생시킨다() {
 
-            CertificationCode certificationCode = mock(CertificationCode.class);
-
-            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(Optional.of(certificationCode));
-            when(certificationCode.isExpired()).thenReturn(true);
-
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
-
-            // when
-            CertificationValidateCodeResponseView result = certificationService.validateCode(email, code);
-
-            // then
-            assertThat(result.code()).isEqualTo(code);
-            assertThat(result.validate()).isFalse();
         }
 
         @Test
-        @DisplayName("요청한 이메일과 인증 코드로 검증 요청을 하지만, 일치하는 인증 코드를 찾지 못하여 실패 결과를 받는다.")
-        void 인증_코드_검증을_요청_하지만_저장되어_있는_인증_코드를_찾지_못하여_실패_결과를_받는다() {
-            // given
-            String email = "example@naver.com";
-            String code = "RANDOM";
+        @DisplayName("이메일과 비밀번호로 사용자를 찾지 못했을 경우 로그인에 실패하고 예외를 발생시킨다.")
+        void 이메일과_비밀번호로_사용자를_찾지_못했을_경우_로그인에_실패하고_예외를_발생시킨다() {
 
-            when(certificationCodeRepository.findByEmailAndCode(email, code)).thenReturn(Optional.empty());
-
-            CertificationServiceImpl certificationService = new CertificationServiceImpl(userRepository, certificationCodeRepository, emailSenderService);
-
-            // when
-            CertificationValidateCodeResponseView result = certificationService.validateCode(email, code);
-
-            // then
-            assertThat(result.code()).isEqualTo(code);
-            assertThat(result.validate()).isFalse();
         }
+
     }
 
 }
