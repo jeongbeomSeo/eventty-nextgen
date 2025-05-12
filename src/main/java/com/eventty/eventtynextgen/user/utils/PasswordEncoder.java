@@ -2,7 +2,6 @@ package com.eventty.eventtynextgen.user.utils;
 
 import lombok.experimental.UtilityClass;
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.stereotype.Component;
 
 @UtilityClass
 public class PasswordEncoder {

@@ -16,7 +16,7 @@ import com.eventty.eventtynextgen.certification.certificationcode.response.Certi
 import com.eventty.eventtynextgen.component.EmailSenderServiceImpl;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.VerificationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.CertificationCodeErrorType;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -82,7 +82,7 @@ class CertificationCodeServiceImplTest {
             } catch (CustomException ex) {
                 verify(emailSenderService, times(0)).sendEmailVerificationMail(any(), any());
                 assertThat(ex.getErrorType()).isEqualTo(
-                    VerificationErrorType.CERTIFICATION_CODE_SAVE_ERROR
+                    CertificationCodeErrorType.CERTIFICATION_CODE_SAVE_ERROR
                 );
             }
         }

@@ -5,4 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtTokenProvider {
 
+    public String createAccessToken(Authentication authentication) {
+        return null;
+    }
 }
