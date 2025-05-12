@@ -11,7 +11,7 @@ import com.eventty.eventtynextgen.certification.certificationcode.response.Certi
 import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.CertificationCodeErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.shared.utils.CodeGeneratorUtil;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class CertificationCodeServiceImpl implements CertificationCodeService {
         if (certificationCodeFromDb.getId() != null) {
             this.emailSenderService.sendEmailVerificationMail(certTarget, code);
         } else {
-            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, CertificationCodeErrorType.CERTIFICATION_CODE_SAVE_ERROR);
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, CertificationErrorType.CERTIFICATION_CODE_SAVE_ERROR);
         }
 
         return CertificationSendCodeResponseView.createMessage(certTarget, CERTIFICATION_CODE_TTL);
@@ -53,11 +53,11 @@ public class CertificationCodeServiceImpl implements CertificationCodeService {
         boolean validate = true;
         try {
             CertificationCode certificationCode = this.certificationCodeRepository.findByEmailAndCode(email, code)
-                .orElseThrow(() -> CustomException.badRequest(CertificationCodeErrorType.MISMATCH_EMAIL_CERTIFICATION_CODE));
+                .orElseThrow(() -> CustomException.badRequest(CertificationErrorType.MISMATCH_EMAIL_CERTIFICATION_CODE));
 
             if (certificationCode.isExpired() || checkExpired(certificationCode)) {
                 certificationCode.setExpired();
-                throw CustomException.badRequest(CertificationCodeErrorType.EXPIRE_EMAIL_CERTIFICATION_CODE);
+                throw CustomException.badRequest(CertificationErrorType.EXPIRE_EMAIL_CERTIFICATION_CODE);
             }
         } catch (Exception ex) {
             if (ex instanceof CustomException) {

@@ -5,6 +5,7 @@ import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetailsService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthenticationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class LoginIdPasswordAuthenticationProvider implements AuthenticationProv
         }
 
         if (!userDetails.isActive()) {
-            throw CustomException.badRequest(AuthenticationErrorType.AUTH_USER_NOT_ACTIVE);
+            throw CustomException.badRequest(CertificationErrorType.AUTH_USER_NOT_ACTIVE);
         }
 
         return LoginIdPasswordAuthenticationToken.authenticated(userDetails);

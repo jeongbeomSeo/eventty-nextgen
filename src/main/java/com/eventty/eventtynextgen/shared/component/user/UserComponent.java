@@ -16,4 +16,7 @@ public class UserComponent {
         return userRepository.findByEmail(email);
     }
 
+    public Optional<User> findByUserId(Long userId) {
+        return userRepository.findById(userId);
+    }
 }

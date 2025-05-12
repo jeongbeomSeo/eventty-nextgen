@@ -7,13 +7,9 @@ public class SimpleGrantedAuthority implements GrantAuthority {
 
     private final String role;
 
-    private SimpleGrantedAuthority(String role) {
+    public SimpleGrantedAuthority(String role) {
         Assert.hasText(role, "A granted authority textual representation is required");
         this.role = role;
-    }
-
-    public static SimpleGrantedAuthority of(String role) {
-        return new SimpleGrantedAuthority(role);
     }
 
     @Override

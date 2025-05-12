@@ -10,6 +10,7 @@ import com.eventty.eventtynextgen.certification.core.userdetails.UserDetailsServ
 import com.eventty.eventtynextgen.certification.fixture.AuthenticationFixture;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthenticationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,7 +32,7 @@ class LoginIdPasswordAuthenticationProviderTest {
 
         @Test
         @DisplayName("모든 제약 조건이 통과할 경우 인증에 성공한 토큰을 발급해준다.")
-        void 모든_제약_조건이_통과할_경우_인증에_성공한_토큰을_발급해준다() {
+        void 모든_제약_조건이_통과할_경우_인증에_성공한_토큰을_발행해준다() {
             // given
             Authentication authentication = AuthenticationFixture.createUnauthenticatedLoginIdPasswordAuthentication();
 
@@ -44,11 +45,11 @@ class LoginIdPasswordAuthenticationProviderTest {
             LoginIdPasswordAuthenticationProvider loginIdPasswordAuthenticationProvider = new LoginIdPasswordAuthenticationProvider(userDetailsService);
 
             // when
-            Authentication authenticate = loginIdPasswordAuthenticationProvider.authenticate(authentication);
+            Authentication result = loginIdPasswordAuthenticationProvider.authenticate(authentication);
 
             // then
-            assertThat(authenticate.isAuthenticated()).isTrue();
-            assertThat(authenticate.getAuthorities().isEmpty()).isTrue();
+            assertThat(result.isAuthenticated()).isTrue();
+            assertThat(result.getAuthorities().isEmpty()).isTrue();
         }
 
         @Test
@@ -90,7 +91,7 @@ class LoginIdPasswordAuthenticationProviderTest {
             try {
                 loginIdPasswordAuthenticationProvider.authenticate(authentication);
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(AuthenticationErrorType.AUTH_USER_NOT_ACTIVE);
+                assertThat(ex.getErrorType()).isEqualTo(CertificationErrorType.AUTH_USER_NOT_ACTIVE);
             }
         }
     }
