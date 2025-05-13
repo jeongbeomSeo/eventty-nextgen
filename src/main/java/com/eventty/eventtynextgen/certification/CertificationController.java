@@ -36,10 +36,8 @@ public class CertificationController {
             .domain("localhost")
             .build();
 
-        CertificationLoginResponseView certificationLoginResponseView = result.toCertificationLoginResponseView();
-
         res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(certificationLoginResponseView);
+        return ResponseEntity.ok(result.toCertificationLoginResponseView());
     }
 }
