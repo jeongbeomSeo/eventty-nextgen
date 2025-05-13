@@ -18,7 +18,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = this.userComponent.findByEmail(loginId).orElseThrow(
             () -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
-        return LoginIdUserDetails.fromPrincipal(user.getId(), user.getEmail(), user.getPassword(), user.isDeleted());
+        return LoginIdUserDetails.fromPrincipal(user.getId(), user.getEmail(), user.getPassword(), user.getUserRole(), user.isDeleted());
     }
 
 }

@@ -1,27 +1,29 @@
 package com.eventty.eventtynextgen.certification.core.userdetails;
 
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
+
 public class LoginIdUserDetails implements UserDetails {
 
     private final Long userId;
     private final String loginId;
     private final String password;
+    private final UserRoleType userRole;
     private final boolean isDeleted;
-    private final UserState userState;
 
-    private LoginIdUserDetails(Long userId, String loginId, String password, boolean isDeleted, UserState userState) {
+    private LoginIdUserDetails(Long userId, String loginId, String password, UserRoleType userRole, boolean isDeleted) {
         this.userId = userId;
         this.loginId = loginId;
         this.password = password;
+        this.userRole = userRole;
         this.isDeleted = isDeleted;
-        this.userState = userState;
     }
 
     public static LoginIdUserDetails fromCredentials(String loginId, String password) {
-        return new LoginIdUserDetails(null, loginId, password, false, UserState.UNIDENTIFIED);
+        return new LoginIdUserDetails(null, loginId, password, null, false);
     }
 
-    public static LoginIdUserDetails fromPrincipal(Long userId, String loginId, String password, boolean isDeleted) {
-        return new LoginIdUserDetails(userId, loginId, password, isDeleted, UserState.IDENTIFIED);
+    public static LoginIdUserDetails fromPrincipal(Long userId, String loginId, String password, UserRoleType userRole, boolean isDeleted) {
+        return new LoginIdUserDetails(userId, loginId, password, userRole, isDeleted);
     }
 
     @Override
@@ -40,17 +42,17 @@ public class LoginIdUserDetails implements UserDetails {
     }
 
     @Override
+    public UserRoleType getUserRole() {
+        return this.userRole;
+    }
+
+    @Override
     public boolean isIdentified() {
-        return this.userState == UserState.IDENTIFIED;
+        return this.userId != null;
     }
 
     @Override
     public boolean isActive() {
         return !this.isDeleted;
-    }
-
-    enum UserState {
-        IDENTIFIED,
-        UNIDENTIFIED
     }
 }

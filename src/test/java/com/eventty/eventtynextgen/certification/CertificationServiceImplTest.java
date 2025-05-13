@@ -26,9 +26,6 @@ public class CertificationServiceImplTest {
     private AuthenticationProvider authenticationProvider;
 
     @Mock
-    private AuthorizationProvider authorizationProvider;
-
-    @Mock
     private JwtTokenProvider jwtTokenProvider;
 
     @Mock
@@ -45,7 +42,7 @@ public class CertificationServiceImplTest {
             String loginId = "example@gmail.com";
             String password = "password1234";
 
-            CertificationService certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider, refreshTokenProvider);
+            CertificationService certificationService = new CertificationServiceImpl(authenticationProvider, jwtTokenProvider, refreshTokenProvider);
 
             // when
             CertificationLoginResult result = certificationService.login(loginId, password);

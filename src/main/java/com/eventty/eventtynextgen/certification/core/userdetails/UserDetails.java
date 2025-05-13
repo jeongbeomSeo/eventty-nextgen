@@ -1,5 +1,7 @@
 package com.eventty.eventtynextgen.certification.core.userdetails;
 
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
+
 public interface UserDetails {
 
     Long getUserId();
@@ -7,6 +9,8 @@ public interface UserDetails {
     String getLoginId();
 
     String getPassword();
+
+    UserRoleType getUserRole();
 
     boolean isIdentified();
 

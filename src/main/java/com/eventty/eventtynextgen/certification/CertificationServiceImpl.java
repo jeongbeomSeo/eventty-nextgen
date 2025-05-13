@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class CertificationServiceImpl implements CertificationService {
 
     private final AuthenticationProvider authenticationProvider;
-    private final AuthorizationProvider authorizationProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenProvider refreshTokenProvider;
 
@@ -27,11 +26,9 @@ public class CertificationServiceImpl implements CertificationService {
         Authentication authenticate = this.authenticationProvider.authenticate(
             LoginIdPasswordAuthenticationToken.unauthenticated(LoginIdUserDetails.fromCredentials(loginId, password)));
 
-        Authentication grantedAuthenticate = this.authorizationProvider.authorize(authenticate);
+        String accessToken = this.jwtTokenProvider.createAccessToken(authenticate);
 
-        String accessToken = this.jwtTokenProvider.createAccessToken(grantedAuthenticate);
-
-        String refreshToken = this.refreshTokenProvider.createRefreshToken(grantedAuthenticate);
+        String refreshToken = this.refreshTokenProvider.createRefreshToken(authenticate);
 
         return null;
     }
