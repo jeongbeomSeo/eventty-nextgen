@@ -2,10 +2,9 @@ package com.eventty.eventtynextgen.certification;
 
 import com.eventty.eventtynextgen.certification.authentication.AuthenticationProvider;
 import com.eventty.eventtynextgen.certification.authentication.LoginIdPasswordAuthenticationToken;
-import com.eventty.eventtynextgen.certification.authorization.AuthorizationProvider;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.JwtTokenProvider;
-import com.eventty.eventtynextgen.certification.core.RefreshTokenProvider;
+import com.eventty.eventtynextgen.certification.core.JwtTokenProvider.TokenInfo;
 import com.eventty.eventtynextgen.certification.core.userdetails.LoginIdUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ public class CertificationServiceImpl implements CertificationService {
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenProvider refreshTokenProvider;
 
     @Override
     public CertificationLoginResult login(String loginId, String password) {
@@ -26,10 +24,9 @@ public class CertificationServiceImpl implements CertificationService {
         Authentication authenticate = this.authenticationProvider.authenticate(
             LoginIdPasswordAuthenticationToken.unauthenticated(LoginIdUserDetails.fromCredentials(loginId, password)));
 
-        String accessToken = this.jwtTokenProvider.createAccessToken(authenticate);
+        TokenInfo tokenInfo = jwtTokenProvider.createToken(authenticate);
 
-        String refreshToken = this.refreshTokenProvider.createRefreshToken(authenticate);
-
-        return null;
+        return new CertificationLoginResult(authenticate.getUserDetails().getUserId(), authenticate.getUserDetails().getLoginId(),
+            new CertificationLoginResult.TokenInfo(tokenInfo.getTokenType(), tokenInfo.getAccessToken(), tokenInfo.getRefreshToken()));
     }
 }

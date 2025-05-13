@@ -7,9 +7,11 @@ spring:
       local:
         - local
         - properties
+        - key
       test:
         - test
         - properties
+        - key
 
   datasource:
     url: ${db.url}

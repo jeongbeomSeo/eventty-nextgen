@@ -9,8 +9,7 @@ public interface CertificationService {
 
     record CertificationLoginResult(
         Long userId,
-        String email,
-        String name,
+        String loginId,
         TokenInfo tokenInfo
     ) {
         record TokenInfo(
@@ -20,7 +19,7 @@ public interface CertificationService {
         ) {}
 
         public CertificationLoginResponseView toCertificationLoginResponseView() {
-            return new CertificationLoginResponseView(this.userId(), this.email(), this.name(),
+            return new CertificationLoginResponseView(this.userId(), this.loginId(),
                 new AccessTokenInfo(this.tokenInfo().accessTokenType(), this.tokenInfo().accessToken()));
         }
     }

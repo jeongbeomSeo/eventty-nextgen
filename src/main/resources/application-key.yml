@@ -1,0 +1,5 @@
+key:
+  jwt:
+    secret-key: d172e90745bcc237af59f500a4d6acded461842227719b69f493cbf29c6a7acc0cfd00ae2117f3d5be5787427ab390988b23bf0968214595e68c2b0613118af3
+    access-token-validity-in-min: 2 * 60
+    refresh-token-validity-in-min: 7 * 24 * 60
