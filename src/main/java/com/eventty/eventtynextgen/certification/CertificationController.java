@@ -6,8 +6,12 @@ import com.eventty.eventtynextgen.certification.request.CertificationLoginReques
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
 import com.eventty.eventtynextgen.certification.shared.annotation.CertificationApiV1;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,15 +24,22 @@ public class CertificationController {
     private final CertificationService certificationService;
 
     @PostMapping("/login")
-    public ResponseEntity<CertificationLoginResponseView> login(@RequestBody @Valid CertificationLoginRequestCommand certificationLoginRequestCommand) {
+    public ResponseEntity<CertificationLoginResponseView> login(@RequestBody @Valid CertificationLoginRequestCommand certificationLoginRequestCommand, HttpServletResponse res) {
         CertificationLoginResult result = this.certificationService.login(certificationLoginRequestCommand.loginId(),
             certificationLoginRequestCommand.password());
 
-        // RefreshToken으로 ResponseCookie 생성
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", result.tokenInfo().refreshToken())
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .sameSite("Strict")
+            .domain("localhost")
+            .build();
 
         CertificationLoginResponseView certificationLoginResponseView = result.toCertificationLoginResponseView();
 
-        // Header에 http only setCookie인 refreshToken 담기
+        res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
         return ResponseEntity.ok(certificationLoginResponseView);
     }
 }
