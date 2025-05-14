@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Validated
 @CertificationCodeApiV1
 @RequiredArgsConstructor
-@Tag(name = "인증 코드 관리 API", description = "사용자 인증을 위한 ID 유효성 검증 및 인증 코드 처리와 관련된 API")
+@Tag(name = "인증 코드 관리·처리 API", description = "인증 코드 관리·처리와 관련된 API")
 public class CertificationCodeController {
 
     private final CertificationCodeService certificationCodeService;
