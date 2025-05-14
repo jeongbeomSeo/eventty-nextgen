@@ -39,6 +39,7 @@ class LoginIdPasswordAuthenticationProviderTest {
             UserDetails userDetails = mock(UserDetails.class);
 
             when(userDetailsService.loadUserDetailsByLoginId(authentication.getUserDetails().getLoginId())).thenReturn(userDetails);
+            when(userDetails.isIdentified()).thenReturn(true);
             when(userDetails.getPassword()).thenReturn(PasswordEncoder.encode(authentication.getUserDetails().getPassword()));
             when(userDetails.isActive()).thenReturn(true);
 

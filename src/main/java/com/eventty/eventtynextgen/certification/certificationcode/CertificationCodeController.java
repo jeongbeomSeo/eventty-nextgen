@@ -24,19 +24,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Tag(name = "인증 코드 관리 API", description = "사용자 인증을 위한 ID 유효성 검증 및 인증 코드 처리와 관련된 API")
 public class CertificationCodeController {
 
-    private final CertificationCodeService certificationService;
+    private final CertificationCodeService certificationCodeService;
 
     @GetMapping("/exists")
     @Operation(summary = "현재 사용중인 이메일 확인 API")
     public ResponseEntity<CertificationExistsResponseView> exists(@EmailRegexp @RequestParam("email") String email) {
-        return ResponseEntity.ok(this.certificationService.checkExists(email));
+        return ResponseEntity.ok(this.certificationCodeService.checkExists(email));
     }
 
     @PostMapping
     @Operation(summary = "인증 코드 발송 요청 API")
     public ResponseEntity<CertificationSendCodeResponseView> sendCode(
         @RequestBody @Valid CertificationSendCodeRequestCommand certificationSendCodeRequestCommand) {
-        return ResponseEntity.ok(this.certificationService.sendCode(certificationSendCodeRequestCommand.email()));
+        return ResponseEntity.ok(this.certificationCodeService.sendCode(certificationSendCodeRequestCommand.email()));
     }
 
     @PostMapping("/validate")
@@ -44,6 +44,6 @@ public class CertificationCodeController {
     public ResponseEntity<CertificationValidateCodeResponseView> validateCode(
         @RequestBody @Valid CertificationValidateCodeRequestCommand certificationValidateCodeRequestCommand) {
         return ResponseEntity.ok(
-            this.certificationService.validateCode(certificationValidateCodeRequestCommand.email(), certificationValidateCodeRequestCommand.code()));
+            this.certificationCodeService.validateCode(certificationValidateCodeRequestCommand.email(), certificationValidateCodeRequestCommand.code()));
     }
 }
