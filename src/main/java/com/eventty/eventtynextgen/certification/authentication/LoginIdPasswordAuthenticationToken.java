@@ -25,11 +25,12 @@ public class LoginIdPasswordAuthenticationToken implements Authentication {
 
     public static LoginIdPasswordAuthenticationToken authenticated(UserDetails userDetails) {
         Assert.notNull(userDetails, "userDetails must not be null");
-        Assert.isTrue(!userDetails.isIdentified(), "An unidentified user cannot create a token.");
+        Assert.isTrue(userDetails.isIdentified(), "An unidentified user cannot create a token.");
         return new LoginIdPasswordAuthenticationToken(userDetails, Collections.emptyList());
     }
 
     public static LoginIdPasswordAuthenticationToken authorized(Authentication authentication, Collection<? extends GrantedAuthority> authorities) {
+        Assert.notNull(authentication, "authentication must not be null");
         Assert.isTrue(authentication.isAuthenticated(), "Only an authenticated user can create an authorized token.");
         Assert.isTrue(authentication.getAuthorities().isEmpty(), "A user who is already authorized cannot create a new token");
         return new LoginIdPasswordAuthenticationToken(authentication.getUserDetails(), authorities);
@@ -47,6 +48,6 @@ public class LoginIdPasswordAuthenticationToken implements Authentication {
 
     @Override
     public boolean isAuthenticated() {
-        return this.getUserDetails().getUserId() != null;
+        return this.getUserDetails().isIdentified();
     }
 }
