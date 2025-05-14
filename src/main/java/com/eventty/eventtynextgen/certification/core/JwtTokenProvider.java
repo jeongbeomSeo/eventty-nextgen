@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
+import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,18 +38,23 @@ public class JwtTokenProvider {
         long now = new Date(System.currentTimeMillis()).getTime();
         String accessToken = Jwts.builder()
             .setSubject(userDetails.getLoginId())
-            .claim("role", userDetails.getUserRole().name())
+            .claim("role", this.getAuthorities(authentication))
             .claim("id", userDetails.getUserId())
             .setExpiration(new Date(now + accessTokenValidityInMin))
-            .signWith(getSigningKey())
+            .signWith(this.getSigningKey())
             .compact();
 
         String refreshToken = Jwts.builder()
             .setExpiration(new Date(now + refreshTokenValidityInMin))
-            .signWith(getSigningKey())
+            .signWith(this.getSigningKey())
             .compact();
 
         return new TokenInfo(CertificationConst.JWT_TOKEN_TYPE, accessToken, refreshToken);
+    }
+    private String getAuthorities(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));
     }
 
     private SecretKey getSigningKey() {

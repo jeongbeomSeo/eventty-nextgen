@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.certification.core;
 
-public interface GrantAuthority {
+public interface GrantedAuthority {
 
     String getAuthority();
 }

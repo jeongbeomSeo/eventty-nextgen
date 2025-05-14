@@ -5,7 +5,7 @@ import java.util.Collection;
 
 public interface Authentication {
 
-    Collection<? extends GrantAuthority> getAuthorities();
+    Collection<? extends GrantedAuthority> getAuthorities();
 
     UserDetails getUserDetails();
 

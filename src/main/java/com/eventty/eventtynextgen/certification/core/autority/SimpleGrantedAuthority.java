@@ -1,9 +1,9 @@
 package com.eventty.eventtynextgen.certification.core.autority;
 
-import com.eventty.eventtynextgen.certification.core.GrantAuthority;
+import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
-public class SimpleGrantedAuthority implements GrantAuthority {
+public class SimpleGrantedAuthority implements GrantedAuthority {
 
     private final String role;
 

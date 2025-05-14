@@ -3,7 +3,7 @@ package com.eventty.eventtynextgen.certification.authorization;
 import com.eventty.eventtynextgen.certification.authentication.LoginIdPasswordAuthenticationToken;
 import com.eventty.eventtynextgen.certification.authorization.enums.AuthorizationType;
 import com.eventty.eventtynextgen.certification.core.Authentication;
-import com.eventty.eventtynextgen.certification.core.GrantAuthority;
+import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
 import com.eventty.eventtynextgen.certification.core.autority.SimpleGrantedAuthority;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
@@ -24,7 +24,7 @@ public class UserRoleAuthorizationProvider implements AuthorizationProvider {
             throw CustomException.badRequest(CertificationErrorType.AUTH_USER_ROLE_ASSIGNMENT_ERROR);
         }
 
-        List<GrantAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(authorizationType.name()));
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(authorizationType.name()));
 
         return LoginIdPasswordAuthenticationToken.authorized(authentication, authorities);
     }

@@ -19,6 +19,7 @@ class JwtTokenProviderTest {
     @DisplayName("토큰 생성")
     class CreateToken {
 
+        // Test Key (테스트용 키)
         private static final String SECRET_KEY = "ee77845fbe673b5153a497f7ec9ad4b2c11556c3c359dadfc481728850c35bc39924819876ed0cd87742ba85901e5efcf91dc9fa2dba24eaf9a1da06f768586a";
         private static final Long TOKEN_VALIDITY_IN_MIN = 10L;
 

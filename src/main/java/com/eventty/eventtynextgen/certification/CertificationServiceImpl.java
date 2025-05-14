@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.certification;
 
 import com.eventty.eventtynextgen.certification.authentication.AuthenticationProvider;
 import com.eventty.eventtynextgen.certification.authentication.LoginIdPasswordAuthenticationToken;
+import com.eventty.eventtynextgen.certification.authorization.AuthorizationProvider;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.JwtTokenProvider;
 import com.eventty.eventtynextgen.certification.core.JwtTokenProvider.TokenInfo;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class CertificationServiceImpl implements CertificationService {
 
     private final AuthenticationProvider authenticationProvider;
+    private final AuthorizationProvider authorizationProvider;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -24,7 +26,9 @@ public class CertificationServiceImpl implements CertificationService {
         Authentication authenticate = this.authenticationProvider.authenticate(
             LoginIdPasswordAuthenticationToken.unauthenticated(LoginIdUserDetails.fromCredentials(loginId, password)));
 
-        TokenInfo tokenInfo = jwtTokenProvider.createToken(authenticate);
+        Authentication authorizedAuthentication = this.authorizationProvider.authorize(authenticate);
+
+        TokenInfo tokenInfo = this.jwtTokenProvider.createToken(authorizedAuthentication);
 
         return new CertificationLoginResult(authenticate.getUserDetails().getUserId(), authenticate.getUserDetails().getLoginId(),
             new CertificationLoginResult.TokenInfo(tokenInfo.getTokenType(), tokenInfo.getAccessToken(), tokenInfo.getRefreshToken()));

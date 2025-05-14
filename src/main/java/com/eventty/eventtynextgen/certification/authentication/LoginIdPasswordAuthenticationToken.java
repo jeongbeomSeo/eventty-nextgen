@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.certification.authentication;
 
 import com.eventty.eventtynextgen.certification.core.Authentication;
-import com.eventty.eventtynextgen.certification.core.GrantAuthority;
+import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,10 +10,10 @@ import org.springframework.util.Assert;
 
 public class LoginIdPasswordAuthenticationToken implements Authentication {
 
-    private final Collection<GrantAuthority> authorities;
+    private final Collection<GrantedAuthority> authorities;
     private final UserDetails userDetails;
 
-    private LoginIdPasswordAuthenticationToken(UserDetails userDetails, Collection<? extends GrantAuthority> authorities) {
+    private LoginIdPasswordAuthenticationToken(UserDetails userDetails, Collection<? extends GrantedAuthority> authorities) {
         this.userDetails = userDetails;
         this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
     }
@@ -29,14 +29,14 @@ public class LoginIdPasswordAuthenticationToken implements Authentication {
         return new LoginIdPasswordAuthenticationToken(userDetails, Collections.emptyList());
     }
 
-    public static LoginIdPasswordAuthenticationToken authorized(Authentication authentication, Collection<? extends GrantAuthority> authorities) {
+    public static LoginIdPasswordAuthenticationToken authorized(Authentication authentication, Collection<? extends GrantedAuthority> authorities) {
         Assert.isTrue(authentication.isAuthenticated(), "Only an authenticated user can create an authorized token.");
         Assert.isTrue(authentication.getAuthorities().isEmpty(), "A user who is already authorized cannot create a new token");
         return new LoginIdPasswordAuthenticationToken(authentication.getUserDetails(), authorities);
     }
 
     @Override
-    public Collection<? extends GrantAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities;
     }
 
