@@ -1,19 +1,26 @@
 package com.eventty.eventtynextgen.certification.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.JwtTokenProvider.TokenInfo;
 import com.eventty.eventtynextgen.certification.fixture.AuthenticationFixture;
+import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenRepository;
+import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("JwtTokenProvider 단위 테스트")
 class JwtTokenProviderTest {
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Nested
     @DisplayName("토큰 생성")
@@ -29,7 +36,9 @@ class JwtTokenProviderTest {
             // given
             Authentication authentication = AuthenticationFixture.createAuthenticatedLoginIdPasswordAuthentication();
 
-            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN);
+            when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(mock(RefreshToken.class));
+
+            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN, refreshTokenRepository);
 
             // when
             TokenInfo token = jwtTokenProvider.createToken(authentication);
@@ -46,7 +55,7 @@ class JwtTokenProviderTest {
             // given
             Authentication authentication = AuthenticationFixture.createUnauthenticatedLoginIdPasswordAuthentication();
 
-            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN);
+            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN, refreshTokenRepository);
 
             // when & then
             try {
