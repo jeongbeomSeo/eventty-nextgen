@@ -3,6 +3,7 @@ package com.eventty.eventtynextgen.certification.core;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenRepository;
+import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -24,17 +25,17 @@ public class JwtTokenProvider {
     private final Long accessTokenValidityInMin;
     private final Long refreshTokenValidityInMin;
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final RefreshTokenService refreshTokenService;
 
     public JwtTokenProvider(
         @Value("${key.jwt.secret-key}") String secretKey,
         @Value("${key.jwt.access-token-validity-in-min}") Long accessTokenValidityInMin,
         @Value("${key.jwt.refresh-token-validity-in-min}") Long refreshTokenValidityInMin,
-        RefreshTokenRepository refreshTokenRepository) {
+        RefreshTokenService refreshTokenService) {
         this.secretKey = secretKey;
         this.accessTokenValidityInMin = accessTokenValidityInMin * 60 * 1000;
         this.refreshTokenValidityInMin = refreshTokenValidityInMin * 60 * 1000;
-        this.refreshTokenRepository = refreshTokenRepository;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
@@ -57,7 +58,7 @@ public class JwtTokenProvider {
             .signWith(this.getSigningKey())
             .compact();
 
-        refreshTokenRepository.save(RefreshToken.of(refreshToken, userDetails.getUserId()));
+        refreshTokenService.saveOrUpdate(refreshToken, userDetails.getUserId());
 
         return new TokenInfo(CertificationConst.JWT_TOKEN_TYPE, accessToken, refreshToken);
     }
