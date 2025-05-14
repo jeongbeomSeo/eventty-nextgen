@@ -40,7 +40,7 @@ public class RefreshToken {
             .userId(userId)
             .build();
     }
-
+  
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }

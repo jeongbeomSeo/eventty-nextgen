@@ -2,9 +2,7 @@ package com.eventty.eventtynextgen.certification.core;
 
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
-import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenRepository;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
-import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
