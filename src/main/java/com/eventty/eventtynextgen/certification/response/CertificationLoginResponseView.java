@@ -3,12 +3,10 @@ package com.eventty.eventtynextgen.certification.response;
 public record CertificationLoginResponseView(
     Long userId,
     String email,
-    String name,
-    TokenInfo tokenInfo
+    AccessTokenInfo accessTokenInfo
 ) {
-    public record TokenInfo(
+    public record AccessTokenInfo(
         String tokenType,
         String accessToken
     ){}
-
 }
