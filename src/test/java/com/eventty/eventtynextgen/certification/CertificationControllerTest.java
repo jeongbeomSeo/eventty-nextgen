@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.certification;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,7 +12,13 @@ import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.request.CertificationLoginRequestCommand;
+import com.eventty.eventtynextgen.shared.exception.CustomException;
+import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
+import com.eventty.eventtynextgen.shared.exception.enums.AuthenticationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
+import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.user.entity.User;
+import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
@@ -32,6 +39,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -111,19 +119,85 @@ class CertificationControllerTest {
                 .andExpect(jsonPath("$.accessTokenInfo.tokenType").value(CertificationConst.JWT_TOKEN_TYPE))
                 .andExpect(jsonPath("$.accessTokenInfo.accessToken").isNotEmpty())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, Matchers.containsString("refreshToken=")));
-
         }
 
         @Test
         @DisplayName("로그인 아이디인 이메일이 잘못된 경우 로그인에 실패한다")
-        void 로그인_아이디인_이메일이_잘못된_경우_로그인에_실패한다() {
+        void 로그인_아이디인_이메일이_잘못된_경우_로그인에_실패한다() throws Exception {
+            // given
+            String email = "test@gmai.com";
+            String plainPassword = "testpassword";
+            User user = UserFixture.createUserByCredentials(email, PasswordEncoder.encode(plainPassword));
+            userRepository.save(user);
 
+            CertificationLoginRequestCommand loginRequest = new CertificationLoginRequestCommand("wrong@gmail.com", plainPassword);
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                CustomException.badRequest(UserErrorType.NOT_FOUND_USER)
+            );
+
+            // when
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .content(objectMapper.writeValueAsString(loginRequest))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isBadRequest())
+                .andExpect(
+                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
         @Test
         @DisplayName("로그인 아이디에 해당하는 계정의 패스워드가 불일치할 경우 로그인에 실패한다")
-        void 로그인_아이디에_해당하는_계정의_패스워드가_불일치할_경우_로그인에_실패한다() {
+        void 로그인_아이디에_해당하는_계정의_패스워드가_불일치할_경우_로그인에_실패한다() throws Exception {
+            // given
+            String email = "test@gmai.com";
+            String plainPassword = "testpassword";
+            User user = UserFixture.createUserByCredentials(email, PasswordEncoder.encode(plainPassword));
+            userRepository.save(user);
 
+            CertificationLoginRequestCommand loginRequest = new CertificationLoginRequestCommand(email, "wrongpassword");
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                CustomException.badRequest(AuthenticationErrorType.AUTH_PASSWORD_MISMATCH)
+            );
+
+            // when
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .content(objectMapper.writeValueAsString(loginRequest))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isBadRequest())
+                .andExpect(
+                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+
+        @Test
+        @DisplayName("삭제된 사용자로 로그인을 시도할 경우 로그인에 실패한다")
+        void 삭제된_사용자로_로그인을_시도할_경우_로그인에_실패한다() throws Exception {
+            // given
+            String email = "test@gmai.com";
+            String plainPassword = "testpassword";
+            User user = UserFixture.createUserByCredentials(email, PasswordEncoder.encode(plainPassword));
+            user.updateDeleteStatus(UserStatus.DELETED);
+            userRepository.save(user);
+
+            CertificationLoginRequestCommand loginRequest = new CertificationLoginRequestCommand(email, plainPassword);
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+                CustomException.badRequest(AuthenticationErrorType.AUTH_USER_NOT_ACTIVE)
+            );
+
+            // when
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .content(objectMapper.writeValueAsString(loginRequest))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isBadRequest())
+                .andExpect(
+                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
     }
 }
