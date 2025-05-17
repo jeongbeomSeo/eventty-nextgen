@@ -3,9 +3,14 @@ package com.eventty.eventtynextgen.certification.core;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
@@ -44,9 +49,8 @@ public class JwtTokenProvider {
 
         long now = new Date(System.currentTimeMillis()).getTime();
         String accessToken = Jwts.builder()
-            .setSubject(userDetails.getLoginId())
-            .claim("role", this.getAuthorities(authentication))
-            .claim("id", userDetails.getUserId())
+            .setSubject(String.valueOf(userDetails.getUserId()))
+            .claim("role", this.convertAuthoritiesToPayload(authentication.getAuthorities()))
             .setExpiration(new Date(now + accessTokenValidityInMin))
             .signWith(this.getSigningKey())
             .compact();
@@ -60,15 +64,48 @@ public class JwtTokenProvider {
 
         return new TokenInfo(CertificationConst.JWT_TOKEN_TYPE, accessToken, refreshToken);
     }
-    private String getAuthorities(Authentication authentication) {
-        return authentication.getAuthorities().stream()
+
+    private String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
+    }
+
+    public void verifyToken(String token) throws ExpiredJwtException, UnsupportedJwtException, IllegalStateException, SignatureException {
+        Jwts.parserBuilder()
+            .setSigningKey(getSigningKey())
+            .build()
+            .parseClaimsJws(token);
+    }
+
+    public AccessTokenPayload retrievePayload(String token) {
+        Claims claims = Jwts.parserBuilder()
+            .setSigningKey(getSigningKey())
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+
+        Long userId = Long.parseLong(claims.getSubject());
+        String role = (String) claims.get("role");
+
+        return new AccessTokenPayload(userId, role);
     }
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    @Getter
+    public static class AccessTokenPayload {
+
+        private Long userId;
+        private String role;
+
+        public AccessTokenPayload(Long userId, String role) {
+            this.userId = userId;
+            this.role = role;
+        }
     }
 
     @Getter
@@ -78,7 +115,6 @@ public class JwtTokenProvider {
         private String accessToken;
         private String refreshToken;
 
-        @Builder
         private TokenInfo(String tokenType, String accessToken, String refreshToken) {
             this.tokenType = tokenType;
             this.accessToken = accessToken;
