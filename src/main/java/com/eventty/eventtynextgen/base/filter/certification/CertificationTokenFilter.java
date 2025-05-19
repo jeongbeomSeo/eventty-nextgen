@@ -6,8 +6,6 @@ import static com.eventty.eventtynextgen.shared.constant.HttpHeaderConst.*;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenPayload;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,10 +13,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
-import org.springframework.expression.ExpressionException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ResponseStatusException;
 
 @Order(-2)
 @RequiredArgsConstructor
@@ -34,8 +33,9 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(jwtAccessToken)) {
             try {
                 this.jwtTokenProvider.verifyToken(jwtAccessToken);
-            } catch (ExpressionException | UnsupportedJwtException | IllegalStateException | SignatureException ex) {
+            } catch (Throwable ex) {
                 // TODO - Exception 처리
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "토큰 검증에 실패");
             }
             AccessTokenPayload payload = this.jwtTokenProvider.retrievePayload(jwtAccessToken);
 
