@@ -1,6 +1,8 @@
-package com.eventty.eventtynextgen.certification.core;
+package com.eventty.eventtynextgen.base.provider;
 
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
+import com.eventty.eventtynextgen.certification.core.Authentication;
+import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
 import io.jsonwebtoken.Claims;

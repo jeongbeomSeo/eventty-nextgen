@@ -3,9 +3,8 @@ package com.eventty.eventtynextgen.base.filter.certification;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.JWT_TOKEN_TYPE;
 import static com.eventty.eventtynextgen.shared.constant.HttpHeaderConst.*;
 
-import com.eventty.eventtynextgen.certification.core.JwtTokenProvider;
-import com.eventty.eventtynextgen.certification.core.JwtTokenProvider.AccessTokenPayload;
-import com.eventty.eventtynextgen.shared.context.AuthorizationContext;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenPayload;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;

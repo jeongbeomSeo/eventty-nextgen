@@ -4,8 +4,8 @@ import com.eventty.eventtynextgen.certification.authentication.AuthenticationPro
 import com.eventty.eventtynextgen.certification.authentication.LoginIdPasswordAuthenticationToken;
 import com.eventty.eventtynextgen.certification.authorization.AuthorizationProvider;
 import com.eventty.eventtynextgen.certification.core.Authentication;
-import com.eventty.eventtynextgen.certification.core.JwtTokenProvider;
-import com.eventty.eventtynextgen.certification.core.JwtTokenProvider.TokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.TokenInfo;
 import com.eventty.eventtynextgen.certification.core.userdetails.LoginIdUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
