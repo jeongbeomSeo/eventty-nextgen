@@ -3,8 +3,9 @@ package com.eventty.eventtynextgen.certification.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
-import com.eventty.eventtynextgen.certification.core.JwtTokenProvider.TokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.TokenInfo;
 import com.eventty.eventtynextgen.certification.fixture.AuthenticationFixture;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
