@@ -5,13 +5,17 @@ import static com.eventty.eventtynextgen.shared.constant.HttpHeaderConst.*;
 
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenPayload;
+import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
+import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -19,6 +23,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @Order(-2)
 @RequiredArgsConstructor
 @Component
@@ -33,18 +38,32 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(jwtAccessToken)) {
             try {
                 this.jwtTokenProvider.verifyToken(jwtAccessToken);
+
+                AccessTokenPayload payload = this.jwtTokenProvider.retrievePayload(jwtAccessToken);
+
+                AuthorizationContextHolder.getContext().updateContext(payload.getUserId(), payload.getRole());
+
+                filterChain.doFilter(request, response);
+            } catch (ExpiredJwtException ex) {
+                log.error("http-status={} code={} msg={} detail={}",
+                    HttpStatus.BAD_REQUEST.value(),
+                    CertificationErrorType.JWT_TOKEN_EXPIRED.getCode(),
+                    CertificationErrorType.JWT_TOKEN_EXPIRED.getMsg(),
+                    ex.getMessage());
+                ResponseUtils.writeErrorResponseToResponse(response, HttpStatus.BAD_REQUEST, ex, CertificationErrorType.JWT_TOKEN_EXPIRED);
             } catch (Throwable ex) {
-                // TODO - Exception 처리
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "토큰 검증에 실패");
+                log.error("http-status={} code={} msg={} detail={}",
+                    HttpStatus.UNAUTHORIZED.value(),
+                    CertificationErrorType.FAILED_TOKEN_VERIFIED.getCode(),
+                    CertificationErrorType.FAILED_TOKEN_VERIFIED.getMsg(),
+                    ex.getMessage());
+                ResponseUtils.writeErrorResponseToResponse(response, HttpStatus.UNAUTHORIZED, ex, CertificationErrorType.FAILED_TOKEN_VERIFIED);
+            } finally {
+                AuthorizationContextHolder.clearContext();
             }
-            AccessTokenPayload payload = this.jwtTokenProvider.retrievePayload(jwtAccessToken);
-
-            AuthorizationContextHolder.getContext().updateContext(payload.getUserId(), payload.getRole());
+        } else {
+            filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
-
-        AuthorizationContextHolder.clearContext();
     }
 
     private String parseJwtToken(HttpServletRequest request) {
