@@ -9,7 +9,6 @@ import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetailsService;
 import com.eventty.eventtynextgen.certification.fixture.AuthenticationFixture;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.AuthenticationErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import org.junit.jupiter.api.DisplayName;
@@ -70,7 +69,7 @@ class LoginIdPasswordAuthenticationProviderTest {
             try {
                 loginIdPasswordAuthenticationProvider.authenticate(authentication);
             } catch (CustomException ex) {
-                assertThat(ex.getErrorType()).isEqualTo(AuthenticationErrorType.AUTH_PASSWORD_MISMATCH);
+                assertThat(ex.getErrorType()).isEqualTo(CertificationErrorType.AUTH_PASSWORD_MISMATCH);
             }
         }
 
