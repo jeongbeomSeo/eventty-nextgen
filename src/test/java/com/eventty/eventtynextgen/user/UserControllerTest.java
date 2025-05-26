@@ -321,7 +321,7 @@ public class UserControllerTest {
 
                 ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
                     "userRole",
-                    "사용자 역할을 USER 혹은 HOST이어야 합니다.");
+                    "사용자 역할을 USER, HOST, ADMIN 중 하나여야 합니다.");
 
                 // when
                 ResultActions resultActions = mockMvc.perform(

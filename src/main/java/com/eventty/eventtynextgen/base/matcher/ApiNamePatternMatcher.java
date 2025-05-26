@@ -1,24 +1,22 @@
 package com.eventty.eventtynextgen.base.matcher;
 
-import com.eventty.eventtynextgen.base.enums.ApiNameType;
+import com.eventty.eventtynextgen.base.enums.ApiName;
 import java.util.Optional;
 import lombok.experimental.UtilityClass;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.StringUtils;
 
 @UtilityClass
 public class ApiNamePatternMatcher {
 
-    private final static AntPathMatcher matcher = new AntPathMatcher();
+    public static Optional<ApiName> getApiName(String url) {
+        for (ApiName apiName : ApiName.values()) {
+            String[] patterns = apiName.getPattern().split(",");
 
-    public static Optional<ApiNameType> getApiNameByUrlAndMethod(String url, String method) {
-        for (ApiNameType api : ApiNameType.values()) {
-            if ((api.getMethod().matches(method) || api.getMethod().equals("any"))
-                && matcher.match(api.getPattern(), url)) {
-                return Optional.of(api);
+            for (String pattern : patterns) {
+                if (url.contains(pattern)) {
+                    return Optional.of(apiName);
+                }
             }
         }
-
         return Optional.empty();
     }
 }

@@ -9,13 +9,15 @@ public class AuthorizationContext {
 
     private Long userId;
     private String role;
+    private String appName;
 
     public AuthorizationContext() {
     }
 
-    public void updateContext(Long userId, String role) {
+    public void updateContext(Long userId, String role, String appName) {
         this.userId = userId;
         this.role = role;
+        this.appName = appName;
     }
 
     public boolean validate() {
