@@ -5,7 +5,6 @@ import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
-import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -17,11 +16,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
-import lombok.Builder;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 @Component
@@ -41,17 +38,29 @@ public class JwtTokenProvider {
         this.refreshTokenValidityInMin = refreshTokenValidityInMin * 60 * 1000;
     }
 
-    @Transactional
     public TokenInfo createToken(Authentication authentication) {
         Assert.isTrue(authentication.isAuthorized(), "Only authorized users can generate a JWT token.");
 
         UserDetails userDetails = authentication.getUserDetails();
 
+        return this.createTokenInfo(
+            userDetails.getUserId(),
+            this.convertAuthoritiesToPayload(authentication.getAuthorities()),
+            BaseConst.EVENTTY_NAME);
+    }
+
+    public TokenInfo createTokenByExpiredToken(String accessToken) {
+        AccessTokenPayload payload = this.retrievePayload(accessToken);
+
+        return this.createTokenInfo(payload.getUserId(), payload.getRole(), payload.getAppName());
+    }
+
+    private TokenInfo createTokenInfo(Long userId, String role, String appName) {
         long now = new Date(System.currentTimeMillis()).getTime();
         String accessToken = Jwts.builder()
-            .setSubject(String.valueOf(userDetails.getUserId()))
-            .claim("role", this.convertAuthoritiesToPayload(authentication.getAuthorities()))
-            .claim("appName", BaseConst.EVENTTY_NAME)
+            .setSubject(String.valueOf(userId))
+            .claim("role", role)
+            .claim("appName", appName)
             .setExpiration(new Date(now + accessTokenValidityInMin))
             .signWith(this.getSigningKey())
             .compact();
@@ -77,18 +86,23 @@ public class JwtTokenProvider {
             .parseClaimsJws(token);
     }
 
-    public AccessTokenPayload retrievePayload(String token) {
-        Claims claims = Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
+    public AccessTokenPayload retrievePayload(String accessToken) {
+        Claims claims = this.parseClaims(accessToken);
 
         Long userId = Long.parseLong(claims.getSubject());
         String role = (String) claims.get("role");
         String appName = (String) claims.get("appName");
 
         return new AccessTokenPayload(userId, role, appName);
+    }
+
+    private Claims parseClaims(String accessToken) {
+        try {
+            return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(accessToken)
+                .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
     private SecretKey getSigningKey() {
@@ -98,11 +112,11 @@ public class JwtTokenProvider {
 
     @Getter
     public static class AccessTokenPayload {
-        private Long userId;
-        private String role;
-        private String appName;
+        private final Long userId;
+        private final String role;
+        private final String appName;
 
-        public AccessTokenPayload(Long userId, String role, String appName) {
+        private AccessTokenPayload(Long userId, String role, String appName) {
             this.userId = userId;
             this.role = role;
             this.appName = appName;
@@ -111,10 +125,9 @@ public class JwtTokenProvider {
 
     @Getter
     public static class TokenInfo {
-
-        private String tokenType;
-        private String accessToken;
-        private String refreshToken;
+        private final String tokenType;
+        private final String accessToken;
+        private final String refreshToken;
 
         private TokenInfo(String tokenType, String accessToken, String refreshToken) {
             this.tokenType = tokenType;

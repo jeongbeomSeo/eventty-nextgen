@@ -2,7 +2,6 @@ package com.eventty.eventtynextgen.certification;
 
 
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
-import com.eventty.eventtynextgen.certification.CertificationService.CertificationLoginResult;
 import com.eventty.eventtynextgen.certification.request.CertificationLoginRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
 import com.eventty.eventtynextgen.certification.shared.annotation.CertificationApiV1;
@@ -12,8 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,21 +24,12 @@ public class CertificationController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인 API")
-    public ResponseEntity<CertificationLoginResponseView> login(@RequestBody @Valid CertificationLoginRequestCommand certificationLoginRequestCommand, HttpServletResponse res) {
-        CertificationLoginResult result = this.certificationService.login(certificationLoginRequestCommand.loginId(),
-            certificationLoginRequestCommand.password());
-
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", result.tokenInfo().refreshToken())
-            .httpOnly(true)
-            .secure(true)
-            .path("/")
-            .sameSite("Strict")
-            .domain("localhost")
-            .build();
-
-        res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return ResponseEntity.ok(result.toCertificationLoginResponseView());
+    public ResponseEntity<CertificationLoginResponseView> login(@RequestBody @Valid CertificationLoginRequestCommand certificationLoginRequestCommand,
+        HttpServletResponse response) {
+        return ResponseEntity.ok(this.certificationService.login(
+            certificationLoginRequestCommand.loginId(),
+            certificationLoginRequestCommand.password(),
+            response));
     }
 
     @LoginRequired

@@ -32,7 +32,7 @@ class JwtTokenProviderTest {
         @DisplayName("인증된 사용자는 토큰 생성에 성공한다.")
         void 인증된_사용자는_토큰_생성에_성공한다() {
             // given
-            Authentication authentication = AuthenticationFixture.createAuthenticatedLoginIdPasswordAuthentication();
+            Authentication authentication = AuthenticationFixture.createAuthorizedLoginIdPasswordAuthentication(1L, "email@gmail.com", "plain_password");
 
             JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN);
 
@@ -58,7 +58,7 @@ class JwtTokenProviderTest {
                 jwtTokenProvider.createToken(authentication);
             } catch (Exception ex) {
                 assertThat(ex.getClass()).isEqualTo(IllegalArgumentException.class);
-                assertThat(ex.getMessage()).isEqualTo("Only authenticated users can generate a JWT token.");
+                assertThat(ex.getMessage()).isEqualTo("Only authorized users can generate a JWT token.");
             }
         }
     }

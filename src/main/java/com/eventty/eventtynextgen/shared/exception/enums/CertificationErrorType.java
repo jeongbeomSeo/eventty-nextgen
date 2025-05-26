@@ -15,7 +15,7 @@ public enum CertificationErrorType implements ErrorType {
     // Authentication
     AUTH_PASSWORD_MISMATCH("AUTH_PASSWORD_MISMATCH", "패스워드가 일치하지 않습니다."),
     AUTH_USER_NOT_ACTIVE("AUTH_USER_NOT_ACTIVE", "해당 유저는 활성화 상태가 아닙니다."),
-    JWT_TOKEN_EXPIRED("JWT_TOKEN_EXPIRED", "JWT 토큰 인증 기간이 지났습니다. 재발급을 시도하세요"),
+    JWT_TOKEN_EXPIRED("JWT_TOKEN_EXPIRED", "토큰 인증 기간이 지났습니다. 재발급을 시도하세요"),
     FAILED_TOKEN_VERIFIED("FAILED_TOKEN_VERIFIED", "토큰 검증에 실패했습니다."),
 
     // Authorization
@@ -24,9 +24,11 @@ public enum CertificationErrorType implements ErrorType {
 
     NOT_FOUND_API_NAME_TYPE("NOT_FOUND_API_NAME_TYPE", "URI에 일치하는 value를 찾을 수 없습니다."),
     NOT_FOUND_AUTHORIZATION_API_PROPERTY("NOT_FOUND_AUTHORIZATION_API_PROPERTY", "일치하는 Properties를 찾을 수 없습니다."),
+    NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "해당 사용자로 저장되어 있는 Refresh Token을 찾을 수 없습니다."),
+
+    MISMATCH_REFRESH_TOKEN("MISMATCH_REFRESH_TOKEN", "저장되어 있는 Refresh Token과 값이 일치하지 않습니다."),
 
     UNKNOWN_EXCEPTION("UNKNOWN_EXCEPTION", "예상치 못한 예외가 발생했습니다. 문제 해결 조치를 위해 author과 컨택하세요.");
-
 
     private final String code;
     private final String msg;
