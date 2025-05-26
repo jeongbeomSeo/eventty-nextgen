@@ -14,9 +14,9 @@ import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.request.CertificationLoginRequestCommand;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
-import com.eventty.eventtynextgen.shared.exception.enums.AuthenticationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
-import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
+import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseEntityFactory;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
@@ -132,7 +132,7 @@ class CertificationControllerTest {
 
             CertificationLoginRequestCommand loginRequest = new CertificationLoginRequestCommand("wrong@gmail.com", plainPassword);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.NOT_FOUND_USER)
             );
 
@@ -158,8 +158,8 @@ class CertificationControllerTest {
 
             CertificationLoginRequestCommand loginRequest = new CertificationLoginRequestCommand(email, "wrongpassword");
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(AuthenticationErrorType.AUTH_PASSWORD_MISMATCH)
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.badRequest(CertificationErrorType.AUTH_PASSWORD_MISMATCH)
             );
 
             // when
@@ -185,8 +185,8 @@ class CertificationControllerTest {
 
             CertificationLoginRequestCommand loginRequest = new CertificationLoginRequestCommand(email, plainPassword);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
-                CustomException.badRequest(AuthenticationErrorType.AUTH_USER_NOT_ACTIVE)
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.badRequest(CertificationErrorType.AUTH_USER_NOT_ACTIVE)
             );
 
             // when

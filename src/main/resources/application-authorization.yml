@@ -1,0 +1,16 @@
+authorization:
+  swagger:
+    swagger-ui: PASS
+    swagger-api: PASS
+  certification:
+    login: PASS
+    code-exists: PASS
+    code-send: PASS
+    code-validate: PASS
+  user:
+    signup: PASS
+    update: LOGIN
+    user-delete: LOGIN
+    activate-deleted-user: PASS
+    find-email: PASS
+    change-password: LOGIN
