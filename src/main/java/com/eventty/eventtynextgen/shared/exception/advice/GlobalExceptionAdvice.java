@@ -4,7 +4,7 @@ import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
-import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseEntityFactory;
+import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -30,13 +30,13 @@ public class GlobalExceptionAdvice {
         CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
 
         // TODO: 반복되는 Error logging 작업을 분리 고려중
-        log.error("http-status={} code={} msg={} detail={}",
+        log.warn(String.format("http-status={%s} code={%s} msg={%s} detail={%s}",
             customException.getHttpStatus().value(),
             CommonErrorType.INVALID_INPUT_DATA.getCode(),
             CommonErrorType.INVALID_INPUT_DATA.getMsg(),
-            errorMsg);
+            errorMsg));
 
-        return ErrorResponseEntityFactory.toResponseEntity(customException);
+        return ErrorResponseFactory.toResponseEntity(customException);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -49,23 +49,24 @@ public class GlobalExceptionAdvice {
 
         CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
 
-        log.error("http-status={} code={} msg={} detail={}",
+        log.warn(String.format(
+            "http-status={%s} code={%s} msg={%s} detail={%s}",
             customException.getHttpStatus().value(),
             CommonErrorType.INVALID_INPUT_DATA.getCode(),
             CommonErrorType.INVALID_INPUT_DATA.getMsg(),
             errorMsg
-        );
+        ));
 
-        return ErrorResponseEntityFactory.toResponseEntity(customException);
+        return ErrorResponseFactory.toResponseEntity(customException);
     }
 
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
         ErrorType errorType = ex.getErrorType();
-        log.error("http-status={} code={} msg={} detail={}",
-            ex.getHttpStatus().value(), errorType.getCode(), errorType.getClass(), ex.getDetail());
+        log.warn(String.format("http-status={%s} code={%s} msg={%s} detail={%s}",
+            ex.getHttpStatus().value(), errorType.getCode(), errorType.getClass(), ex.getDetail()));
 
-        return ErrorResponseEntityFactory.toResponseEntity(ex);
+        return ErrorResponseFactory.toResponseEntity(ex);
     }
 
 }

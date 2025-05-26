@@ -7,7 +7,7 @@ import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public final class ErrorResponseEntityFactory {
+public final class ErrorResponseFactory {
     private final String code;
     private final String msg;
     private final Object detail;
@@ -21,7 +21,7 @@ public final class ErrorResponseEntityFactory {
             .body(ErrorResponse.of(errorType, detail));
     }
 
-    private ErrorResponseEntityFactory(ErrorType errorType, Object detail) {
+    private ErrorResponseFactory(ErrorType errorType, Object detail) {
         this.code = errorType.getCode();
         this.msg = errorType.getMsg();
         this.detail = detail;

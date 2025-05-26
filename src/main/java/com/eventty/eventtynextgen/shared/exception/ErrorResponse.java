@@ -19,4 +19,5 @@ public class ErrorResponse {
     public static ErrorResponse of(ErrorType errorType, Object detail) {
         return new ErrorResponse(errorType.getCode(), errorType.getMsg(), detail);
     }
+
 }

@@ -17,7 +17,7 @@ import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
 import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
-import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseEntityFactory;
+import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseFactory;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
@@ -133,7 +133,7 @@ public class UserControllerTest {
             User user = UserFixture.createUserByEmail(email);
             User userFromDb = userRepository.save(user);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.EMAIL_ALREADY_EXISTS));
 
             // when
@@ -156,7 +156,7 @@ public class UserControllerTest {
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
 
             // when
@@ -379,7 +379,7 @@ public class UserControllerTest {
                     msg);
                 CustomException customException = CustomException.badRequest(
                     CommonErrorType.INVALID_INPUT_DATA, errorMsg);
-                return ErrorResponseEntityFactory.toResponseEntity(
+                return ErrorResponseFactory.toResponseEntity(
                     customException);
             }
         }
@@ -417,7 +417,7 @@ public class UserControllerTest {
             // given
             UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest(1L);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
             // when
@@ -440,7 +440,7 @@ public class UserControllerTest {
             User userFromDb = userRepository.save(user);
             UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest(userFromDb.getId());
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
 
             // when
@@ -479,7 +479,7 @@ public class UserControllerTest {
         @DisplayName("존재하지 않는 회원의 삭제 요청은 `실패`한다.")
         void 존재하지_않는_회원_삭제_요청은_실패한다() throws Exception {
             // given
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
             // when
@@ -499,7 +499,7 @@ public class UserControllerTest {
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
 
             // when
@@ -545,7 +545,7 @@ public class UserControllerTest {
 
             String url = BASE_URL + "/" + userFromDb.getId() + "/status";
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.USER_NOT_DELETED));
 
             // when
@@ -562,7 +562,7 @@ public class UserControllerTest {
             // given
             String url = BASE_URL + "/" + "1" + "/status";
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
             // when
@@ -715,7 +715,7 @@ public class UserControllerTest {
             UserChangePasswordRequestCommand userChangePasswordRequestCommand = new UserChangePasswordRequestCommand(userFromDb.getId(), "mismatchPassword",
                 updatedPassword);
 
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.MISMATCH_CURRENT_PASSWORD));
 
             // when

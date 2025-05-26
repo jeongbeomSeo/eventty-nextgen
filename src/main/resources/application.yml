@@ -8,12 +8,10 @@ spring:
         - local
         - properties
         - key
-        - authorization
       test:
         - test
         - properties
         - key
-        - authorization
 
   datasource:
     url: ${db.url}
@@ -33,7 +31,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
 
 mail:
   username: ${mail.username}

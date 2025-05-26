@@ -4,6 +4,7 @@ import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetailsService;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
+import com.eventty.eventtynextgen.shared.exception.enums.AuthenticationErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class LoginIdPasswordAuthenticationProvider implements AuthenticationProv
         UserDetails userDetails = this.userDetailsService.loadUserDetailsByLoginId(authentication.getUserDetails().getLoginId());
 
         if (!PasswordEncoder.matches(authentication.getUserDetails().getPassword(), userDetails.getPassword())) {
-            throw CustomException.badRequest(CertificationErrorType.AUTH_PASSWORD_MISMATCH);
+            throw CustomException.badRequest(AuthenticationErrorType.AUTH_PASSWORD_MISMATCH);
         }
 
         if (!userDetails.isActive()) {
