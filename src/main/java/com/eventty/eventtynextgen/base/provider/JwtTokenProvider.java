@@ -1,5 +1,6 @@
 package com.eventty.eventtynextgen.base.provider;
 
+import com.eventty.eventtynextgen.base.constant.BaseConst;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
@@ -53,6 +54,7 @@ public class JwtTokenProvider {
         String accessToken = Jwts.builder()
             .setSubject(String.valueOf(userDetails.getUserId()))
             .claim("role", this.convertAuthoritiesToPayload(authentication.getAuthorities()))
+            .claim("appName", BaseConst.EVENTTY_NAME)
             .setExpiration(new Date(now + accessTokenValidityInMin))
             .signWith(this.getSigningKey())
             .compact();
@@ -89,8 +91,9 @@ public class JwtTokenProvider {
 
         Long userId = Long.parseLong(claims.getSubject());
         String role = (String) claims.get("role");
+        String appName = (String) claims.get("appName");
 
-        return new AccessTokenPayload(userId, role);
+        return new AccessTokenPayload(userId, role, appName);
     }
 
     private SecretKey getSigningKey() {
@@ -100,13 +103,14 @@ public class JwtTokenProvider {
 
     @Getter
     public static class AccessTokenPayload {
-
         private Long userId;
         private String role;
+        private String appName;
 
-        public AccessTokenPayload(Long userId, String role) {
+        public AccessTokenPayload(Long userId, String role, String appName) {
             this.userId = userId;
             this.role = role;
+            this.appName = appName;
         }
     }
 

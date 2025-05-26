@@ -1,7 +1,5 @@
 package com.eventty.eventtynextgen.user;
 
-import com.eventty.eventtynextgen.base.annotation.PreAuthorize;
-import com.eventty.eventtynextgen.certification.authorization.enums.AuthorizationType;
 import com.eventty.eventtynextgen.user.request.UserChangePasswordRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;

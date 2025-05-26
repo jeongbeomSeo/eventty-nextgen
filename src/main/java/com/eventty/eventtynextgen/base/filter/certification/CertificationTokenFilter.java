@@ -41,7 +41,7 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
 
                 AccessTokenPayload payload = this.jwtTokenProvider.retrievePayload(jwtAccessToken);
 
-                AuthorizationContextHolder.getContext().updateContext(payload.getUserId(), payload.getRole());
+                AuthorizationContextHolder.getContext().updateContext(payload.getUserId(), payload.getRole(), payload.getAppName());
 
                 filterChain.doFilter(request, response);
             } catch (ExpiredJwtException ex) {

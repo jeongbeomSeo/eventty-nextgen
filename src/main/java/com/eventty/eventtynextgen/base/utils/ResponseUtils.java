@@ -1,9 +1,10 @@
 package com.eventty.eventtynextgen.base.utils;
 
+import static com.eventty.eventtynextgen.base.constant.BaseConst.objectMapper;
+
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
 import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import lombok.experimental.UtilityClass;
@@ -26,7 +27,6 @@ public class ResponseUtils {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        ObjectMapper objectMapper = new ObjectMapper();
         ErrorResponse errorResponse = ErrorResponse.of(errorType, ex.getMessage());
         try {
             String json = objectMapper.writeValueAsString(errorResponse);

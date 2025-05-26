@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.base.filter.certification;
 
-import com.eventty.eventtynextgen.base.enums.ApiNameType;
+import com.eventty.eventtynextgen.base.enums.ApiName;
 import com.eventty.eventtynextgen.base.matcher.ApiNamePatternMatcher;
 import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties;
 import com.eventty.eventtynextgen.base.utils.ResponseUtils;
@@ -33,17 +33,17 @@ public class CertificationAuthFilter extends OncePerRequestFilter {
 
         // 1. URI와 METHOD 가져오기
         String requestUrl = request.getRequestURI();
-        String method = request.getMethod();
 
         try {
             // 2. ApiNameType으로 부터 패턴 매칭 후 일치하는 상수 가져오기
-            ApiNameType authorizationApiName = ApiNamePatternMatcher.getApiNameByUrlAndMethod(requestUrl, method)
-                .orElseThrow(() -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, CertificationErrorType.NOT_FOUND_API_NAME_TYPE, String.format("URI: %s, METHOD: %s", requestUrl, method)));
+            ApiName authorizationApiName = ApiNamePatternMatcher.getApiName(requestUrl)
+                .orElseThrow(() -> CustomException.badRequest(CertificationErrorType.NOT_FOUND_API_NAME_TYPE, String.format("The URI (%s) is not a registered API path. Please contact the administrator.", requestUrl)));
 
             // 3. properties를 이용하여 권한 가져오기
-            String permission = authorizationApiProperties.getPermission(authorizationApiName.name());
+            String appName = AuthorizationContextHolder.getContext().getAppName();
+            String permission = authorizationApiProperties.getPermission(appName, authorizationApiName);
             if (permission == null) {
-                throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, CertificationErrorType.NOT_FOUND_AUTHORIZATION_API_PROPERTY, String.format("authorizationApiName.name: ", authorizationApiName.name()));
+                throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, CertificationErrorType.NOT_FOUND_AUTHORIZATION_API_PROPERTY, String.format("authorizationApiName.name: %s", authorizationApiName.name()));
             }
 
             // 4. 권한을 통해서 API 호출 권한 확인
@@ -69,7 +69,7 @@ public class CertificationAuthFilter extends OncePerRequestFilter {
     }
 
     private void checkApiPermission(String permission) {
-        if (!"PASS".equalsIgnoreCase(permission)) {
+        if ("LOGIN".equalsIgnoreCase(permission)) {
             AuthorizationContext authorizationContext = AuthorizationContextHolder.getContext();
             if (!authorizationContext.validate()) {
                 throw CustomException.of(HttpStatus.FORBIDDEN, CertificationErrorType.AUTH_USER_NOT_AUTHORIZED);

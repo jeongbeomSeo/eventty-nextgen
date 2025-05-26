@@ -22,7 +22,7 @@ public enum CertificationErrorType implements ErrorType {
     AUTH_USER_ROLE_ASSIGNMENT_ERROR("AUTH_USER_ROLE_ASSIGNMENT_ERROR", "사용자에게 할당된 역할이 없어서, 역할 부여를 할 수 없습니다."),
     AUTH_USER_NOT_AUTHORIZED("AUTH_USER_NOT_AUTHORIZED", "사용자의 API 호출 권한이 없습니다."),
 
-    NOT_FOUND_API_NAME_TYPE("NOT_FOUND_API_NAME_TYPE", "URI와 METHOD로부터 일치하는 value를 찾을 수 없습니다."),
+    NOT_FOUND_API_NAME_TYPE("NOT_FOUND_API_NAME_TYPE", "URI에 일치하는 value를 찾을 수 없습니다."),
     NOT_FOUND_AUTHORIZATION_API_PROPERTY("NOT_FOUND_AUTHORIZATION_API_PROPERTY", "일치하는 Properties를 찾을 수 없습니다."),
 
     UNKNOWN_EXCEPTION("UNKNOWN_EXCEPTION", "예상치 못한 예외가 발생했습니다. 문제 해결 조치를 위해 author과 컨택하세요.");
