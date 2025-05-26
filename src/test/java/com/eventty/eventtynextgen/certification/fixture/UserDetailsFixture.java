@@ -14,4 +14,8 @@ public class UserDetailsFixture {
     public static UserDetails createLoginIdUserDetailsFromPrincipal() {
         return LoginIdUserDetails.fromPrincipal(1L, "example@gmail.com", PasswordEncoder.encode("password"), UserRoleType.USER, false);
     }
+
+    public static UserDetails createLoginIdUserDetailsFromPrincipal(Long userId, String loginId, String plainPassword) {
+        return LoginIdUserDetails.fromPrincipal(userId, loginId, PasswordEncoder.encode(plainPassword), UserRoleType.USER, false);
+    }
 }

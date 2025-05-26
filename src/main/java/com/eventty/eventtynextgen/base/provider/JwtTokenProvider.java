@@ -31,22 +31,19 @@ public class JwtTokenProvider {
     private final Long accessTokenValidityInMin;
     private final Long refreshTokenValidityInMin;
 
-    private final RefreshTokenService refreshTokenService;
 
     public JwtTokenProvider(
         @Value("${key.jwt.secret-key}") String secretKey,
         @Value("${key.jwt.access-token-validity-in-min}") Long accessTokenValidityInMin,
-        @Value("${key.jwt.refresh-token-validity-in-min}") Long refreshTokenValidityInMin,
-        RefreshTokenService refreshTokenService) {
+        @Value("${key.jwt.refresh-token-validity-in-min}") Long refreshTokenValidityInMin) {
         this.secretKey = secretKey;
         this.accessTokenValidityInMin = accessTokenValidityInMin * 60 * 1000;
         this.refreshTokenValidityInMin = refreshTokenValidityInMin * 60 * 1000;
-        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
     public TokenInfo createToken(Authentication authentication) {
-        Assert.isTrue(authentication.isAuthenticated(), "Only authenticated users can generate a JWT token.");
+        Assert.isTrue(authentication.isAuthorized(), "Only authorized users can generate a JWT token.");
 
         UserDetails userDetails = authentication.getUserDetails();
 
@@ -63,8 +60,6 @@ public class JwtTokenProvider {
             .setExpiration(new Date(now + refreshTokenValidityInMin))
             .signWith(this.getSigningKey())
             .compact();
-
-        refreshTokenService.saveOrUpdate(refreshToken, userDetails.getUserId());
 
         return new TokenInfo(CertificationConst.JWT_TOKEN_TYPE, accessToken, refreshToken);
     }

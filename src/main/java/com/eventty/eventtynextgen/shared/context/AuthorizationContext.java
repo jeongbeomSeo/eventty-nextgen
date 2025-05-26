@@ -21,7 +21,7 @@ public class AuthorizationContext {
     }
 
     public boolean validate() {
-        return this.userId != null && StringUtils.hasText(role);
+        return Objects.nonNull(this.userId) && StringUtils.hasText(role);
     }
 
     @Override

@@ -1,10 +1,12 @@
 package com.eventty.eventtynextgen.certification;
 
 
+import com.eventty.eventtynextgen.base.annotation.LoginRequired;
 import com.eventty.eventtynextgen.certification.CertificationService.CertificationLoginResult;
 import com.eventty.eventtynextgen.certification.request.CertificationLoginRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
 import com.eventty.eventtynextgen.certification.shared.annotation.CertificationApiV1;
+import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,5 +42,16 @@ public class CertificationController {
         res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok(result.toCertificationLoginResponseView());
+    }
+
+    @LoginRequired
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃 API")
+    public ResponseEntity<Void> logout(HttpServletResponse res) {
+        Long userId = AuthorizationContextHolder.getContext().getUserId();
+
+        certificationService.logout(userId, res);
+
+        return ResponseEntity.ok().build();
     }
 }

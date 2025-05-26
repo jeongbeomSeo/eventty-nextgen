@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PreAuthorizeAspect {
 
-    @Before("@within(loginRequired) || @annotation(loginRequired)")
+    @Before("@annotation(loginRequired)")
     public void checkAuthority(JoinPoint joinPoint, LoginRequired loginRequired) {
         if (loginRequired.loginRequired()) {
             if (!AuthorizationContextHolder.getContext().validate()) {

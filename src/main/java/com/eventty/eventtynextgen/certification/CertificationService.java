@@ -2,10 +2,13 @@ package com.eventty.eventtynextgen.certification;
 
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView.AccessTokenInfo;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface CertificationService {
 
     CertificationLoginResult login(String loginId, String password);
+
+    void logout(Long userId, HttpServletResponse response);
 
     record CertificationLoginResult(
         Long userId,

@@ -20,9 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("JwtTokenProvider 단위 테스트")
 class JwtTokenProviderTest {
 
-    @Mock
-    private RefreshTokenService refreshTokenService;
-
     @Nested
     @DisplayName("토큰 생성")
     class CreateToken {
@@ -37,9 +34,7 @@ class JwtTokenProviderTest {
             // given
             Authentication authentication = AuthenticationFixture.createAuthenticatedLoginIdPasswordAuthentication();
 
-            when(refreshTokenService.saveOrUpdate(any(String.class), any(Long.class))).thenReturn(mock(RefreshToken.class));
-
-            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN, refreshTokenService);
+            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN);
 
             // when
             TokenInfo token = jwtTokenProvider.createToken(authentication);
@@ -56,7 +51,7 @@ class JwtTokenProviderTest {
             // given
             Authentication authentication = AuthenticationFixture.createUnauthenticatedLoginIdPasswordAuthentication();
 
-            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN, refreshTokenService);
+            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN);
 
             // when & then
             try {

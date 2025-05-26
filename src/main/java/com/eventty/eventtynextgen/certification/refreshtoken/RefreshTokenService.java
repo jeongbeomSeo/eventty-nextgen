@@ -21,4 +21,10 @@ public class RefreshTokenService {
             })
             .orElseGet(() -> refreshTokenRepository.save(RefreshToken.of(refreshToken, userId)));
     }
+
+    @Transactional
+    public void delete(Long userId) {
+        refreshTokenRepository.findByUserId(userId)
+            .ifPresent(refreshTokenRepository::delete);
+    }
 }
