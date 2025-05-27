@@ -1,19 +1,16 @@
-package com.eventty.eventtynextgen.certification.core;
+package com.eventty.eventtynextgen.base.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.TokenInfo;
+import com.eventty.eventtynextgen.certification.constant.CertificationConst;
+import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.fixture.AuthenticationFixture;
-import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
-import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)

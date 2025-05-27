@@ -8,10 +8,8 @@ import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -28,7 +26,6 @@ public class JwtTokenProvider {
     private final Long accessTokenValidityInMin;
     private final Long refreshTokenValidityInMin;
 
-
     public JwtTokenProvider(
         @Value("${key.jwt.secret-key}") String secretKey,
         @Value("${key.jwt.access-token-validity-in-min}") Long accessTokenValidityInMin,
@@ -38,7 +35,7 @@ public class JwtTokenProvider {
         this.refreshTokenValidityInMin = refreshTokenValidityInMin * 60 * 1000;
     }
 
-    public TokenInfo createToken(Authentication authentication) {
+        public TokenInfo createToken(Authentication authentication) {
         Assert.isTrue(authentication.isAuthorized(), "Only authorized users can generate a JWT token.");
 
         UserDetails userDetails = authentication.getUserDetails();
@@ -79,7 +76,7 @@ public class JwtTokenProvider {
             .collect(Collectors.joining(","));
     }
 
-    public void verifyToken(String token) throws ExpiredJwtException, UnsupportedJwtException, IllegalStateException, SignatureException {
+    public void verifyToken(String token) {
         Jwts.parserBuilder()
             .setSigningKey(getSigningKey())
             .build()

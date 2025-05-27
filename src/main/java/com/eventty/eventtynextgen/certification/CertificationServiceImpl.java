@@ -11,7 +11,6 @@ import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService
 import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationReissueResponseView;
-import com.eventty.eventtynextgen.certification.response.CertificationReissueResponseView.AccessTokenInfo;
 import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
@@ -77,13 +76,13 @@ public class CertificationServiceImpl implements CertificationService {
             throw CustomException.badRequest(CertificationErrorType.MISMATCH_REFRESH_TOKEN);
         }
 
-        // 3. 토큰 재발급
+        // 4. 토큰 재발급
         TokenInfo tokenInfo = this.jwtTokenProvider.createTokenByExpiredToken(accessToken);
 
-        // 4. 새로 발급한 Refresh Token 저장
+        // 5. 새로 발급한 Refresh Token 저장
         this.refreshTokenService.saveOrUpdate(tokenInfo.getRefreshToken(), userId);
 
-        // 5. Refresh Token 헤더에 추가
+        // 6. Refresh Token 헤더에 추가
         CookieUtils.addRefreshToken(tokenInfo.getRefreshToken(), response);
 
         return new CertificationReissueResponseView(

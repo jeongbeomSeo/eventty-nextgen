@@ -3,11 +3,15 @@ package com.eventty.eventtynextgen.certification;
 
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
 import com.eventty.eventtynextgen.certification.request.CertificationLoginRequestCommand;
+import com.eventty.eventtynextgen.certification.request.CertificationReissueRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
+import com.eventty.eventtynextgen.certification.response.CertificationReissueResponseView;
 import com.eventty.eventtynextgen.certification.shared.annotation.CertificationApiV1;
+import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +28,8 @@ public class CertificationController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인 API")
-    public ResponseEntity<CertificationLoginResponseView> login(@RequestBody @Valid CertificationLoginRequestCommand certificationLoginRequestCommand,
+    public ResponseEntity<CertificationLoginResponseView> login(
+        @RequestBody @Valid CertificationLoginRequestCommand certificationLoginRequestCommand,
         HttpServletResponse response) {
         return ResponseEntity.ok(this.certificationService.login(
             certificationLoginRequestCommand.loginId(),
@@ -35,11 +40,27 @@ public class CertificationController {
     @LoginRequired
     @PostMapping("/logout")
     @Operation(summary = "로그아웃 API")
-    public ResponseEntity<Void> logout(HttpServletResponse res) {
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
         Long userId = AuthorizationContextHolder.getContext().getUserId();
 
-        certificationService.logout(userId, res);
+        certificationService.logout(userId, response);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reissue")
+    @Operation(summary = "토큰 재발급 요청")
+    public ResponseEntity<CertificationReissueResponseView> reissue(
+        @RequestBody @Valid CertificationReissueRequestCommand certificationReissueRequestCommand,
+        HttpServletRequest request,
+        HttpServletResponse response) {
+        String refreshToken = CookieUtils.getCookie(CookieUtils.REFRESH_TOKEN_HEADER_NAME, request);
+
+        return ResponseEntity.ok(this.certificationService.reissue(
+            certificationReissueRequestCommand.userId(),
+            certificationReissueRequestCommand.accessToken(),
+            refreshToken,
+            response
+        ));
     }
 }
