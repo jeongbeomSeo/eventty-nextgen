@@ -80,7 +80,7 @@ public class CertificationServiceImpl implements CertificationService {
         }
 
         // 3. 사용자가 존재하며 활성화 상태인지 확인
-        userComponent.findByUserId(userId)
+        this.userComponent.findByUserId(userId)
             .map(user -> {
                 if (user.isDeleted()) {
                     throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
