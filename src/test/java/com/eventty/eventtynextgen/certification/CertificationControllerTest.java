@@ -288,13 +288,17 @@ class CertificationControllerTest {
         @AfterEach
         void tearDown() {
             refreshTokenRepository.deleteAll();
+            userRepository.deleteAll();
         }
 
         @Test
         @DisplayName("저장되어 있는 유효한 Refresh Token을 통해 재발급 요청시 재발급에 성공한다")
         void 저장되어_있는_유효한_리프래시_토큰을_통해_재발급_요청시_재발급에_성공한다() throws Exception {
             // given
-            Long userId = 1L;
+            User user = UserFixture.createUser();
+            User userFromDb = userRepository.save(user);
+            Long userId = userFromDb.getId();
+
             String accessToken = testJwtTokenProvider.createExpiredAccessToken(userId);
             String refreshToken = testJwtTokenProvider.createValidRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
@@ -319,7 +323,10 @@ class CertificationControllerTest {
         @DisplayName("만료된 Refresh Token을 통해 재발급 요청시 재발급에 실패한다")
         void 만료된_리프래시_토큰을_통해_재발급_요청시_재발급에_실패한다() throws Exception {
             // given
-            Long userId = 1L;
+            User user = UserFixture.createUser();
+            User userFromDb = userRepository.save(user);
+            Long userId = userFromDb.getId();
+
             String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
             String refreshToken = testJwtTokenProvider.createExpiredRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
@@ -345,7 +352,10 @@ class CertificationControllerTest {
         @DisplayName("토큰 서명 겁증에 실패할 경우 재발급에 실패한다")
         void 토큰_서명_검증에_실패할_경우_재발급에_실패한다() throws Exception{
             // given
-            Long userId = 1L;
+            User user = UserFixture.createUser();
+            User userFromDb = userRepository.save(user);
+            Long userId = userFromDb.getId();
+
             String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
             String refreshToken = testJwtTokenProvider.createRefreshTokenWithInvalidSignature();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
@@ -371,7 +381,10 @@ class CertificationControllerTest {
         @DisplayName("올바르지 않은 형식으로 구성된 Refresh Token을 통하여 재발급 요청시 재발급에 실패한다")
         void 올바르지_않은_형식으로_구성된_리프래시_토큰을_통하여_재발급_요청시_재발급에_실패한다() throws Exception{
             // given
-            Long userId = 1L;
+            User user = UserFixture.createUser();
+            User userFromDb = userRepository.save(user);
+            Long userId = userFromDb.getId();
+
             String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
             String refreshToken = testJwtTokenProvider.createIllegalRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
@@ -397,7 +410,10 @@ class CertificationControllerTest {
         @DisplayName("저장되어 있지 않은 Refresh Token을 통해 재발급 요청시 재발급에 실패한다")
         void 저장되어_있지_않은_리프래시_토큰을_통해_재발급_요청시_재발급에_실패한다() throws Exception {
             // given
-            Long userId = 1L;
+            User user = UserFixture.createUser();
+            User userFromDb = userRepository.save(user);
+            Long userId = userFromDb.getId();
+
             String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
             String refreshToken = testJwtTokenProvider.createValidRefreshToken();
 
@@ -422,7 +438,42 @@ class CertificationControllerTest {
         @DisplayName("저장되어 있는 Refresh Token과 값이 일치하지 않은 경우 재발급에 실패한다")
         void 저장되어_있는_리프래시_토큰과_값이_일치하지_않을_경우_재발급에_실패한다() throws Exception {
             // given
-            Long userId = 1L;
+            User user = UserFixture.createUser();
+            User userFromDb = userRepository.save(user);
+            Long userId = userFromDb.getId();
+
+            String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
+            String refreshToken = testJwtTokenProvider.createValidRefreshToken();
+            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
+
+            String differentRefreshToken = testJwtTokenProvider.createDifferentRefreshToken();
+
+            CertificationReissueRequestCommand certificationReissueRequestCommand = new CertificationReissueRequestCommand(userId, accessToken);
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.badRequest(CertificationErrorType.MISMATCH_REFRESH_TOKEN));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .header(CookieUtils.REFRESH_TOKEN_HEADER_NAME, differentRefreshToken)
+                .content(objectMapper.writeValueAsString(certificationReissueRequestCommand))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isBadRequest())
+                .andExpect(
+                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+
+        @Test
+        @DisplayName("사용자가 삭제된 상태로 변경된 경우 재발급에 실패한다")
+        void 사용자가_삭제된_상태로_변경된_경우_재발급에_실패한다() throws Exception {
+            // given
+            User user = UserFixture.createUser();
+            user.updateDeleteStatus(UserStatus.DELETED);
+            User userFromDb = userRepository.save(user);
+
+            Long userId = userFromDb.getId();
             String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
             String refreshToken = testJwtTokenProvider.createValidRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));

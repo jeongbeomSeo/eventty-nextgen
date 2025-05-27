@@ -12,8 +12,10 @@ import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationReissueResponseView;
 import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
+import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Objects;
@@ -31,6 +33,7 @@ public class CertificationServiceImpl implements CertificationService {
     private final AuthorizationProvider authorizationProvider;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final UserComponent userComponent;
 
     @Override
     @Transactional
@@ -75,6 +78,16 @@ public class CertificationServiceImpl implements CertificationService {
         if (!Objects.equals(refreshTokenFromDb.getRefreshToken(), refreshToken)) {
             throw CustomException.badRequest(CertificationErrorType.MISMATCH_REFRESH_TOKEN);
         }
+
+        // 3. 사용자가 존재하며 활성화 상태인지 확인
+        userComponent.findByUserId(userId)
+            .map(user -> {
+                if (user.isDeleted()) {
+                    throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
+                }
+                return user;
+            })
+            .orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
         // 4. 토큰 재발급
         TokenInfo tokenInfo = this.jwtTokenProvider.createTokenByExpiredToken(accessToken);
