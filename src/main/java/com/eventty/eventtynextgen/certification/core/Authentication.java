@@ -10,4 +10,6 @@ public interface Authentication {
     UserDetails getUserDetails();
 
     boolean isAuthenticated();
+
+    boolean isAuthorized();
 }

@@ -1,27 +1,21 @@
-package com.eventty.eventtynextgen.certification.core;
+package com.eventty.eventtynextgen.base.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.TokenInfo;
+import com.eventty.eventtynextgen.certification.constant.CertificationConst;
+import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.fixture.AuthenticationFixture;
-import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
-import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("JwtTokenProvider 단위 테스트")
 class JwtTokenProviderTest {
-
-    @Mock
-    private RefreshTokenService refreshTokenService;
 
     @Nested
     @DisplayName("토큰 생성")
@@ -35,11 +29,9 @@ class JwtTokenProviderTest {
         @DisplayName("인증된 사용자는 토큰 생성에 성공한다.")
         void 인증된_사용자는_토큰_생성에_성공한다() {
             // given
-            Authentication authentication = AuthenticationFixture.createAuthenticatedLoginIdPasswordAuthentication();
+            Authentication authentication = AuthenticationFixture.createAuthorizedLoginIdPasswordAuthentication(1L, "email@gmail.com", "plain_password");
 
-            when(refreshTokenService.saveOrUpdate(any(String.class), any(Long.class))).thenReturn(mock(RefreshToken.class));
-
-            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN, refreshTokenService);
+            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN);
 
             // when
             TokenInfo token = jwtTokenProvider.createToken(authentication);
@@ -56,14 +48,14 @@ class JwtTokenProviderTest {
             // given
             Authentication authentication = AuthenticationFixture.createUnauthenticatedLoginIdPasswordAuthentication();
 
-            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN, refreshTokenService);
+            JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN);
 
             // when & then
             try {
                 jwtTokenProvider.createToken(authentication);
             } catch (Exception ex) {
                 assertThat(ex.getClass()).isEqualTo(IllegalArgumentException.class);
-                assertThat(ex.getMessage()).isEqualTo("Only authenticated users can generate a JWT token.");
+                assertThat(ex.getMessage()).isEqualTo("Only authorized users can generate a JWT token.");
             }
         }
     }

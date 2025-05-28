@@ -50,4 +50,9 @@ public class LoginIdPasswordAuthenticationToken implements Authentication {
     public boolean isAuthenticated() {
         return this.getUserDetails().isIdentified();
     }
+
+    @Override
+    public boolean isAuthorized() {
+        return !this.authorities.isEmpty();
+    }
 }
