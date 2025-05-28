@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.event.shared.annotation;
+package com.eventty.eventtynextgen.events.shared.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
