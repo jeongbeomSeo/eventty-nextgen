@@ -1,7 +1,6 @@
 package com.eventty.eventtynextgen.events.entity;
 
 import com.eventty.eventtynextgen.user.entity.User;
-import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,7 +20,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.util.Assert;
 
 @Entity
 @Table(name = "event_basic")
@@ -95,7 +93,8 @@ public class EventBasic {
         this.deletedAt = deletedAt;
     }
 
-    public static EventBasic of(User host, String title, String image, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxParticipants, String location,
+    public static EventBasic of(User host, String title, String image, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxParticipants,
+        String location,
         EventCategory category, boolean isApplicationActive) {
         return EventBasic.builder()
             .host(host)

@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.certification.shared.annotation;
+package com.eventty.eventtynextgen.certification.certificationcode.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
-@RequestMapping("/api/v1/certification")
-public @interface CertificationApiV1 {
+@RequestMapping("/api/v1/certification/code")
+public @interface CertificationCodeApiV1 {
 
 }

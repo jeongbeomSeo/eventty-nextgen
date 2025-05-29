@@ -6,7 +6,7 @@ import com.eventty.eventtynextgen.certification.request.CertificationLoginReques
 import com.eventty.eventtynextgen.certification.request.CertificationReissueRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationReissueResponseView;
-import com.eventty.eventtynextgen.certification.shared.annotation.CertificationApiV1;
+import com.eventty.eventtynextgen.certification.annotation.CertificationApiV1;
 import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import io.swagger.v3.oas.annotations.Operation;

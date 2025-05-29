@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.user.shared.annotation;
+package com.eventty.eventtynextgen.alarm.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
-@RequestMapping("/api/v1/user")
-public @interface UserApiV1 {
+@RequestMapping("api/v1/alarm")
+public @interface AlarmApiV1 {
 
 }

@@ -29,7 +29,7 @@ public class EventInterest {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(name = "event_basic_id", nullable = false)
     private EventBasic eventBasic;
 
     @ManyToOne(fetch = FetchType.LAZY)

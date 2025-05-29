@@ -1,4 +1,5 @@
-package com.eventty.eventtynextgen.ticket.shared.annotation;
+package com.eventty.eventtynextgen.events.ticket.annotation;
+
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
-@RequestMapping("api/v1/ticket")
-public @interface TicketApiV1 {
+@RequestMapping("api/v1/event/ticket")
+public @interface EventTicketApiV1 {
 
 }

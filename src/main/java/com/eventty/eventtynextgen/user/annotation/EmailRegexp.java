@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.user.shared.annotation;
+package com.eventty.eventtynextgen.user.annotation;
 
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;

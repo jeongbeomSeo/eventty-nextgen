@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.user.shared.annotation;
+package com.eventty.eventtynextgen.user.annotation;
 
 import com.eventty.eventtynextgen.user.shared.validator.BirthDateValidator;
 import jakarta.validation.Constraint;

@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.payment.shared.annotation;
+package com.eventty.eventtynextgen.events.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
-@RequestMapping("api/v1/payment")
-public @interface PaymentApiV1 {
+@RequestMapping("api/v1/event")
+public @interface EventApiV1 {
 
 }
