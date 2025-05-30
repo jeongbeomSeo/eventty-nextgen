@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CategoryType {
+public enum EventCategoryType {
 
     STARTUP("창업"),
     IT_PROGRAMMING("IT/프로그래밍"),

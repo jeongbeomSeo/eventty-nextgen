@@ -3,17 +3,14 @@ package com.eventty.eventtynextgen.events.ticket.entity;
 import com.eventty.eventtynextgen.events.entity.EventBasic;
 import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketQuantityLimitType;
 import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketStatusType;
-import com.eventty.eventtynextgen.events.ticket.entity.enums.PurchaseLimitPolicyType;
+import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketPurchaseLimitPolicyType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -33,9 +30,8 @@ public class EventTicket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "event_basic_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    private EventBasic eventBasic;
+    @Column(name = "event_basic_id", nullable = false)
+    private Long eventBasicId;
 
     @Column(nullable = false)
     private String name;
@@ -48,10 +44,10 @@ public class EventTicket {
     @Comment("총 수량 제한 정책")
     @Enumerated(EnumType.STRING)
     @Column(name = "quantity_limit_policy", nullable = false)
-    private EventTicketQuantityLimitType quantityLimitPolicyType;
+    private EventTicketQuantityLimitType quantityLimitPolicy;
 
     @Comment("수량 제한의 최대값")
-    @Column(name = "max_quantity_limit", nullable = false)
+    @Column(name = "max_quantity_limit")
     private Integer maxQuantityLimit;
 
     @Comment("발급된 수량")
@@ -62,7 +58,7 @@ public class EventTicket {
     @Comment("1인당 구매 제한 정책")
     @Enumerated(EnumType.STRING)
     @Column(name = "purchase_limit_policy", nullable = false)
-    private PurchaseLimitPolicyType purchaseLimitPolicyType;
+    private EventTicketPurchaseLimitPolicyType purchaseLimitPolicy;
 
     @Comment("1인당 구매 제한 수량")
     @Column(name = "max_quantity_per_user", nullable = false)
@@ -79,7 +75,7 @@ public class EventTicket {
     @Comment("티켓 상태")
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private EventTicketStatusType statusType;
+    private EventTicketStatusType status;
 
     @Column(nullable = false, name = "is_deleted")
     @ColumnDefault("false")
@@ -89,41 +85,42 @@ public class EventTicket {
     private LocalDateTime deletedAt;
 
     @Builder
-    private EventTicket(EventBasic eventBasic, String name, String description, Long price, EventTicketQuantityLimitType quantityLimitPolicyType,
-        Integer maxQuantityLimit, Integer issuedQuantity, PurchaseLimitPolicyType purchaseLimitPolicyType, Integer maxQuantityPerUser,
-        LocalDateTime saleStartAt, LocalDateTime saleEndAt, EventTicketStatusType statusType, boolean isDeleted, LocalDateTime deletedAt) {
-        this.eventBasic = eventBasic;
+    public EventTicket(Long eventBasicId, String name, String description, Long price, EventTicketQuantityLimitType quantityLimitPolicy,
+        Integer maxQuantityLimit,
+        Integer issuedQuantity, EventTicketPurchaseLimitPolicyType purchaseLimitPolicy, Integer maxQuantityPerUser, LocalDateTime saleStartAt,
+        LocalDateTime saleEndAt, EventTicketStatusType status, boolean isDeleted, LocalDateTime deletedAt) {
+        this.eventBasicId = eventBasicId;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.quantityLimitPolicyType = quantityLimitPolicyType;
+        this.quantityLimitPolicy = quantityLimitPolicy;
         this.maxQuantityLimit = maxQuantityLimit;
         this.issuedQuantity = issuedQuantity;
-        this.purchaseLimitPolicyType = purchaseLimitPolicyType;
+        this.purchaseLimitPolicy = purchaseLimitPolicy;
         this.maxQuantityPerUser = maxQuantityPerUser;
         this.saleStartAt = saleStartAt;
         this.saleEndAt = saleEndAt;
-        this.statusType = statusType;
+        this.status = status;
         this.isDeleted = isDeleted;
         this.deletedAt = deletedAt;
     }
 
-    public static EventTicket of(EventBasic eventBasic, String name, String description, Long price, EventTicketQuantityLimitType quantityLimitPolicyType,
-        Integer maxQuantityLimit, PurchaseLimitPolicyType purchaseLimitPolicyType, Integer maxQuantityPerUser,
-        LocalDateTime saleStartAt, LocalDateTime saleEndAt, EventTicketStatusType statusType) {
+    public static EventTicket of(Long eventBasicId, String name, String description, Long price, EventTicketQuantityLimitType quantityLimitPolicy,
+        Integer maxQuantityLimit, EventTicketPurchaseLimitPolicyType purchaseLimitPolicy, Integer maxQuantityPerUser,
+        LocalDateTime saleStartAt, LocalDateTime saleEndAt, EventTicketStatusType status) {
         return EventTicket.builder()
-            .eventBasic(eventBasic)
+            .eventBasicId(eventBasicId)
             .name(name)
             .description(description)
             .price(price)
-            .quantityLimitPolicyType(quantityLimitPolicyType)
+            .quantityLimitPolicy(quantityLimitPolicy)
             .maxQuantityLimit(maxQuantityLimit)
             .issuedQuantity(0)
-            .purchaseLimitPolicyType(purchaseLimitPolicyType)
+            .purchaseLimitPolicy(purchaseLimitPolicy)
             .maxQuantityPerUser(maxQuantityPerUser)
             .saleStartAt(saleStartAt)
             .saleEndAt(saleEndAt)
-            .statusType(statusType)
+            .status(status)
             .isDeleted(false)
             .deletedAt(null)
             .build();

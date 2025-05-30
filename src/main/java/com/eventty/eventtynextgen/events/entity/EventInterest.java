@@ -1,14 +1,11 @@
 package com.eventty.eventtynextgen.events.entity;
 
-import com.eventty.eventtynextgen.user.entity.User;
+import com.eventty.eventtynextgen.shared.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -16,63 +13,54 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(name = "event_interest")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EventInterest {
+public class EventInterest extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_basic_id", nullable = false)
-    private EventBasic eventBasic;
+    @Column(name = "event_basic_id", nullable = false)
+    private Long eventBasicId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "is_canceled", nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     @ColumnDefault("false")
-    private boolean isCanceled;
+    private boolean isDeleted;
 
-    @Column(name = "canceled_at")
-    private LocalDateTime canceledAt;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Builder
-    private EventInterest(EventBasic eventBasic, User user, LocalDateTime createdAt, boolean isCanceled, LocalDateTime canceledAt) {
-        this.eventBasic = eventBasic;
-        this.user = user;
-        this.createdAt = createdAt;
-        this.isCanceled = isCanceled;
-        this.canceledAt = canceledAt;
+    private EventInterest(Long eventBasicId, Long userId, boolean isDeleted, LocalDateTime deletedAt) {
+        this.eventBasicId = eventBasicId;
+        this.userId = userId;
+        this.isDeleted = isDeleted;
+        this.deletedAt = deletedAt;
     }
 
-    public static EventInterest of(EventBasic eventBasic, User user) {
+    public static EventInterest of(Long eventBasicId, Long userId) {
         return EventInterest.builder()
-            .eventBasic(eventBasic)
-            .user(user)
-            .createdAt(null)
-            .isCanceled(false)
-            .canceledAt(null)
+            .eventBasicId(eventBasicId)
+            .userId(userId)
+            .isDeleted(false)
+            .deletedAt(null)
             .build();
     }
 
-    private void updateCanceledStatus(EventInterestStatus status) {
+    private void updateDeletedStatus(EventInterestStatus status) {
         if (status == EventInterestStatus.ACTIVE) {
-            this.isCanceled = false;
-            this.canceledAt = null;
+            this.isDeleted = false;
+            this.deletedAt = null;
         } else if (status == EventInterestStatus.DELETED) {
-            this.isCanceled = true;
-            this.canceledAt = LocalDateTime.now();
+            this.isDeleted = true;
+            this.deletedAt = LocalDateTime.now();
         }
     }
 

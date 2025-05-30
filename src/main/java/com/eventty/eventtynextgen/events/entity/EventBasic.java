@@ -1,16 +1,15 @@
 package com.eventty.eventtynextgen.events.entity;
 
-import com.eventty.eventtynextgen.user.entity.User;
+import com.eventty.eventtynextgen.events.entity.enums.EventCategoryType;
+import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
+import com.eventty.eventtynextgen.shared.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -19,56 +18,50 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
-import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(name = "event_basic")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EventBasic {
+public class EventBasic extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "host_id")
-    private User host;
+    @Column(name = "host_id", nullable = false)
+    private Long hostId;
 
     @Column(nullable = false, length = 50)
     private String title;
 
     private String image;
 
-    @Column(nullable = false, name = "event_start_at")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventCategoryType category;
+
+    @Comment("행사 시작 시간")
+    @Column(name = "event_start_at", nullable = false)
     private LocalDateTime eventStartAt;
 
-    @Column(nullable = false, name = "event_end_at")
+    @Comment("행사 종료 시간")
+    @Column(name = "event_end_at", nullable = false)
     private LocalDateTime eventEndAt;
 
-    @Column(nullable = false, name = "max_participants")
+    @Comment("참가 인원 정책")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "participant_limit_policy", nullable = false)
+    private EventParticipantLimitPolicyType participantLimitPolicy;
+
+    @Comment("최대 참가 인원")
+    @Column(name = "max_participants")
     private Integer maxParticipants;
 
     @Column(nullable = false)
     private String location;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private EventCategory category;
-
-    @Column(nullable = false, name = "is_application_active")
-    @ColumnDefault("true")
-    @Comment("행사 신청 활성화 여부")
-    private boolean isApplicationActive;
-
-    @CreatedDate
-    @Column(nullable = false, name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(nullable = false, name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     @ColumnDefault("false")
     private boolean isDeleted;
 
@@ -76,45 +69,40 @@ public class EventBasic {
     private LocalDateTime deletedAt;
 
     @Builder
-    private EventBasic(User host, String title, String image, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxParticipants, String location,
-        EventCategory category, boolean isApplicationActive, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isDeleted, LocalDateTime deletedAt) {
-        this.host = host;
+    private EventBasic(Long hostId, String title, String image, EventCategoryType category, LocalDateTime eventStartAt, LocalDateTime eventEndAt,
+        EventParticipantLimitPolicyType participantLimitPolicy, Integer maxParticipants, String location, boolean isDeleted,
+        LocalDateTime deletedAt) {
+        this.hostId = hostId;
         this.title = title;
         this.image = image;
+        this.category = category;
         this.eventStartAt = eventStartAt;
         this.eventEndAt = eventEndAt;
+        this.participantLimitPolicy = participantLimitPolicy;
         this.maxParticipants = maxParticipants;
         this.location = location;
-        this.category = category;
-        this.isApplicationActive = isApplicationActive;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
         this.isDeleted = isDeleted;
         this.deletedAt = deletedAt;
     }
 
-    public static EventBasic of(User host, String title, String image, LocalDateTime eventStartAt, LocalDateTime eventEndAt, Integer maxParticipants,
-        String location,
-        EventCategory category, boolean isApplicationActive) {
+    public static EventBasic of(Long hostId, String title, String image, EventCategoryType category, LocalDateTime eventStartAt, LocalDateTime eventEndAt,
+        EventParticipantLimitPolicyType participantLimitPolicy, Integer maxParticipants, String location) {
         return EventBasic.builder()
-            .host(host)
+            .hostId(hostId)
             .title(title)
             .image(image)
+            .category(category)
             .eventStartAt(eventStartAt)
             .eventEndAt(eventEndAt)
+            .participantLimitPolicy(participantLimitPolicy)
             .maxParticipants(maxParticipants)
             .location(location)
-            .category(category)
-            .isApplicationActive(isApplicationActive)
-            .createdAt(null)
-            .updatedAt(null)
             .isDeleted(false)
             .deletedAt(null)
             .build();
     }
 
-
-    public void updateDeleteStatus(EventStatus status) {
+    public void updateDeletedStatus(EventStatus status) {
         if (status == EventStatus.ACTIVE) {
             this.isDeleted = false;
             this.deletedAt = null;
@@ -127,10 +115,5 @@ public class EventBasic {
     public enum EventStatus {
         ACTIVE,
         DELETED
-    }
-
-    @PreUpdate
-    private void updateTimestamp() {
-        this.updatedAt = LocalDateTime.now();
     }
 }
