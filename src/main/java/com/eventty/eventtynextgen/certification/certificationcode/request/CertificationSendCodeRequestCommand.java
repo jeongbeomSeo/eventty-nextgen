@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.certification.certificationcode.request;
 
-import com.eventty.eventtynextgen.user.shared.annotation.EmailRegexp;
+import com.eventty.eventtynextgen.user.annotation.EmailRegexp;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record CertificationSendCodeRequestCommand(

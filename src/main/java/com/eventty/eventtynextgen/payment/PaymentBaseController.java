@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.payment;
 
-import com.eventty.eventtynextgen.payment.shared.annotation.PaymentApiV1;
+import com.eventty.eventtynextgen.payment.annotation.PaymentApiV1;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 

@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.alarm;
 
-import com.eventty.eventtynextgen.alarm.shared.annotation.AlarmApiV1;
+import com.eventty.eventtynextgen.alarm.annotation.AlarmApiV1;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 

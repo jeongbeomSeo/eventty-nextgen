@@ -1,12 +1,12 @@
 package com.eventty.eventtynextgen.certification.certificationcode;
 
-import com.eventty.eventtynextgen.certification.certificationcode.shared.annotation.CertificationCodeApiV1;
+import com.eventty.eventtynextgen.certification.certificationcode.annotation.CertificationCodeApiV1;
 import com.eventty.eventtynextgen.certification.certificationcode.request.CertificationSendCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.certificationcode.request.CertificationValidateCodeRequestCommand;
 import com.eventty.eventtynextgen.certification.certificationcode.response.CertificationExistsResponseView;
 import com.eventty.eventtynextgen.certification.certificationcode.response.CertificationSendCodeResponseView;
 import com.eventty.eventtynextgen.certification.certificationcode.response.CertificationValidateCodeResponseView;
-import com.eventty.eventtynextgen.user.shared.annotation.EmailRegexp;
+import com.eventty.eventtynextgen.user.annotation.EmailRegexp;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
