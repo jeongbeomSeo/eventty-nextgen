@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.user.shared.validator;
 
-import com.eventty.eventtynextgen.user.shared.annotation.ValidBirthDate;
+import com.eventty.eventtynextgen.user.annotation.ValidBirthDate;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDate;

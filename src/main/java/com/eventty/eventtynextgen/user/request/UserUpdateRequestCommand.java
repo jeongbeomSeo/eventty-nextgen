@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.user.request;
 
-import com.eventty.eventtynextgen.user.shared.annotation.ValidBirthDate;
+import com.eventty.eventtynextgen.user.annotation.ValidBirthDate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

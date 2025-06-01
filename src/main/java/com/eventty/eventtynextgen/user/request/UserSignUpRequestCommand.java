@@ -1,8 +1,8 @@
 package com.eventty.eventtynextgen.user.request;
 
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
-import com.eventty.eventtynextgen.user.shared.annotation.EmailRegexp;
-import com.eventty.eventtynextgen.user.shared.annotation.ValidBirthDate;
+import com.eventty.eventtynextgen.user.annotation.EmailRegexp;
+import com.eventty.eventtynextgen.user.annotation.ValidBirthDate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
