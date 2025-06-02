@@ -7,14 +7,19 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties;
+import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.TokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.certification.authentication.AuthenticationProvider;
 import com.eventty.eventtynextgen.certification.authorization.AuthorizationProvider;
+import com.eventty.eventtynextgen.certification.authuser.AuthUserService;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
-import com.eventty.eventtynextgen.certification.response.CertificationReissueResponseView;
+import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
+import com.eventty.eventtynextgen.certification.response.CertificationReissueAccessTokenResponseView;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
@@ -23,6 +28,7 @@ import com.eventty.eventtynextgen.user.entity.User;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -50,9 +56,16 @@ class CertificationServiceImplTest {
     @Mock
     private UserComponent userComponent;
 
+    @Mock
+    private AuthorizationApiProperties authorizationApiProperties;
+
+    @Mock
+    private AuthUserService authUserService;
+
+
     @Nested
-    @DisplayName("비즈니스 로직 - 토큰 재발급")
-    class Reissue {
+    @DisplayName("비즈니스 로직 - Access 토큰 재발급")
+    class ReissueAccessToken {
 
         @Test
         @DisplayName("저장되어 있는 유효한 RefreshToken을 이용한 토큰 재발급 요청은 `성공`한다")
@@ -65,21 +78,21 @@ class CertificationServiceImplTest {
             User user = mock(User.class);
 
             RefreshToken refreshTokenFromDb = mock(RefreshToken.class);
-            TokenInfo tokenInfo = createMockTokenInfo();
+            AccessTokenInfo tokenInfo = createMockTokenInfo();
 
             doNothing().when(jwtTokenProvider).verifyToken(refreshToken);
             when(refreshTokenService.getRefreshToken(userId)).thenReturn(refreshTokenFromDb);
             when(refreshTokenFromDb.getRefreshToken()).thenReturn(refreshToken);
             when(userComponent.findByUserId(userId)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(false);
-            when(jwtTokenProvider.createTokenByExpiredToken(expiredAccessToken)).thenReturn(tokenInfo);
+            when(jwtTokenProvider.createAccessTokenByExpiredToken()).thenReturn(tokenInfo);
             when(refreshTokenService.saveOrUpdate(tokenInfo.getRefreshToken(), userId)).thenReturn(mock(RefreshToken.class));
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when
-            CertificationReissueResponseView result = certificationService.reissue(userId, expiredAccessToken, refreshToken, response);
+            CertificationReissueAccessTokenResponseView result = certificationService.reissueAccessToken(userId, expiredAccessToken, refreshToken, response);
 
             // then
             assertThat(result.userId()).isEqualTo(userId);
@@ -99,11 +112,11 @@ class CertificationServiceImplTest {
             doThrow(ExpiredJwtException.class).when(jwtTokenProvider).verifyToken(expiredRefreshToken);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
-                certificationService.reissue(userId, expiredAccessToken, expiredRefreshToken, response))
+                certificationService.reissueAccessToken(userId, expiredAccessToken, expiredRefreshToken, response))
                 .extracting(ex -> ((CustomException) ex).getErrorType()).isEqualTo(CertificationErrorType.JWT_TOKEN_EXPIRED);
         }
 
@@ -119,11 +132,11 @@ class CertificationServiceImplTest {
             doThrow(IllegalStateException.class).when(jwtTokenProvider).verifyToken(expiredRefreshToken);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
-                certificationService.reissue(userId, expiredAccessToken, expiredRefreshToken, response))
+                certificationService.reissueAccessToken(userId, expiredAccessToken, expiredRefreshToken, response))
                 .extracting(ex -> ((CustomException) ex).getErrorType()).isEqualTo(CertificationErrorType.FAILED_TOKEN_VERIFIED);
         }
 
@@ -139,11 +152,11 @@ class CertificationServiceImplTest {
             doThrow(SignatureException.class).when(jwtTokenProvider).verifyToken(expiredRefreshToken);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
-                certificationService.reissue(userId, expiredAccessToken, expiredRefreshToken, response))
+                certificationService.reissueAccessToken(userId, expiredAccessToken, expiredRefreshToken, response))
                 .extracting(ex -> ((CustomException) ex).getErrorType()).isEqualTo(CertificationErrorType.FAILED_TOKEN_VERIFIED);
         }
 
@@ -160,11 +173,11 @@ class CertificationServiceImplTest {
             doThrow(CustomException.class).when(refreshTokenService).getRefreshToken(userId);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
-                certificationService.reissue(userId, expiredAccessToken, refreshToken, response))
+                certificationService.reissueAccessToken(userId, expiredAccessToken, refreshToken, response))
                 .isInstanceOf(CustomException.class);
         }
 
@@ -184,11 +197,11 @@ class CertificationServiceImplTest {
             when(refreshTokenFromDb.getRefreshToken()).thenReturn("mismatch_refresh_token");
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
-                certificationService.reissue(userId, expiredAccessToken, refreshToken, response))
+                certificationService.reissueAccessToken(userId, expiredAccessToken, refreshToken, response))
                 .extracting(ex -> ((CustomException) ex).getErrorType()).isEqualTo(CertificationErrorType.MISMATCH_REFRESH_TOKEN);
         }
 
@@ -211,20 +224,65 @@ class CertificationServiceImplTest {
             when(user.isDeleted()).thenReturn(true);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
-                certificationService.reissue(userId, expiredAccessToken, refreshToken, response))
+                certificationService.reissueAccessToken(userId, expiredAccessToken, refreshToken, response))
                 .extracting(ex -> ((CustomException) ex).getErrorType()).isEqualTo(UserErrorType.USER_ALREADY_DELETED);
         }
 
-        private TokenInfo createMockTokenInfo() {
-            TokenInfo mock = mock(TokenInfo.class);
+        private AccessTokenInfo createMockTokenInfo() {
+            AccessTokenInfo mock = mock(AccessTokenInfo.class);
             when(mock.getTokenType()).thenReturn(CertificationConst.JWT_TOKEN_TYPE);
             when(mock.getAccessToken()).thenReturn("new_access_token");
             when(mock.getRefreshToken()).thenReturn("new_refresh_token");
             return mock;
+        }
+    }
+
+    @Nested
+    @DisplayName("비즈니스 로직 - Certification 토큰 발급")
+    class IssueCertificationToken {
+
+        @Test
+        @DisplayName("올바른 APP Name이 들어올 경우 토큰 발급에 성공한다.")
+        void 올바른_APP_NAME이_들어올_경우_토큰_발급에_성공한다() {
+            // given
+            String appName = "testAppName";
+            Map<String, Permission> apiPermissions = Map.of("all", Permission.FREE);
+            CertificationTokenInfo certificationTokenInfo = mock(CertificationTokenInfo.class);
+
+            when(authorizationApiProperties.containsAppName(appName)).thenReturn(true);
+            when(authorizationApiProperties.getPermissions(appName)).thenReturn(apiPermissions);
+            when(jwtTokenProvider.createCertificationToken(appName, apiPermissions)).thenReturn(certificationTokenInfo);
+
+            CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
+
+            // when
+            CertificationIssueCertificationTokenResponseView certificationIssueCertificationTokenResponseView = certificationService.issueCertificationToken(
+                appName);
+
+            // then
+            assertThat(certificationIssueCertificationTokenResponseView.certificationToken()).isEqualTo(certificationTokenInfo);
+        }
+
+        @Test
+        @DisplayName("APP Name을 찾을 수 없는 경우 토큰 발급에 실패한다")
+        void APP_NAME을_찾을_수_없는_경우_토큰_발급에_실패한다() {
+            // given
+            String appName = "testAppName";
+
+            when(authorizationApiProperties.containsAppName(appName)).thenReturn(false);
+
+            CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
+
+            // when & then
+            assertThatThrownBy(() ->
+                certificationService.issueCertificationToken(appName))
+                .extracting(ex -> ((CustomException) ex).getErrorType()).isEqualTo(CertificationErrorType.NOT_FOUND_APP_NAME);
         }
     }
 }

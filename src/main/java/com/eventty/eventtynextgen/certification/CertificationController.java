@@ -2,10 +2,12 @@ package com.eventty.eventtynextgen.certification;
 
 
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
+import com.eventty.eventtynextgen.certification.request.CertificationIssueCertificationTokenRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationLoginRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationReissueRequestCommand;
+import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
-import com.eventty.eventtynextgen.certification.response.CertificationReissueResponseView;
+import com.eventty.eventtynextgen.certification.response.CertificationReissueAccessTokenResponseView;
 import com.eventty.eventtynextgen.certification.annotation.CertificationApiV1;
 import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
@@ -48,19 +50,25 @@ public class CertificationController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/reissue")
+    @PostMapping("/reissue/access-token")
     @Operation(summary = "토큰 재발급 요청")
-    public ResponseEntity<CertificationReissueResponseView> reissue(
+    public ResponseEntity<CertificationReissueAccessTokenResponseView> reissueAccessToken(
         @RequestBody @Valid CertificationReissueRequestCommand certificationReissueRequestCommand,
         HttpServletRequest request,
         HttpServletResponse response) {
         String refreshToken = CookieUtils.getCookie(CookieUtils.REFRESH_TOKEN_HEADER_NAME, request);
 
-        return ResponseEntity.ok(this.certificationService.reissue(
+        return ResponseEntity.ok(this.certificationService.reissueAccessToken(
             certificationReissueRequestCommand.userId(),
             certificationReissueRequestCommand.accessToken(),
             refreshToken,
             response
         ));
+    }
+
+    @PostMapping("/issue/certification-token")
+    public ResponseEntity<CertificationIssueCertificationTokenResponseView> issueCertificationToken(@RequestBody
+        CertificationIssueCertificationTokenRequestCommand certificationIssueCertificationTokenRequestCommand) {
+        return ResponseEntity.ok(this.certificationService.issueCertificationToken(certificationIssueCertificationTokenRequestCommand.accessToken()));
     }
 }

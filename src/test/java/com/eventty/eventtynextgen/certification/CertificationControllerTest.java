@@ -13,13 +13,14 @@ import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.TokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenInfo;
 import com.eventty.eventtynextgen.certification.provider.TestJwtTokenProvider;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.fixture.AuthenticationFixture;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenRepository;
 import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
+import com.eventty.eventtynextgen.certification.request.CertificationIssueCertificationTokenRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationLoginRequestCommand;
 import com.eventty.eventtynextgen.certification.request.CertificationReissueRequestCommand;
 import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
@@ -109,7 +110,7 @@ class CertificationControllerTest {
 
     @AfterEach
     void tearDown() {
-        userRepository.deleteAll();
+        userRepository.deleteAllInBatch();
     }
 
     @Nested
@@ -240,7 +241,7 @@ class CertificationControllerTest {
             Authentication authorizedAuthentication = AuthenticationFixture.createAuthorizedLoginIdPasswordAuthentication(userFromDb.getId(),
                 email, plainPassword);
 
-            TokenInfo tokenInfo = jwtTokenProvider.createToken(authorizedAuthentication);
+            AccessTokenInfo tokenInfo = jwtTokenProvider.createAccessToken(authorizedAuthentication);
 
             RefreshToken refreshToken = RefreshToken.of(tokenInfo.getRefreshToken(), userFromDb.getId());
             refreshTokenRepository.save(refreshToken);
@@ -273,10 +274,10 @@ class CertificationControllerTest {
     }
 
     @Nested
-    @DisplayName("토큰 재발급 테스트")
-    class Reissue {
+    @DisplayName("액세스 토큰 재발급 테스트")
+    class ReissueAccessToken {
 
-        private static final String URL = BASE_URL + "/reissue";
+        private static final String URL = BASE_URL + "/reissue/access-token";
         private TestJwtTokenProvider testJwtTokenProvider;
 
         @BeforeEach
@@ -287,8 +288,8 @@ class CertificationControllerTest {
 
         @AfterEach
         void tearDown() {
-            refreshTokenRepository.deleteAll();
-            userRepository.deleteAll();
+            refreshTokenRepository.deleteAllInBatch();
+            userRepository.deleteAllInBatch();
         }
 
         @Test
@@ -495,6 +496,32 @@ class CertificationControllerTest {
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
                     content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+    }
+
+    @Nested
+    @DisplayName("Certification 토큰 발급 테스트")
+    class IssueCertificationToken {
+        private static final String URL = BASE_URL + "/issue/certification-token";
+
+        @Test
+        @DisplayName("올바른 APP Name이 들어올 경우 토큰 발급에 성공한다.")
+        void 올바른_APP_NAME이_들어올_경우_토큰_발급에_성공한다() throws Exception {
+            // given
+            String appName = "swagger";
+
+            CertificationIssueCertificationTokenRequestCommand certificationIssueCertificationTokenRequestCommand = new CertificationIssueCertificationTokenRequestCommand(
+                appName);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .content(objectMapper.writeValueAsString(certificationIssueCertificationTokenRequestCommand))
+                .contentType(MediaType.APPLICATION_JSON));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.certificationToken.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.certificationToken.certificationToken").isNotEmpty());
         }
     }
 }

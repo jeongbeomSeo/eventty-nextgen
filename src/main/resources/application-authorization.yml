@@ -1,10 +1,10 @@
 authorization:
-  permissions:
-    all:
-      swagger: FREE
-      health: FREE
-      certification: FREE
-      user: FREE
-    eventty:
-      certification: FREE
-      user: FREE
+  infoMap:
+    swagger:
+      app-permissions:
+        all: FREE
+    client-app1:
+      app-permissions:
+        user: OPTIONAL
+        certification: OPTIONAL
+        events: OPTIONAL

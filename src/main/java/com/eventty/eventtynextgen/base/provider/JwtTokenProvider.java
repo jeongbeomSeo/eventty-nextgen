@@ -1,6 +1,12 @@
 package com.eventty.eventtynextgen.base.provider;
 
+import static com.eventty.eventtynextgen.base.constant.BaseConst.ADMIN_EMAIL_KEY;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.API_ALLOW_KEY;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.APP_NAME_KEY;
+import static com.eventty.eventtynextgen.certification.constant.CertificationConst.JWT_TOKEN_TYPE;
+
 import com.eventty.eventtynextgen.base.constant.BaseConst;
+import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
@@ -12,8 +18,10 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.Getter;
@@ -27,6 +35,7 @@ public class JwtTokenProvider {
     private final String secretKey;
     private final Long accessTokenValidityInMin;
     private final Long refreshTokenValidityInMin;
+    private final Long certificationTokenValidityInMin = 120L;
 
     public JwtTokenProvider(
         @Value("${key.jwt.secret-key}") String secretKey,
@@ -37,45 +46,31 @@ public class JwtTokenProvider {
         this.refreshTokenValidityInMin = refreshTokenValidityInMin * 60 * 1000;
     }
 
-        public TokenInfo createToken(Authentication authentication) {
+    public AccessTokenInfo createAccessToken(Authentication authentication) {
         Assert.isTrue(authentication.isAuthorized(), "Only authorized users can generate a JWT token.");
 
-        UserDetails userDetails = authentication.getUserDetails();
-
-        return this.createTokenInfo(
-            userDetails.getUserId(),
-            this.convertAuthoritiesToPayload(authentication.getAuthorities()),
-            BaseConst.EVENTTY_NAME);
+        return this.createAccessTokenInfo();
     }
 
-    public TokenInfo createTokenByExpiredToken(String accessToken) {
-        AccessTokenPayload payload = this.retrievePayload(accessToken);
-
-        return this.createTokenInfo(payload.getUserId(), payload.getRole(), payload.getAppName());
+    public AccessTokenInfo createAccessTokenByExpiredToken() {
+        return this.createAccessTokenInfo();
     }
 
-    private TokenInfo createTokenInfo(Long userId, String role, String appName) {
+    private AccessTokenInfo createAccessTokenInfo() {
         long now = new Date(System.currentTimeMillis()).getTime();
+        Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMin);
+        Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMin);
         String accessToken = Jwts.builder()
-            .setSubject(String.valueOf(userId))
-            .claim("role", role)
-            .claim("appName", appName)
-            .setExpiration(new Date(now + accessTokenValidityInMin))
+            .setExpiration(accessTokenExpiredAt)
             .signWith(this.getSigningKey())
             .compact();
 
         String refreshToken = Jwts.builder()
-            .setExpiration(new Date(now + refreshTokenValidityInMin))
+            .setExpiration(refreshTokenExpiredAt)
             .signWith(this.getSigningKey())
             .compact();
 
-        return new TokenInfo(CertificationConst.JWT_TOKEN_TYPE, accessToken, refreshToken);
-    }
-
-    private String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
-        return authorities.stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));
+        return new AccessTokenInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
     }
 
     public void verifyToken(String token)  throws ExpiredJwtException, UnsupportedJwtException, IllegalStateException, SignatureException {
@@ -85,12 +80,13 @@ public class JwtTokenProvider {
             .parseClaimsJws(token);
     }
 
+    // TODO: 삭제 예정
     public AccessTokenPayload retrievePayload(String accessToken) {
         Claims claims = this.parseClaims(accessToken);
 
-        Long userId = Long.parseLong(claims.getSubject());
-        String role = (String) claims.get("role");
-        String appName = (String) claims.get("appName");
+        Long userId = 1L;
+        String role = "USER_ROLE";
+        String appName = "client-appname1";
 
         return new AccessTokenPayload(userId, role, appName);
     }
@@ -104,9 +100,30 @@ public class JwtTokenProvider {
         }
     }
 
+    public CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions) {
+        long now = new Date(System.currentTimeMillis()).getTime();
+        Map<String, Object> claims = Map.of(APP_NAME_KEY, appName,
+            ADMIN_EMAIL_KEY, "jeongbeom4693@gmail.com",
+            API_ALLOW_KEY, apiPermissions);
+
+        String certificationToken = Jwts.builder()
+            .addClaims(claims)
+            .setExpiration(new Date(now + certificationTokenValidityInMin))
+            .signWith(this.getSigningKey())
+            .compact();
+
+        return new CertificationTokenInfo(JWT_TOKEN_TYPE, certificationToken);
+    }
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    private String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));
     }
 
     @Getter
@@ -123,15 +140,30 @@ public class JwtTokenProvider {
     }
 
     @Getter
-    public static class TokenInfo {
+    public static class CertificationTokenInfo {
+        private final String tokenType;
+        private final String certificationToken;
+
+        private CertificationTokenInfo(String tokenType, String certificationToken) {
+            this.tokenType = tokenType;
+            this.certificationToken = certificationToken;
+        }
+    }
+
+    @Getter
+    public static class AccessTokenInfo {
         private final String tokenType;
         private final String accessToken;
+        private final Date accessTokenExpiredAt;
         private final String refreshToken;
+        private final Date refreshTokenExpiredAt;
 
-        private TokenInfo(String tokenType, String accessToken, String refreshToken) {
+        private AccessTokenInfo(String tokenType, String accessToken, Date accessTokenExpiredAt, String refreshToken, Date refreshTokenExpiredAt) {
             this.tokenType = tokenType;
             this.accessToken = accessToken;
+            this.accessTokenExpiredAt = accessTokenExpiredAt;
             this.refreshToken = refreshToken;
+            this.refreshTokenExpiredAt = refreshTokenExpiredAt;
         }
     }
 }

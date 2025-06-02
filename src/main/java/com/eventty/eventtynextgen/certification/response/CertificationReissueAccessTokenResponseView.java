@@ -2,7 +2,7 @@ package com.eventty.eventtynextgen.certification.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record CertificationReissueResponseView(
+public record CertificationReissueAccessTokenResponseView(
     @Schema(description = "사용자 PK")
     Long userId,
     @Schema(description = "토큰 정보")

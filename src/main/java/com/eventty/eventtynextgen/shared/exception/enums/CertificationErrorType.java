@@ -23,8 +23,11 @@ public enum CertificationErrorType implements ErrorType {
     AUTH_USER_NOT_AUTHORIZED("AUTH_USER_NOT_AUTHORIZED", "사용자의 API 호출 권한이 없습니다."),
 
     NOT_FOUND_API_NAME_TYPE("NOT_FOUND_API_NAME_TYPE", "URI에 일치하는 value를 찾을 수 없습니다."),
+    NOT_ALLOW_APP_NAME("NOT_ALLOW_APP_NAME", "API 호출이 허용되지 않은 APP입니다."),
+    NOT_FOUND_APP_NAME("NOT_FOUND_APP_NAME", "찾을 수 없는 APP NAME입니다."),
     NOT_FOUND_AUTHORIZATION_API_PROPERTY("NOT_FOUND_AUTHORIZATION_API_PROPERTY", "일치하는 Properties를 찾을 수 없습니다."),
     NOT_FOUND_REFRESH_TOKEN("NOT_FOUND_REFRESH_TOKEN", "해당 사용자로 저장되어 있는 Refresh Token을 찾을 수 없습니다."),
+    NOT_REGISTERED_API_NAME("NOT_REGISTERED_API_NAME", "해당 API NAME이 올바르게 등록되어 있지 않습니다. 서버 개발자에에 문의해 주세요."),
 
     MISMATCH_REFRESH_TOKEN("MISMATCH_REFRESH_TOKEN", "저장되어 있는 Refresh Token과 값이 일치하지 않습니다."),
 
