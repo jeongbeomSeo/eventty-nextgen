@@ -1,6 +1,12 @@
 package com.eventty.eventtynextgen.base.provider;
 
+import static com.eventty.eventtynextgen.base.constant.BaseConst.ADMIN_EMAIL_KEY;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.API_ALLOW_KEY;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.APP_NAME_KEY;
+import static com.eventty.eventtynextgen.certification.constant.CertificationConst.JWT_TOKEN_TYPE;
+
 import com.eventty.eventtynextgen.base.constant.BaseConst;
+import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
@@ -14,6 +20,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.Getter;
@@ -27,6 +34,7 @@ public class JwtTokenProvider {
     private final String secretKey;
     private final Long accessTokenValidityInMin;
     private final Long refreshTokenValidityInMin;
+    private final Long certificationTokenValidityInMin = 120L;
 
     public JwtTokenProvider(
         @Value("${key.jwt.secret-key}") String secretKey,
@@ -37,24 +45,24 @@ public class JwtTokenProvider {
         this.refreshTokenValidityInMin = refreshTokenValidityInMin * 60 * 1000;
     }
 
-        public TokenInfo createToken(Authentication authentication) {
+    public AccessTokenInfo createAccessToken(Authentication authentication) {
         Assert.isTrue(authentication.isAuthorized(), "Only authorized users can generate a JWT token.");
 
         UserDetails userDetails = authentication.getUserDetails();
 
-        return this.createTokenInfo(
+        return this.createAccessTokenInfo(
             userDetails.getUserId(),
             this.convertAuthoritiesToPayload(authentication.getAuthorities()),
             BaseConst.EVENTTY_NAME);
     }
 
-    public TokenInfo createTokenByExpiredToken(String accessToken) {
+    public AccessTokenInfo createAccessTokenByExpiredToken(String accessToken) {
         AccessTokenPayload payload = this.retrievePayload(accessToken);
 
-        return this.createTokenInfo(payload.getUserId(), payload.getRole(), payload.getAppName());
+        return this.createAccessTokenInfo(payload.getUserId(), payload.getRole(), payload.getAppName());
     }
 
-    private TokenInfo createTokenInfo(Long userId, String role, String appName) {
+    private AccessTokenInfo createAccessTokenInfo(Long userId, String role, String appName) {
         long now = new Date(System.currentTimeMillis()).getTime();
         String accessToken = Jwts.builder()
             .setSubject(String.valueOf(userId))
@@ -69,7 +77,7 @@ public class JwtTokenProvider {
             .signWith(this.getSigningKey())
             .compact();
 
-        return new TokenInfo(CertificationConst.JWT_TOKEN_TYPE, accessToken, refreshToken);
+        return new AccessTokenInfo(JWT_TOKEN_TYPE, accessToken, refreshToken);
     }
 
     private String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
@@ -104,6 +112,21 @@ public class JwtTokenProvider {
         }
     }
 
+    public CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions) {
+        long now = new Date(System.currentTimeMillis()).getTime();
+        Map<String, Object> claims = Map.of(APP_NAME_KEY, appName,
+            ADMIN_EMAIL_KEY, "jeongbeom4693@gmail.com",
+            API_ALLOW_KEY, apiPermissions);
+
+        String certificationToken = Jwts.builder()
+            .addClaims(claims)
+            .setExpiration(new Date(now + certificationTokenValidityInMin))
+            .signWith(this.getSigningKey())
+            .compact();
+
+        return new CertificationTokenInfo(JWT_TOKEN_TYPE, certificationToken);
+    }
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -123,12 +146,23 @@ public class JwtTokenProvider {
     }
 
     @Getter
-    public static class TokenInfo {
+    public static class CertificationTokenInfo {
+        private final String tokenType;
+        private final String certificationToken;
+
+        private CertificationTokenInfo(String tokenType, String certificationToken) {
+            this.tokenType = tokenType;
+            this.certificationToken = certificationToken;
+        }
+    }
+
+    @Getter
+    public static class AccessTokenInfo {
         private final String tokenType;
         private final String accessToken;
         private final String refreshToken;
 
-        private TokenInfo(String tokenType, String accessToken, String refreshToken) {
+        private AccessTokenInfo(String tokenType, String accessToken, String refreshToken) {
             this.tokenType = tokenType;
             this.accessToken = accessToken;
             this.refreshToken = refreshToken;

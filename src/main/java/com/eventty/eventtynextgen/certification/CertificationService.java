@@ -1,8 +1,8 @@
 package com.eventty.eventtynextgen.certification;
 
+import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
-import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView.AccessTokenInfo;
-import com.eventty.eventtynextgen.certification.response.CertificationReissueResponseView;
+import com.eventty.eventtynextgen.certification.response.CertificationReissueAccessTokenResponseView;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface CertificationService {
@@ -11,5 +11,7 @@ public interface CertificationService {
 
     void logout(Long userId, HttpServletResponse response);
 
-    CertificationReissueResponseView reissue(Long userId, String accessToken, String refreshToken, HttpServletResponse response);
+    CertificationReissueAccessTokenResponseView reissueAccessToken(Long userId, String accessToken, String refreshToken, HttpServletResponse response);
+
+    CertificationIssueCertificationTokenResponseView issueCertificationToken(String appName);
 }

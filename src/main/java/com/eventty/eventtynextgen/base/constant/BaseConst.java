@@ -8,4 +8,8 @@ public class BaseConst {
 
     public static final String EVENTTY_NAME = "eventty";
 
+    public static final String APP_NAME_KEY = "AppName";
+    public static final String ADMIN_EMAIL_KEY = "AdminEmail";
+    public static final String API_ALLOW_KEY = "API_Allow";
+
 }
