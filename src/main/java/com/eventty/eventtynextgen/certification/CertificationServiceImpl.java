@@ -8,6 +8,7 @@ import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTo
 import com.eventty.eventtynextgen.certification.authentication.AuthenticationProvider;
 import com.eventty.eventtynextgen.certification.authentication.LoginIdPasswordAuthenticationToken;
 import com.eventty.eventtynextgen.certification.authorization.AuthorizationProvider;
+import com.eventty.eventtynextgen.certification.authuser.AuthUserService;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.userdetails.LoginIdUserDetails;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
@@ -40,6 +41,7 @@ public class CertificationServiceImpl implements CertificationService {
     private final RefreshTokenService refreshTokenService;
     private final UserComponent userComponent;
     private final AuthorizationApiProperties authorizationApiProperties;
+    private final AuthUserService authUserService;
 
     @Override
     @Transactional
@@ -55,6 +57,7 @@ public class CertificationServiceImpl implements CertificationService {
         AccessTokenInfo tokenInfo = this.jwtTokenProvider.createAccessToken(authorizedAuthentication);
 
         // 4. 토큰(Session ID)와 로그인한 사용자 정보 영속화
+        authUserService.saveAuthUser(tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiredAt(), authorizedAuthentication);
 
         // 5. Refresh Token 영속화
         this.refreshTokenService.saveOrUpdate(tokenInfo.getRefreshToken(), authorizedAuthentication.getUserDetails().getUserId());
@@ -98,7 +101,7 @@ public class CertificationServiceImpl implements CertificationService {
             .orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
         // 4. 토큰 재발급
-        AccessTokenInfo tokenInfo = this.jwtTokenProvider.createAccessTokenByExpiredToken(accessToken);
+        AccessTokenInfo tokenInfo = this.jwtTokenProvider.createAccessTokenByExpiredToken();
 
         // 5. 새로 발급한 Refresh Token 저장
         this.refreshTokenService.saveOrUpdate(tokenInfo.getRefreshToken(), userId);

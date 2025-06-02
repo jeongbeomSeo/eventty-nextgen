@@ -18,6 +18,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -48,42 +49,28 @@ public class JwtTokenProvider {
     public AccessTokenInfo createAccessToken(Authentication authentication) {
         Assert.isTrue(authentication.isAuthorized(), "Only authorized users can generate a JWT token.");
 
-        UserDetails userDetails = authentication.getUserDetails();
-
-        return this.createAccessTokenInfo(
-            userDetails.getUserId(),
-            this.convertAuthoritiesToPayload(authentication.getAuthorities()),
-            BaseConst.EVENTTY_NAME);
+        return this.createAccessTokenInfo();
     }
 
-    public AccessTokenInfo createAccessTokenByExpiredToken(String accessToken) {
-        AccessTokenPayload payload = this.retrievePayload(accessToken);
-
-        return this.createAccessTokenInfo(payload.getUserId(), payload.getRole(), payload.getAppName());
+    public AccessTokenInfo createAccessTokenByExpiredToken() {
+        return this.createAccessTokenInfo();
     }
 
-    private AccessTokenInfo createAccessTokenInfo(Long userId, String role, String appName) {
+    private AccessTokenInfo createAccessTokenInfo() {
         long now = new Date(System.currentTimeMillis()).getTime();
+        Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMin);
+        Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMin);
         String accessToken = Jwts.builder()
-            .setSubject(String.valueOf(userId))
-            .claim("role", role)
-            .claim("appName", appName)
-            .setExpiration(new Date(now + accessTokenValidityInMin))
+            .setExpiration(accessTokenExpiredAt)
             .signWith(this.getSigningKey())
             .compact();
 
         String refreshToken = Jwts.builder()
-            .setExpiration(new Date(now + refreshTokenValidityInMin))
+            .setExpiration(refreshTokenExpiredAt)
             .signWith(this.getSigningKey())
             .compact();
 
-        return new AccessTokenInfo(JWT_TOKEN_TYPE, accessToken, refreshToken);
-    }
-
-    private String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
-        return authorities.stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));
+        return new AccessTokenInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
     }
 
     public void verifyToken(String token)  throws ExpiredJwtException, UnsupportedJwtException, IllegalStateException, SignatureException {
@@ -93,12 +80,13 @@ public class JwtTokenProvider {
             .parseClaimsJws(token);
     }
 
+    // TODO: 삭제 예정
     public AccessTokenPayload retrievePayload(String accessToken) {
         Claims claims = this.parseClaims(accessToken);
 
-        Long userId = Long.parseLong(claims.getSubject());
-        String role = (String) claims.get("role");
-        String appName = (String) claims.get("appName");
+        Long userId = 1L;
+        String role = "USER_ROLE";
+        String appName = "client-appname1";
 
         return new AccessTokenPayload(userId, role, appName);
     }
@@ -132,6 +120,12 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    private String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
+        return authorities.stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(","));
+    }
+
     @Getter
     public static class AccessTokenPayload {
         private final Long userId;
@@ -160,12 +154,16 @@ public class JwtTokenProvider {
     public static class AccessTokenInfo {
         private final String tokenType;
         private final String accessToken;
+        private final Date accessTokenExpiredAt;
         private final String refreshToken;
+        private final Date refreshTokenExpiredAt;
 
-        private AccessTokenInfo(String tokenType, String accessToken, String refreshToken) {
+        private AccessTokenInfo(String tokenType, String accessToken, Date accessTokenExpiredAt, String refreshToken, Date refreshTokenExpiredAt) {
             this.tokenType = tokenType;
             this.accessToken = accessToken;
+            this.accessTokenExpiredAt = accessTokenExpiredAt;
             this.refreshToken = refreshToken;
+            this.refreshTokenExpiredAt = refreshTokenExpiredAt;
         }
     }
 }

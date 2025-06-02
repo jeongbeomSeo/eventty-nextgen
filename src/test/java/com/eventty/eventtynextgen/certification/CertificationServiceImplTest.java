@@ -14,6 +14,7 @@ import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenInfo
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.certification.authentication.AuthenticationProvider;
 import com.eventty.eventtynextgen.certification.authorization.AuthorizationProvider;
+import com.eventty.eventtynextgen.certification.authuser.AuthUserService;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
@@ -58,6 +59,9 @@ class CertificationServiceImplTest {
     @Mock
     private AuthorizationApiProperties authorizationApiProperties;
 
+    @Mock
+    private AuthUserService authUserService;
+
 
     @Nested
     @DisplayName("비즈니스 로직 - Access 토큰 재발급")
@@ -81,11 +85,11 @@ class CertificationServiceImplTest {
             when(refreshTokenFromDb.getRefreshToken()).thenReturn(refreshToken);
             when(userComponent.findByUserId(userId)).thenReturn(Optional.of(user));
             when(user.isDeleted()).thenReturn(false);
-            when(jwtTokenProvider.createAccessTokenByExpiredToken(expiredAccessToken)).thenReturn(tokenInfo);
+            when(jwtTokenProvider.createAccessTokenByExpiredToken()).thenReturn(tokenInfo);
             when(refreshTokenService.saveOrUpdate(tokenInfo.getRefreshToken(), userId)).thenReturn(mock(RefreshToken.class));
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent, authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when
             CertificationReissueAccessTokenResponseView result = certificationService.reissueAccessToken(userId, expiredAccessToken, refreshToken, response);
@@ -108,7 +112,7 @@ class CertificationServiceImplTest {
             doThrow(ExpiredJwtException.class).when(jwtTokenProvider).verifyToken(expiredRefreshToken);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent, authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
@@ -128,7 +132,7 @@ class CertificationServiceImplTest {
             doThrow(IllegalStateException.class).when(jwtTokenProvider).verifyToken(expiredRefreshToken);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent, authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
@@ -148,7 +152,7 @@ class CertificationServiceImplTest {
             doThrow(SignatureException.class).when(jwtTokenProvider).verifyToken(expiredRefreshToken);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent, authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
@@ -169,7 +173,7 @@ class CertificationServiceImplTest {
             doThrow(CustomException.class).when(refreshTokenService).getRefreshToken(userId);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent, authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
@@ -193,7 +197,7 @@ class CertificationServiceImplTest {
             when(refreshTokenFromDb.getRefreshToken()).thenReturn("mismatch_refresh_token");
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent, authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
@@ -220,7 +224,7 @@ class CertificationServiceImplTest {
             when(user.isDeleted()).thenReturn(true);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent, authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
@@ -254,8 +258,7 @@ class CertificationServiceImplTest {
             when(jwtTokenProvider.createCertificationToken(appName, apiPermissions)).thenReturn(certificationTokenInfo);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent,
-                authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when
             CertificationIssueCertificationTokenResponseView certificationIssueCertificationTokenResponseView = certificationService.issueCertificationToken(
@@ -274,8 +277,7 @@ class CertificationServiceImplTest {
             when(authorizationApiProperties.containsAppName(appName)).thenReturn(false);
 
             CertificationServiceImpl certificationService = new CertificationServiceImpl(authenticationProvider, authorizationProvider, jwtTokenProvider,
-                refreshTokenService, userComponent,
-                authorizationApiProperties);
+                refreshTokenService, userComponent, authorizationApiProperties, authUserService);
 
             // when & then
             assertThatThrownBy(() ->
