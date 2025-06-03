@@ -30,7 +30,7 @@ public class CertificationCodeServiceImpl implements CertificationCodeService {
 
     @Override
     public CertificationExistsResponseView checkExists(String certTarget) {
-        return new CertificationExistsResponseView(certTarget, this.userComponent.findByEmail(certTarget).isPresent());
+        return new CertificationExistsResponseView(certTarget, this.userComponent.getActivatedUserByEmail(certTarget).isPresent());
     }
 
     @Override
