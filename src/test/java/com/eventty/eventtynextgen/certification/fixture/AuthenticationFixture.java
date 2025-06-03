@@ -22,7 +22,7 @@ public class AuthenticationFixture {
 
     public static Authentication createAuthorizedLoginIdPasswordAuthentication(Long userId, String loginId, String plainPassword) {
         UserDetails userDetails = UserDetailsFixture.createLoginIdUserDetailsFromPrincipal(userId, loginId, plainPassword);
-        LoginIdPasswordAuthenticationToken authenticated = LoginIdPasswordAuthenticationToken.authenticated(userDetails);
+        Authentication authenticated = LoginIdPasswordAuthenticationToken.authenticated(userDetails);
         Collection<? extends GrantedAuthority> grantedAuthorities = List.of(new SimpleGrantedAuthority(UserRoleType.USER.name()));
         return LoginIdPasswordAuthenticationToken.authorized(authenticated, grantedAuthorities);
     }

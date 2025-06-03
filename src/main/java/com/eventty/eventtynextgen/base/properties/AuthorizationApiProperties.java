@@ -17,33 +17,9 @@ public class AuthorizationApiProperties {
 
     private Map<String, AppPermission> infoMap;
 
-    public Permission getApiPermission(String appName, String apiName) {
-        if (!this.containsAppName(appName)) {
-            throw CustomException.badRequest(CertificationErrorType.NOT_ALLOW_APP_NAME);
-        }
-
-        AppPermission appPermission = infoMap.get(appName);
-        if (!appPermission.containsApiPermission(apiName)) {
-            throw CustomException.of(HttpStatus.valueOf(500), CertificationErrorType.NOT_REGISTERED_API_NAME);
-        }
-
-        return appPermission.getAppPermissions().get(apiName);
-    }
-
-    public Map<String, Permission> getPermissions(String appName) {
-        if (!this.containsAppName(appName)) {
-            throw CustomException.badRequest(CertificationErrorType.NOT_ALLOW_APP_NAME);
-        }
-
-        return infoMap.get(appName).getAppPermissions();
-    }
-    public boolean containsAppName(String appName) {
-        return infoMap.containsKey(appName);
-    }
-
     @Getter
     @Setter
-    private static class AppPermission {
+    public static class AppPermission {
         private Map<String, Permission> appPermissions;
 
         public boolean containsApiPermission(String apiName) {

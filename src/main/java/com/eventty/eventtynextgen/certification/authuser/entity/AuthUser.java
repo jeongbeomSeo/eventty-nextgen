@@ -2,6 +2,8 @@ package com.eventty.eventtynextgen.certification.authuser.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
@@ -26,7 +28,7 @@ public class AuthUser {
     @Column(name = "user_role", nullable = false)
     private String userRole;
 
-    @Column(name = "session_id", nullable = false, unique = true)
+    @Column(name = "session_id", nullable = false)
     private String sessionId;
 
     @Column(name = "expired_at", nullable = false)
@@ -40,8 +42,6 @@ public class AuthUser {
         this.expiredAt = expiredAt;
     }
 
-
-
     public static AuthUser of(Long userId, String userRole, String sessionId, LocalDateTime expiredAt) {
         return AuthUser.builder()
             .userId(userId)
@@ -49,5 +49,11 @@ public class AuthUser {
             .sessionId(sessionId)
             .expiredAt(expiredAt)
             .build();
+    }
+
+    public void updateAuthUserInfo(String userRole, String sessionId, LocalDateTime expiredAt) {
+        this.userRole = userRole;
+        this.sessionId = sessionId;
+        this.expiredAt = expiredAt;
     }
 }

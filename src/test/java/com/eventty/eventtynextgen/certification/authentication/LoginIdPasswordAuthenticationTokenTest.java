@@ -53,7 +53,7 @@ class LoginIdPasswordAuthenticationTokenTest {
             when(userDetails.isIdentified()).thenReturn(true);
 
             // when
-            LoginIdPasswordAuthenticationToken authentication = LoginIdPasswordAuthenticationToken.authenticated(userDetails);
+            Authentication authentication = LoginIdPasswordAuthenticationToken.authenticated(userDetails);
 
             // then
             assertThat(authentication.isAuthenticated()).isTrue();
@@ -105,7 +105,7 @@ class LoginIdPasswordAuthenticationTokenTest {
             Collection<? extends GrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
 
             // when
-            LoginIdPasswordAuthenticationToken authorized = LoginIdPasswordAuthenticationToken.authorized(authentication, authorities);
+            Authentication authorized = LoginIdPasswordAuthenticationToken.authorized(authentication, authorities);
 
             // then
             assertThat(authorized.isAuthenticated()).isEqualTo(true);

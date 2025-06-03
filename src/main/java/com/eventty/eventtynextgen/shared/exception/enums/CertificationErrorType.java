@@ -19,6 +19,7 @@ public enum CertificationErrorType implements ErrorType {
     FAILED_TOKEN_VERIFIED("FAILED_TOKEN_VERIFIED", "토큰 검증에 실패했습니다."),
 
     // Authorization
+    NOT_ALLOWED_AUTHORIZE_WITHOUT_AUTHENTICATION("NOT_ALLOWED_AUTHORIZE_WITHOUT_AUTHENTICATION", "인증되지 않은 사용자는 권한을 부여할 수 없습니다."),
     AUTH_USER_ROLE_ASSIGNMENT_ERROR("AUTH_USER_ROLE_ASSIGNMENT_ERROR", "사용자에게 할당된 역할이 없어서, 역할 부여를 할 수 없습니다."),
     AUTH_USER_NOT_AUTHORIZED("AUTH_USER_NOT_AUTHORIZED", "사용자의 API 호출 권한이 없습니다."),
 

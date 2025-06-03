@@ -7,6 +7,7 @@ import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
 import com.eventty.eventtynextgen.certification.core.autority.SimpleGrantedAuthority;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
+import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,18 +19,22 @@ public class UserRoleAuthorizationProvider implements AuthorizationProvider {
 
     @Override
     public Authentication authorize(Authentication authentication) {
-        AuthorizationType authorizationType = AuthorizationType.from(authentication.getUserDetails().getUserRole());
-
-        if (canAuthorize(authentication, authorizationType)) {
-            throw CustomException.badRequest(CertificationErrorType.AUTH_USER_ROLE_ASSIGNMENT_ERROR);
+        if (!authentication.isAuthenticated()) {
+            throw CustomException.badRequest(CertificationErrorType.NOT_ALLOWED_AUTHORIZE_WITHOUT_AUTHENTICATION);
         }
-
-        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(authorizationType.name()));
+        List<GrantedAuthority> authorities = this.getAuthoritiesByUserRole(authentication.getUserDetails().getUserRole());
 
         return LoginIdPasswordAuthenticationToken.authorized(authentication, authorities);
     }
 
-    private boolean canAuthorize(Authentication authentication, AuthorizationType authorizationType) {
-        return !authentication.isAuthenticated() || authorizationType == AuthorizationType.NONE;
+    @Override
+    public List<GrantedAuthority> getAuthoritiesByUserRole(UserRoleType userRole) {
+        AuthorizationType authorizationType = AuthorizationType.from(userRole);
+
+        if (authorizationType == AuthorizationType.NONE) {
+            throw CustomException.badRequest(CertificationErrorType.AUTH_USER_ROLE_ASSIGNMENT_ERROR);
+        }
+
+        return Collections.singletonList(new SimpleGrantedAuthority(authorizationType.name()));
     }
 }

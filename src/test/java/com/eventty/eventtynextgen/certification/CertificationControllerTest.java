@@ -13,7 +13,7 @@ import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.LoginTokensInfo;
 import com.eventty.eventtynextgen.certification.provider.TestJwtTokenProvider;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.Authentication;
@@ -27,6 +27,7 @@ import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.JwtTokenErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseEntityFactory;
 import com.eventty.eventtynextgen.user.entity.User;
@@ -241,7 +242,7 @@ class CertificationControllerTest {
             Authentication authorizedAuthentication = AuthenticationFixture.createAuthorizedLoginIdPasswordAuthentication(userFromDb.getId(),
                 email, plainPassword);
 
-            AccessTokenInfo tokenInfo = jwtTokenProvider.createAccessToken(authorizedAuthentication);
+            LoginTokensInfo tokenInfo = jwtTokenProvider.createLoginTokens();
 
             RefreshToken refreshToken = RefreshToken.of(tokenInfo.getRefreshToken(), userFromDb.getId());
             refreshTokenRepository.save(refreshToken);
@@ -300,7 +301,7 @@ class CertificationControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken(userId);
+            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
             String refreshToken = testJwtTokenProvider.createValidRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
 
@@ -328,14 +329,14 @@ class CertificationControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
+            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
             String refreshToken = testJwtTokenProvider.createExpiredRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
 
             CertificationReissueRequestCommand certificationReissueRequestCommand = new CertificationReissueRequestCommand(userId, accessToken);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
-                CustomException.badRequest(CertificationErrorType.JWT_TOKEN_EXPIRED));
+                CustomException.badRequest(JwtTokenErrorType.EXPIRED_TOKEN));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
@@ -357,14 +358,14 @@ class CertificationControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
+            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
             String refreshToken = testJwtTokenProvider.createRefreshTokenWithInvalidSignature();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
 
             CertificationReissueRequestCommand certificationReissueRequestCommand = new CertificationReissueRequestCommand(userId, accessToken);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
-                CustomException.badRequest(CertificationErrorType.FAILED_TOKEN_VERIFIED));
+                CustomException.badRequest(JwtTokenErrorType.FAILED_SIGNATURE_VALIDATION));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
@@ -386,14 +387,14 @@ class CertificationControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
+            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
             String refreshToken = testJwtTokenProvider.createIllegalRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
 
             CertificationReissueRequestCommand certificationReissueRequestCommand = new CertificationReissueRequestCommand(userId, accessToken);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
-                CustomException.badRequest(CertificationErrorType.FAILED_TOKEN_VERIFIED));
+                CustomException.badRequest(JwtTokenErrorType.ILLEGAL_STATE_TOKEN));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
@@ -415,7 +416,7 @@ class CertificationControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
+            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
             String refreshToken = testJwtTokenProvider.createValidRefreshToken();
 
             CertificationReissueRequestCommand certificationReissueRequestCommand = new CertificationReissueRequestCommand(userId, accessToken);
@@ -443,7 +444,7 @@ class CertificationControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
+            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
             String refreshToken = testJwtTokenProvider.createValidRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
 
@@ -475,7 +476,7 @@ class CertificationControllerTest {
             User userFromDb = userRepository.save(user);
 
             Long userId = userFromDb.getId();
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken(1L);
+            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
             String refreshToken = testJwtTokenProvider.createValidRefreshToken();
             refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
 

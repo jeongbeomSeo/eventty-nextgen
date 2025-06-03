@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.certification.core;
 
 import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 public interface Authentication {
 

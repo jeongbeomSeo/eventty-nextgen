@@ -1,30 +1,26 @@
 package com.eventty.eventtynextgen.certification;
 
-import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties;
+import com.eventty.eventtynextgen.base.manager.AppAuthorizationManager;
 import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.LoginTokensInfo;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
-import com.eventty.eventtynextgen.certification.authentication.AuthenticationProvider;
-import com.eventty.eventtynextgen.certification.authentication.LoginIdPasswordAuthenticationToken;
-import com.eventty.eventtynextgen.certification.authorization.AuthorizationProvider;
+import com.eventty.eventtynextgen.certification.authorization.enums.AuthorizationType;
 import com.eventty.eventtynextgen.certification.authuser.AuthUserService;
 import com.eventty.eventtynextgen.certification.core.Authentication;
-import com.eventty.eventtynextgen.certification.core.userdetails.LoginIdUserDetails;
 import com.eventty.eventtynextgen.certification.refreshtoken.RefreshTokenService;
-import com.eventty.eventtynextgen.certification.refreshtoken.entity.RefreshToken;
 import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
 import com.eventty.eventtynextgen.certification.response.CertificationReissueAccessTokenResponseView;
+import com.eventty.eventtynextgen.certification.service.AuthService;
+import com.eventty.eventtynextgen.certification.service.TokenService;
 import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
-import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.eventty.eventtynextgen.user.entity.User;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,45 +31,39 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CertificationServiceImpl implements CertificationService {
 
-    private final AuthenticationProvider authenticationProvider;
-    private final AuthorizationProvider authorizationProvider;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final RefreshTokenService refreshTokenService;
-    private final UserComponent userComponent;
-    private final AuthorizationApiProperties authorizationApiProperties;
+    private final AuthService authService;
+    private final TokenService tokenService;
+    private final AppAuthorizationManager appAuthorizationManager;
     private final AuthUserService authUserService;
 
     @Override
     @Transactional
     public CertificationLoginResponseView login(String loginId, String password, HttpServletResponse response) {
-        // 1. 사용자 검증
-        Authentication authenticate = this.authenticationProvider.authenticate(
-            LoginIdPasswordAuthenticationToken.unauthenticated(LoginIdUserDetails.fromCredentials(loginId, password)));
+        // 1. 사용자 검증 & 권한 할당
+        Authentication authenticate = authService.authenticateAndAuthorize(loginId, password);
 
-        // 2. 사용자 역할 확인 및 권한 할당
-        Authentication authorizedAuthentication = this.authorizationProvider.authorize(authenticate);
+        // 2. 토큰 생성
+        LoginTokensInfo loginTokensInfo = this.tokenService.issueTokensAndSaveRefresh(authenticate);
 
-        // 3. 토큰 생성
-        AccessTokenInfo tokenInfo = this.jwtTokenProvider.createAccessToken(authorizedAuthentication);
+        // 3. AuthUser 영속화
+        this.authUserService.saveAuthUser(
+            loginTokensInfo.getAccessToken(),
+            loginTokensInfo.getAccessTokenExpiredAt(),
+            authenticate.getUserDetails().getUserId(),
+            this.authService.joinAuthorities(authenticate.getAuthorities()));
 
-        // 4. 토큰(Session ID)와 로그인한 사용자 정보 영속화
-        authUserService.saveAuthUser(tokenInfo.getAccessToken(), tokenInfo.getAccessTokenExpiredAt(), authorizedAuthentication);
-
-        // 5. Refresh Token 영속화
-        this.refreshTokenService.saveOrUpdate(tokenInfo.getRefreshToken(), authorizedAuthentication.getUserDetails().getUserId());
-
-        // 6. Refresh Token 헤더에 추가
-        CookieUtils.addRefreshToken(tokenInfo.getRefreshToken(), response);
+        // 4. Refresh Token 헤더에 추가
+        CookieUtils.addRefreshToken(loginTokensInfo.getRefreshToken(), response);
 
         return new CertificationLoginResponseView(
-            authorizedAuthentication.getUserDetails().getUserId(),
-            authorizedAuthentication.getUserDetails().getLoginId(),
-            new CertificationLoginResponseView.AccessTokenInfo(tokenInfo.getTokenType(), tokenInfo.getAccessToken()));
+            authenticate.getUserDetails().getUserId(),
+            authenticate.getUserDetails().getLoginId(),
+            new CertificationLoginResponseView.AccessTokenInfo(loginTokensInfo.getTokenType(), loginTokensInfo.getAccessToken()));
     }
 
     @Override
     public void logout(Long userId, HttpServletResponse response) {
-        this.refreshTokenService.delete(userId);
+        this.tokenService.deleteRefresh(userId);
 
         CookieUtils.removeRefreshToken(response);
     }
@@ -81,61 +71,40 @@ public class CertificationServiceImpl implements CertificationService {
     @Override
     @Transactional
     public CertificationReissueAccessTokenResponseView reissueAccessToken(Long userId, String accessToken, String refreshToken, HttpServletResponse response) {
-        // 1. Refresh 토큰 검증
-        this.verifyAndHandleTokenException(refreshToken);
+        // 1. Refresh 토큰 검증 & 토큰 일치 여부 확인
+        this.tokenService.verifyAndMatchRefresh(refreshToken, userId);
 
-        // 2. Refresh 토큰 값 일치 확인
-        RefreshToken refreshTokenFromDb = this.refreshTokenService.getRefreshToken(userId);
-        if (!Objects.equals(refreshTokenFromDb.getRefreshToken(), refreshToken)) {
-            throw CustomException.badRequest(CertificationErrorType.MISMATCH_REFRESH_TOKEN);
-        }
+        // 2. 사용자가 존재하며 활성화 상태인지 확인
+        User user = this.authService.getActivatedUser(userId);
 
-        // 3. 사용자가 존재하며 활성화 상태인지 확인
-        this.userComponent.findByUserId(userId)
-            .map(user -> {
-                if (user.isDeleted()) {
-                    throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
-                }
-                return user;
-            })
-            .orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+        // 3. 토큰 재발급
+        LoginTokensInfo loginTokensInfo = this.tokenService.reissueTokensAndSaveRefresh(user.getId());
 
-        // 4. 토큰 재발급
-        AccessTokenInfo tokenInfo = this.jwtTokenProvider.createAccessTokenByExpiredToken();
+        // 4. AuthUser 영속화
+        authUserService.saveAuthUser(loginTokensInfo.getAccessToken(), loginTokensInfo.getAccessTokenExpiredAt(),
+            user.getId(), this.authService.getJoinedAuthoritiesByUserRole(user.getUserRole()));
 
-        // 5. 새로 발급한 Refresh Token 저장
-        this.refreshTokenService.saveOrUpdate(tokenInfo.getRefreshToken(), userId);
-
-        // 6. Refresh Token 헤더에 추가
-        CookieUtils.addRefreshToken(tokenInfo.getRefreshToken(), response);
+        // 5. Refresh Token 헤더에 추가
+        CookieUtils.addRefreshToken(loginTokensInfo.getRefreshToken(), response);
 
         return new CertificationReissueAccessTokenResponseView(
             userId,
-            new CertificationReissueAccessTokenResponseView.AccessTokenInfo(tokenInfo.getTokenType(), tokenInfo.getAccessToken()));
-    }
-
-    private void verifyAndHandleTokenException(String token) {
-        try {
-            this.jwtTokenProvider.verifyToken(token);
-        } catch (ExpiredJwtException ex) {
-            throw CustomException.badRequest(CertificationErrorType.JWT_TOKEN_EXPIRED);
-        } catch (Exception ex) {
-            throw CustomException.badRequest(CertificationErrorType.FAILED_TOKEN_VERIFIED);
-        }
+            new CertificationReissueAccessTokenResponseView.AccessTokenInfo(loginTokensInfo.getTokenType(), loginTokensInfo.getAccessToken()));
     }
 
     @Override
     public CertificationIssueCertificationTokenResponseView issueCertificationToken(String appName) {
         // 1. 해당 appName properties에 존재하는지 확인
-        if (!this.authorizationApiProperties.containsAppName(appName)) {
+        if (!this.appAuthorizationManager.containsAppName(appName)) {
             throw CustomException.badRequest(CertificationErrorType.NOT_FOUND_APP_NAME);
         }
 
-        // 2. 존재한다면, Token을 생성
-        Map<String, Permission> apiPermissions = this.authorizationApiProperties.getPermissions(appName);
-        CertificationTokenInfo certificationToken = this.jwtTokenProvider.createCertificationToken(appName, apiPermissions);
+        // 2. API Allow 리스트를 조회
+        Map<String, Permission> apiPermissions = this.appAuthorizationManager.getPermissions(appName);
 
-        // 3. Token을 반환
+        // 3. Certification Token을 발급
+        CertificationTokenInfo certificationToken = this.tokenService.issueCertificationToken(appName, apiPermissions);
+
         return new CertificationIssueCertificationTokenResponseView(certificationToken);
     }
 }

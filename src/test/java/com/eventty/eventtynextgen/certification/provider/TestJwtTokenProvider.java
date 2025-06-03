@@ -37,12 +37,9 @@ public class TestJwtTokenProvider {
         return new TestJwtTokenProvider(secretKey);
     }
 
-    public String createExpiredAccessToken(Long userId) {
+    public String createExpiredAccessToken() {
         long now = new Date(System.currentTimeMillis()).getTime();
         return Jwts.builder()
-            .setSubject(String.valueOf(userId))
-            .claim("role", AuthorizationType.ROLE_USER)
-            .claim("appName", "eventty")
             .setExpiration(new Date(now + INVALID_TOKEN_VALIDITY_IN_MIN))
             .signWith(this.getSigningKey())
             .compact();
