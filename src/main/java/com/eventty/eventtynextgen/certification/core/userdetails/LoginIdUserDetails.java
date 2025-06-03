@@ -18,11 +18,11 @@ public class LoginIdUserDetails implements UserDetails {
         this.isDeleted = isDeleted;
     }
 
-    public static LoginIdUserDetails fromCredentials(String loginId, String password) {
+    public static UserDetails fromCredentials(String loginId, String password) {
         return new LoginIdUserDetails(null, loginId, password, null, false);
     }
 
-    public static LoginIdUserDetails fromPrincipal(Long userId, String loginId, String password, UserRoleType userRole, boolean isDeleted) {
+    public static UserDetails fromPrincipal(Long userId, String loginId, String password, UserRoleType userRole, boolean isDeleted) {
         return new LoginIdUserDetails(userId, loginId, password, userRole, isDeleted);
     }
 

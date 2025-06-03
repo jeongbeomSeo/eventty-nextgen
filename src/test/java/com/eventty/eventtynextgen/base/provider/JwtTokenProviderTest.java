@@ -2,7 +2,7 @@ package com.eventty.eventtynextgen.base.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.LoginTokensInfo;
 import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.fixture.AuthenticationFixture;
@@ -33,7 +33,7 @@ class JwtTokenProviderTest {
             JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(SECRET_KEY, TOKEN_VALIDITY_IN_MIN, TOKEN_VALIDITY_IN_MIN);
 
             // when
-            AccessTokenInfo token = jwtTokenProvider.createAccessToken(authentication);
+            LoginTokensInfo token = jwtTokenProvider.createLoginTokens();
 
             // then
             assertThat(token.getTokenType()).isEqualTo(CertificationConst.JWT_TOKEN_TYPE);
@@ -51,7 +51,7 @@ class JwtTokenProviderTest {
 
             // when & then
             try {
-                jwtTokenProvider.createAccessToken(authentication);
+                jwtTokenProvider.createLoginTokens();
             } catch (Exception ex) {
                 assertThat(ex.getClass()).isEqualTo(IllegalArgumentException.class);
                 assertThat(ex.getMessage()).isEqualTo("Only authorized users can generate a JWT token.");

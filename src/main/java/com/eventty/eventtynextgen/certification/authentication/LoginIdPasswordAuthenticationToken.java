@@ -13,23 +13,24 @@ public class LoginIdPasswordAuthenticationToken implements Authentication {
     private final Collection<GrantedAuthority> authorities;
     private final UserDetails userDetails;
 
+
     private LoginIdPasswordAuthenticationToken(UserDetails userDetails, Collection<? extends GrantedAuthority> authorities) {
         this.userDetails = userDetails;
         this.authorities = Collections.unmodifiableList(new ArrayList<>(authorities));
     }
 
-    public static LoginIdPasswordAuthenticationToken unauthenticated(UserDetails userDetails) {
+    public static Authentication unauthenticated(UserDetails userDetails) {
         Assert.notNull(userDetails, "userDetails must not be null");
         return new LoginIdPasswordAuthenticationToken(userDetails, Collections.emptyList());
     }
 
-    public static LoginIdPasswordAuthenticationToken authenticated(UserDetails userDetails) {
+    public static Authentication authenticated(UserDetails userDetails) {
         Assert.notNull(userDetails, "userDetails must not be null");
         Assert.isTrue(userDetails.isIdentified(), "An unidentified user cannot create a token.");
         return new LoginIdPasswordAuthenticationToken(userDetails, Collections.emptyList());
     }
 
-    public static LoginIdPasswordAuthenticationToken authorized(Authentication authentication, Collection<? extends GrantedAuthority> authorities) {
+    public static Authentication authorized(Authentication authentication, Collection<? extends GrantedAuthority> authorities) {
         Assert.notNull(authentication, "authentication must not be null");
         Assert.isTrue(authentication.isAuthenticated(), "Only an authenticated user can create an authorized token.");
         Assert.isTrue(authentication.getAuthorities().isEmpty(), "A user who is already authorized cannot create a new token");

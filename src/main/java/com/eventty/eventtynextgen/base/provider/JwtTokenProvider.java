@@ -5,30 +5,29 @@ import static com.eventty.eventtynextgen.base.constant.BaseConst.API_ALLOW_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.APP_NAME_KEY;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.JWT_TOKEN_TYPE;
 
-import com.eventty.eventtynextgen.base.constant.BaseConst;
 import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
-import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.core.Authentication;
 import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
-import com.eventty.eventtynextgen.certification.core.userdetails.UserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
 
@@ -46,20 +45,11 @@ public class JwtTokenProvider {
         this.refreshTokenValidityInMin = refreshTokenValidityInMin * 60 * 1000;
     }
 
-    public AccessTokenInfo createAccessToken(Authentication authentication) {
-        Assert.isTrue(authentication.isAuthorized(), "Only authorized users can generate a JWT token.");
-
-        return this.createAccessTokenInfo();
-    }
-
-    public AccessTokenInfo createAccessTokenByExpiredToken() {
-        return this.createAccessTokenInfo();
-    }
-
-    private AccessTokenInfo createAccessTokenInfo() {
+    public LoginTokensInfo createLoginTokens() {
         long now = new Date(System.currentTimeMillis()).getTime();
         Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMin);
         Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMin);
+
         String accessToken = Jwts.builder()
             .setExpiration(accessTokenExpiredAt)
             .signWith(this.getSigningKey())
@@ -70,14 +60,39 @@ public class JwtTokenProvider {
             .signWith(this.getSigningKey())
             .compact();
 
-        return new AccessTokenInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
+        return new LoginTokensInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
     }
 
-    public void verifyToken(String token)  throws ExpiredJwtException, UnsupportedJwtException, IllegalStateException, SignatureException {
-        Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
-            .build()
-            .parseClaimsJws(token);
+    public VerifyTokenResult verifyToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token);
+
+            return VerifyTokenResult.VERIFIED_TOKEN;
+        }
+        catch (ExpiredJwtException ex) {
+            return VerifyTokenResult.EXPIRED_TOKEN;
+        } catch (UnsupportedJwtException ex) {
+            return VerifyTokenResult.UNSUPPORTED_TOKEN;
+        } catch (IllegalStateException | MalformedJwtException ex) {
+            return VerifyTokenResult.ILLEGAL_STATE_TOKEN;
+        } catch (SignatureException ex) {
+            return VerifyTokenResult.INVALID_SIGNATURE_TOKEN;
+        } catch (Exception ex) {
+            log.error("Token 검증 과정에서 예측하지 못한 예외가 발생했습니다.", ex);
+            return VerifyTokenResult.UNKNOWN_ERROR;
+        }
+    }
+
+    public enum VerifyTokenResult {
+        EXPIRED_TOKEN,
+        UNSUPPORTED_TOKEN,
+        ILLEGAL_STATE_TOKEN,
+        INVALID_SIGNATURE_TOKEN,
+        UNKNOWN_ERROR,
+        VERIFIED_TOKEN
     }
 
     // TODO: 삭제 예정
@@ -151,14 +166,14 @@ public class JwtTokenProvider {
     }
 
     @Getter
-    public static class AccessTokenInfo {
+    public static class LoginTokensInfo {
         private final String tokenType;
         private final String accessToken;
         private final Date accessTokenExpiredAt;
         private final String refreshToken;
         private final Date refreshTokenExpiredAt;
 
-        private AccessTokenInfo(String tokenType, String accessToken, Date accessTokenExpiredAt, String refreshToken, Date refreshTokenExpiredAt) {
+        private LoginTokensInfo(String tokenType, String accessToken, Date accessTokenExpiredAt, String refreshToken, Date refreshTokenExpiredAt) {
             this.tokenType = tokenType;
             this.accessToken = accessToken;
             this.accessTokenExpiredAt = accessTokenExpiredAt;
