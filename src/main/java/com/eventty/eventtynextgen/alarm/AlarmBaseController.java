@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @AlarmApiV1
 public class AlarmBaseController {
 
-    private final String BASE_PATH = "/alarm";
+    private static final String BASE_PATH = "/alarm";
 
     @GetMapping(BASE_PATH)
     public ResponseEntity<String> example() {
