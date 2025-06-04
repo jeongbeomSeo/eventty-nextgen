@@ -12,11 +12,13 @@ public class UserComponent {
 
     private final UserRepository userRepository;
 
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public Optional<User> getActivatedUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .filter(user -> !user.isDeleted());
     }
 
-    public Optional<User> findByUserId(Long userId) {
-        return userRepository.findById(userId);
+    public Optional<User> getActivatedUserByUserId(Long userId) {
+        return userRepository.findById(userId)
+            .filter(user -> !user.isDeleted());
     }
 }
