@@ -28,9 +28,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인 API")
-    public ResponseEntity<AuthLoginResponseView> login(
-        @RequestBody @Valid AuthLoginRequestCommand authLoginRequestCommand,
-        HttpServletResponse response) {
+    public ResponseEntity<AuthLoginResponseView> login(@RequestBody @Valid AuthLoginRequestCommand authLoginRequestCommand, HttpServletResponse response) {
         return ResponseEntity.ok(this.authService.login(
             authLoginRequestCommand.loginId(),
             authLoginRequestCommand.password(),
@@ -57,7 +55,6 @@ public class AuthController {
         String refreshToken = CookieUtils.getCookie(CookieUtils.REFRESH_TOKEN_HEADER_NAME, request);
 
         return ResponseEntity.ok(this.authService.reissueSessionToken(
-            authReissueSessionTokenRequestCommand.userId(),
             authReissueSessionTokenRequestCommand.accessToken(),
             refreshToken,
             response

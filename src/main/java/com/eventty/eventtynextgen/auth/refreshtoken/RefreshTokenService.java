@@ -4,6 +4,8 @@ package com.eventty.eventtynextgen.auth.refreshtoken;
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
+import com.eventty.eventtynextgen.shared.utils.DateUtils;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +17,13 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public RefreshToken saveOrUpdate(String refreshToken, Long userId) {
+    public RefreshToken saveOrUpdate(String refreshToken, Long userId, Date expiredAt) {
         return refreshTokenRepository.findByUserId(userId)
             .map(token -> {
                 token.updateRefreshToken(refreshToken);
                 return token;
             })
-            .orElseGet(() -> refreshTokenRepository.save(RefreshToken.of(refreshToken, userId)));
+            .orElseGet(() -> refreshTokenRepository.save(RefreshToken.of(refreshToken, userId, DateUtils.convertFormatToLocalDateTime(expiredAt))));
     }
 
     @Transactional

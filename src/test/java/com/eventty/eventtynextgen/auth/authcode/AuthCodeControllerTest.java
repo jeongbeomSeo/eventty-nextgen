@@ -94,7 +94,7 @@ class AuthCodeControllerTest {
     @DisplayName("이메일 사용 가능 여부 검사 테스트")
     class Exists {
 
-        private static final String URL = BASE_URL + "/exists";
+        private static final String URL = BASE_URL + "/exists-email";
 
         @Test
         @DisplayName("DB에 이메일이 존재하지 않을 경우 이메일이 존재하지 않는다고 응답하다.")

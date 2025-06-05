@@ -1,14 +1,19 @@
 package com.eventty.eventtynextgen.auth.service;
 
+import static com.eventty.eventtynextgen.auth.constant.AuthConst.ACCESS_TOKEN_VALIDITY_IN_MIN;
+import static com.eventty.eventtynextgen.auth.constant.AuthConst.REFRESH_TOKEN_VALIDITY_IN_MIN;
+
 import com.eventty.eventtynextgen.auth.core.Authentication;
 import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenPayload;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.JwtTokenErrorType;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TokenServiceImpl implements SessionTokenService {
+public class SessionTokenServiceImpl implements SessionTokenService {
 
     private final RefreshTokenService refreshTokenService;
 
@@ -27,20 +32,26 @@ public class TokenServiceImpl implements SessionTokenService {
                 "Login Token의 발행은 인증·인가에 성공한 Authentcation 객체만 호출할 수 있습니다.");
         }
 
-        // TODO: Session 토큰 생성시 userId 추가
-        SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken();
+        SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(
+            authentication.getUserDetails().getUserId(),
+            ACCESS_TOKEN_VALIDITY_IN_MIN,
+            REFRESH_TOKEN_VALIDITY_IN_MIN
+        );
 
-        this.refreshTokenService.saveOrUpdate(sessionToken.getRefreshToken(), authentication.getUserDetails().getUserId());
+        this.refreshTokenService.saveOrUpdate(sessionToken.getRefreshToken(), authentication.getUserDetails().getUserId(), sessionToken.getRefreshTokenExpiredAt());
 
         return sessionToken;
     }
 
     @Override
     public SessionTokenInfo reissueTokenAndSaveRefresh(Long userId) {
+        SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(
+            userId,
+            ACCESS_TOKEN_VALIDITY_IN_MIN,
+            REFRESH_TOKEN_VALIDITY_IN_MIN
+        );
 
-        SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken();
-
-        this.refreshTokenService.saveOrUpdate(sessionToken.getRefreshToken(), userId);
+        this.refreshTokenService.saveOrUpdate(sessionToken.getRefreshToken(), userId, sessionToken.getRefreshTokenExpiredAt());
 
         return sessionToken;
     }
@@ -60,6 +71,11 @@ public class TokenServiceImpl implements SessionTokenService {
         if (!Objects.equals(refreshTokenFromDb.getRefreshToken(), refreshToken)) {
             throw CustomException.badRequest(AuthErrorType.MISMATCH_REFRESH_TOKEN);
         }
+
+        // 3. RefreshTokenFromDb의 만료 시간 확인
+        if (LocalDateTime.now().isAfter(refreshTokenFromDb.getExpiredAt())) {
+            throw CustomException.badRequest(JwtTokenErrorType.EXPIRED_TOKEN);
+        }
     }
 
     private void verifyAndHandleTokenException(String token) {
@@ -70,5 +86,12 @@ public class TokenServiceImpl implements SessionTokenService {
             case INVALID_SIGNATURE_TOKEN -> throw CustomException.badRequest(JwtTokenErrorType.FAILED_SIGNATURE_VALIDATION);
             case UNKNOWN_ERROR -> throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, JwtTokenErrorType.UNKNOWN_VERIFY_ERROR);
         }
+    }
+
+    @Override
+    public Long getUserIdFromExpiredAccess(String accessToken) {
+        AccessTokenPayload accessTokenPayload = JwtTokenProvider.retrievePayload(accessToken);
+
+        return accessTokenPayload.getUserId();
     }
 }
