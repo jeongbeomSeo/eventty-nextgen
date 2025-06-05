@@ -7,10 +7,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.auth.constant.AuthConst;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
 import com.eventty.eventtynextgen.auth.core.Authentication;
 import com.eventty.eventtynextgen.auth.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenService;
@@ -20,7 +18,6 @@ import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.JwtTokenErrorType;
 import java.time.LocalDateTime;
 import java.util.Date;
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -30,8 +27,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("TokenServiceImpl 단위 테스트")
-class TokenServiceImplTest {
+@DisplayName("SessionTokenServiceImpl 단위 테스트")
+class SessionTokenServiceImplTest {
     @Mock
     private RefreshTokenService refreshTokenService;
 
@@ -53,10 +50,10 @@ class TokenServiceImplTest {
 
             when(refreshTokenService.saveOrUpdate(any(String.class), any(Long.class), any(Date.class))).thenReturn(refreshToken);
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
             // when
-            SessionTokenInfo result = tokenService.issueTokenAndSaveRefresh(authorizedAuthentication);
+            SessionTokenInfo result = sessionTokenService.issueTokenAndSaveRefresh(authorizedAuthentication);
 
             // then
             assertThat(result.getAccessToken()).isNotBlank();
@@ -71,11 +68,11 @@ class TokenServiceImplTest {
 
             when(notAuthorizedAuthentication.isAuthorized()).thenReturn(false);
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                tokenService.issueTokenAndSaveRefresh(notAuthorizedAuthentication))
+                sessionTokenService.issueTokenAndSaveRefresh(notAuthorizedAuthentication))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -102,10 +99,10 @@ class TokenServiceImplTest {
             when(refreshTokenFromDb.getRefreshToken()).thenReturn(sessionToken.getRefreshToken());
             when(refreshTokenFromDb.getExpiredAt()).thenReturn(LocalDateTime.now().plusDays(7));
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
             // when & then
-            tokenService.verifyAndMatchRefresh(refreshToken, userId);
+            sessionTokenService.verifyAndMatchRefresh(refreshToken, userId);
         }
 
         @Test
@@ -118,11 +115,11 @@ class TokenServiceImplTest {
 
             doThrow(CustomException.class).when(refreshTokenService).getRefreshToken(userId);
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                tokenService.verifyAndMatchRefresh(refreshToken, userId))
+                sessionTokenService.verifyAndMatchRefresh(refreshToken, userId))
                 .isInstanceOf(CustomException.class);
         }
 
@@ -138,11 +135,11 @@ class TokenServiceImplTest {
             when(refreshTokenService.getRefreshToken(userId)).thenReturn(refreshTokenFromDb);
             when(refreshTokenFromDb.getRefreshToken()).thenReturn("wrong_refresh_token_value");
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                tokenService.verifyAndMatchRefresh(refreshToken, userId))
+                sessionTokenService.verifyAndMatchRefresh(refreshToken, userId))
                 .isInstanceOf(CustomException.class);
         }
 
@@ -154,11 +151,11 @@ class TokenServiceImplTest {
             String expiredRefreshToken = sessionToken.getRefreshToken();
             Long userId = 1L;
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                tokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
+                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -175,11 +172,11 @@ class TokenServiceImplTest {
             String expiredRefreshToken = "refresh_token";
             Long userId = 1L;
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            TokenServiceImpl sessionTokenService = new TokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                tokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
+                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -196,11 +193,11 @@ class TokenServiceImplTest {
             Long userId = 1L;
 
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                tokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
+                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -217,11 +214,11 @@ class TokenServiceImplTest {
             String expiredRefreshToken = "refresh_token";
             Long userId = 1L;
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            TokenServiceImpl sessionTokenService = new TokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                tokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
+                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -238,11 +235,11 @@ class TokenServiceImplTest {
             String expiredRefreshToken = "refresh_token";
             Long userId = 1L;
 
-            TokenServiceImpl tokenService = new TokenServiceImpl(refreshTokenService);
+            TokenServiceImpl sessionTokenService = new TokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                tokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
+                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;

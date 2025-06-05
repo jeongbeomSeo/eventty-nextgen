@@ -3,7 +3,6 @@ package com.eventty.eventtynextgen.auth.service;
 import static com.eventty.eventtynextgen.auth.constant.AuthConst.ACCESS_TOKEN_VALIDITY_IN_MIN;
 import static com.eventty.eventtynextgen.auth.constant.AuthConst.REFRESH_TOKEN_VALIDITY_IN_MIN;
 
-import com.eventty.eventtynextgen.auth.constant.AuthConst;
 import com.eventty.eventtynextgen.auth.core.Authentication;
 import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TokenServiceImpl implements SessionTokenService {
+public class SessionTokenServiceImpl implements SessionTokenService {
 
     private final RefreshTokenService refreshTokenService;
 
