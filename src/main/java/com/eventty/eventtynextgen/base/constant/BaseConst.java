@@ -9,5 +9,5 @@ public class BaseConst {
     public static final String APP_NAME_KEY = "AppName";
     public static final String ADMIN_EMAIL_KEY = "AdminEmail";
     public static final String API_ALLOW_KEY = "API_Allow";
-
+    public static final String JWT_TOKEN_TYPE = "Bearer";
 }

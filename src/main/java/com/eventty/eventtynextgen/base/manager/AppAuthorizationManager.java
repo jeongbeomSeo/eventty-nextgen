@@ -4,7 +4,7 @@ import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties;
 import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.AppPermission;
 import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,12 +20,12 @@ public class AppAuthorizationManager {
         Map<String, AppPermission> infoMap = authorizationApiProperties.getInfoMap();
 
         if (!this.containsAppName(appName)) {
-            throw CustomException.badRequest(CertificationErrorType.NOT_ALLOW_APP_NAME);
+            throw CustomException.badRequest(AuthErrorType.NOT_ALLOW_APP_NAME);
         }
 
         AppPermission appPermission = infoMap.get(appName);
         if (!appPermission.containsApiPermission(apiName)) {
-            throw CustomException.of(HttpStatus.valueOf(500), CertificationErrorType.NOT_REGISTERED_API_NAME);
+            throw CustomException.of(HttpStatus.valueOf(500), AuthErrorType.NOT_REGISTERED_API_NAME);
         }
 
         return appPermission.getAppPermissions().get(apiName);
@@ -35,7 +35,7 @@ public class AppAuthorizationManager {
         Map<String, AppPermission> infoMap = authorizationApiProperties.getInfoMap();
 
         if (!this.containsAppName(appName)) {
-            throw CustomException.badRequest(CertificationErrorType.NOT_ALLOW_APP_NAME);
+            throw CustomException.badRequest(AuthErrorType.NOT_ALLOW_APP_NAME);
         }
 
         return infoMap.get(appName).getAppPermissions();
