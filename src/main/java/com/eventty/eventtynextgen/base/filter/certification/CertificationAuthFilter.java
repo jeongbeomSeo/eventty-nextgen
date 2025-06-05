@@ -1,13 +1,10 @@
 package com.eventty.eventtynextgen.base.filter.certification;
 
-import com.eventty.eventtynextgen.base.enums.ApiName;
-import com.eventty.eventtynextgen.base.matcher.ApiNamePatternMatcher;
 import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties;
-import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContext;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
+import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,9 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
@@ -72,7 +67,7 @@ public class CertificationAuthFilter extends OncePerRequestFilter {
         if ("LOGIN".equalsIgnoreCase(permission)) {
             AuthorizationContext authorizationContext = AuthorizationContextHolder.getContext();
             if (!authorizationContext.validate()) {
-                throw CustomException.of(HttpStatus.FORBIDDEN, CertificationErrorType.AUTH_USER_NOT_AUTHORIZED);
+                throw CustomException.of(HttpStatus.FORBIDDEN, AuthErrorType.AUTH_USER_NOT_AUTHORIZED);
             }
         }
     }

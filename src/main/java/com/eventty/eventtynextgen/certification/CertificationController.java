@@ -1,21 +1,9 @@
 package com.eventty.eventtynextgen.certification;
 
-
-import com.eventty.eventtynextgen.base.annotation.LoginRequired;
 import com.eventty.eventtynextgen.certification.request.CertificationIssueCertificationTokenRequestCommand;
-import com.eventty.eventtynextgen.certification.request.CertificationLoginRequestCommand;
-import com.eventty.eventtynextgen.certification.request.CertificationReissueRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
-import com.eventty.eventtynextgen.certification.response.CertificationLoginResponseView;
-import com.eventty.eventtynextgen.certification.response.CertificationReissueAccessTokenResponseView;
 import com.eventty.eventtynextgen.certification.annotation.CertificationApiV1;
-import com.eventty.eventtynextgen.certification.shared.utils.CookieUtils;
-import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,52 +11,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @CertificationApiV1
 @RequiredArgsConstructor
-@Tag(name = "인증 관리 API", description = "사용자 인증을 위한 ID 유효성 검증 및 인증 코드 처리와 관련된 API")
+@Tag(name = "서비스 인증 관리 API", description = "플랫폼을 이용하는 서비스 인증을 위한 토큰 발급을 위한 API")
 public class CertificationController {
 
     private final CertificationService certificationService;
 
-    @PostMapping("/login")
-    @Operation(summary = "로그인 API")
-    public ResponseEntity<CertificationLoginResponseView> login(
-        @RequestBody @Valid CertificationLoginRequestCommand certificationLoginRequestCommand,
-        HttpServletResponse response) {
-        return ResponseEntity.ok(this.certificationService.login(
-            certificationLoginRequestCommand.loginId(),
-            certificationLoginRequestCommand.password(),
-            response));
-    }
-
-    @LoginRequired
-    @PostMapping("/logout")
-    @Operation(summary = "로그아웃 API")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
-        Long userId = AuthorizationContextHolder.getContext().getUserId();
-
-        certificationService.logout(userId, response);
-
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/reissue/access-token")
-    @Operation(summary = "토큰 재발급 요청")
-    public ResponseEntity<CertificationReissueAccessTokenResponseView> reissueAccessToken(
-        @RequestBody @Valid CertificationReissueRequestCommand certificationReissueRequestCommand,
-        HttpServletRequest request,
-        HttpServletResponse response) {
-        String refreshToken = CookieUtils.getCookie(CookieUtils.REFRESH_TOKEN_HEADER_NAME, request);
-
-        return ResponseEntity.ok(this.certificationService.reissueAccessToken(
-            certificationReissueRequestCommand.userId(),
-            certificationReissueRequestCommand.accessToken(),
-            refreshToken,
-            response
-        ));
-    }
-
+    // TODO: Request Body를 받는 것이 아닌, Request Param required true 를 통해서 받도록 API 스펙 수정
     @PostMapping("/issue/certification-token")
     public ResponseEntity<CertificationIssueCertificationTokenResponseView> issueCertificationToken(@RequestBody
-        CertificationIssueCertificationTokenRequestCommand certificationIssueCertificationTokenRequestCommand) {
+    CertificationIssueCertificationTokenRequestCommand certificationIssueCertificationTokenRequestCommand) {
         return ResponseEntity.ok(this.certificationService.issueCertificationToken(certificationIssueCertificationTokenRequestCommand.accessToken()));
     }
 }

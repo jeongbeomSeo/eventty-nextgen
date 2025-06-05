@@ -3,11 +3,10 @@ package com.eventty.eventtynextgen.base.provider;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.ADMIN_EMAIL_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.API_ALLOW_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.APP_NAME_KEY;
-import static com.eventty.eventtynextgen.certification.constant.CertificationConst.JWT_TOKEN_TYPE;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
 
 import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
-import com.eventty.eventtynextgen.certification.core.Authentication;
-import com.eventty.eventtynextgen.certification.core.GrantedAuthority;
+import com.eventty.eventtynextgen.auth.core.GrantedAuthority;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -22,48 +21,38 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Slf4j
-@Component
+@UtilityClass
 public class JwtTokenProvider {
 
-    private final String secretKey;
-    private final Long accessTokenValidityInMin;
-    private final Long refreshTokenValidityInMin;
-    private final Long certificationTokenValidityInMin = 120L;
+    private static final String secretKey = "d172e90745bcc237af59f500a4d6acded461842227719b69f493cbf29c6a7acc0cfd00ae2117f3d5be5787427ab390988b23bf0968214595e68c2b0613118af3";
+    private static final Long accessTokenValidityInMin = 120L * 60 * 1000;
+    private static final Long refreshTokenValidityInMin = 10080L * 60 * 1000;
+    private static final Long certificationTokenValidityInMin = 120L;
 
-    public JwtTokenProvider(
-        @Value("${key.jwt.secret-key}") String secretKey,
-        @Value("${key.jwt.access-token-validity-in-min}") Long accessTokenValidityInMin,
-        @Value("${key.jwt.refresh-token-validity-in-min}") Long refreshTokenValidityInMin) {
-        this.secretKey = secretKey;
-        this.accessTokenValidityInMin = accessTokenValidityInMin * 60 * 1000;
-        this.refreshTokenValidityInMin = refreshTokenValidityInMin * 60 * 1000;
-    }
-
-    public LoginTokensInfo createLoginTokens() {
+    // TODO: 인자로 Long Id, AccessTokenExpiredMin, RefreshTokenExpiredMin을 받아서 생성하기
+    public static SessionTokenInfo createSessionToken() {
         long now = new Date(System.currentTimeMillis()).getTime();
         Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMin);
         Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMin);
 
         String accessToken = Jwts.builder()
             .setExpiration(accessTokenExpiredAt)
-            .signWith(this.getSigningKey())
+            .signWith(getSigningKey())
             .compact();
 
         String refreshToken = Jwts.builder()
             .setExpiration(refreshTokenExpiredAt)
-            .signWith(this.getSigningKey())
+            .signWith(getSigningKey())
             .compact();
 
-        return new LoginTokensInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
+        return new SessionTokenInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
     }
 
-    public VerifyTokenResult verifyToken(String token) {
+    public static VerifyTokenResult verifyToken(String token) {
         try {
             Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -96,8 +85,8 @@ public class JwtTokenProvider {
     }
 
     // TODO: 삭제 예정
-    public AccessTokenPayload retrievePayload(String accessToken) {
-        Claims claims = this.parseClaims(accessToken);
+    public static AccessTokenPayload retrievePayload(String accessToken) {
+        Claims claims = parseClaims(accessToken);
 
         Long userId = 1L;
         String role = "USER_ROLE";
@@ -106,7 +95,7 @@ public class JwtTokenProvider {
         return new AccessTokenPayload(userId, role, appName);
     }
 
-    private Claims parseClaims(String accessToken) {
+    private static Claims parseClaims(String accessToken) {
         try {
             return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(accessToken)
                 .getBody();
@@ -115,7 +104,8 @@ public class JwtTokenProvider {
         }
     }
 
-    public CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions) {
+    // TODO: APP NAME, APP TOKEN, APP ALLOW, ADMIN_EMAIL, CertificationTokenExpiredMin 정보를 넣어주어 만드는 로직으로 수정
+    public static CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions) {
         long now = new Date(System.currentTimeMillis()).getTime();
         Map<String, Object> claims = Map.of(APP_NAME_KEY, appName,
             ADMIN_EMAIL_KEY, "jeongbeom4693@gmail.com",
@@ -124,18 +114,18 @@ public class JwtTokenProvider {
         String certificationToken = Jwts.builder()
             .addClaims(claims)
             .setExpiration(new Date(now + certificationTokenValidityInMin))
-            .signWith(this.getSigningKey())
+            .signWith(getSigningKey())
             .compact();
 
         return new CertificationTokenInfo(JWT_TOKEN_TYPE, certificationToken);
     }
 
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
+    private static SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
+    private static String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
         return authorities.stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
@@ -166,14 +156,14 @@ public class JwtTokenProvider {
     }
 
     @Getter
-    public static class LoginTokensInfo {
+    public static class SessionTokenInfo {
         private final String tokenType;
         private final String accessToken;
         private final Date accessTokenExpiredAt;
         private final String refreshToken;
         private final Date refreshTokenExpiredAt;
 
-        private LoginTokensInfo(String tokenType, String accessToken, Date accessTokenExpiredAt, String refreshToken, Date refreshTokenExpiredAt) {
+        private SessionTokenInfo(String tokenType, String accessToken, Date accessTokenExpiredAt, String refreshToken, Date refreshTokenExpiredAt) {
             this.tokenType = tokenType;
             this.accessToken = accessToken;
             this.accessTokenExpiredAt = accessTokenExpiredAt;
