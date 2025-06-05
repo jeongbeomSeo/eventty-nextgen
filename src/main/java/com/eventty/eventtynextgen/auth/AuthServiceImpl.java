@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
         // 2. 토큰 생성
         SessionTokenInfo sessionTokenInfo = this.sessionTokenService.issueTokenAndSaveRefresh(authenticate);
 
-        // 4. Refresh Token 헤더에 추가
+        // 3. Refresh Token 헤더에 추가
         CookieUtils.addRefreshToken(sessionTokenInfo.getRefreshToken(), response);
 
         return new AuthLoginResponseView(
@@ -49,14 +49,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public AuthReissueSessionTokenResponseView reissueSessionToken(Long userId, String accessToken, String refreshToken, HttpServletResponse response) {
-        // 1. Refresh 토큰 검증 & 토큰 일치 여부 확인
+    public AuthReissueSessionTokenResponseView reissueSessionToken(String accessToken, String refreshToken, HttpServletResponse response) {
+        // 1. 만료시간이 지난 accessToken으로부터 userId 가져오기
+        Long userId = this.sessionTokenService.getUserIdFromExpiredAccess(accessToken);
+
+        // 2. Refresh 토큰 검증 & 토큰 일치 여부 확인
         this.sessionTokenService.verifyAndMatchRefresh(refreshToken, userId);
 
-        // 2. 사용자가 존재하며 활성화 상태인지 확인
+        // 3. 사용자가 존재하며 활성화 상태인지 확인
         User user = this.authUserService.getActivatedUser(userId);
 
-        // 3. 토큰 재발급
+        // 4. 토큰 재발급
         SessionTokenInfo loginTokensInfo = this.sessionTokenService.reissueTokenAndSaveRefresh(user.getId());
 
         // 5. Refresh Token 헤더에 추가

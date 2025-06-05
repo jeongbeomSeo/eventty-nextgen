@@ -37,8 +37,14 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     @Override
     public User getActivatedUser(Long userId) {
-        return this.userComponent.getActivatedUserByUserId(userId)
+        User user = this.userComponent.getUserByUserId(userId)
             .orElseThrow(() -> CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+
+        if (user.isDeleted()) {
+            throw CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
+        }
+
+        return user;
     }
 
     @Override

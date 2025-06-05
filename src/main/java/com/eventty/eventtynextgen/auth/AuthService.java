@@ -10,5 +10,5 @@ public interface AuthService {
 
     void logout(Long userId, HttpServletResponse response);
 
-    AuthReissueSessionTokenResponseView reissueSessionToken(Long userId, String accessToken, String refreshToken, HttpServletResponse response);
+    AuthReissueSessionTokenResponseView reissueSessionToken(String accessToken, String refreshToken, HttpServletResponse response);
 }
