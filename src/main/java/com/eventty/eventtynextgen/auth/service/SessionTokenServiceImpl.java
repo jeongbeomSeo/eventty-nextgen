@@ -64,7 +64,7 @@ public class SessionTokenServiceImpl implements SessionTokenService {
     @Override
     public void verifyAndMatchRefresh(String refreshToken, Long userId) {
         // 1. Refresh 토큰 검증
-        this.verifyAndHandleTokenException(refreshToken);
+        verifyAndHandleTokenException(refreshToken);
 
         // 2. Refresh 토큰 값 일치 확인
         RefreshToken refreshTokenFromDb = this.refreshTokenService.getRefreshToken(userId);

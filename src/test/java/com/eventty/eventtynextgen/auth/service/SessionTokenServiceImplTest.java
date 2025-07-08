@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
@@ -13,7 +14,9 @@ import com.eventty.eventtynextgen.auth.core.Authentication;
 import com.eventty.eventtynextgen.auth.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
+import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.JwtTokenErrorType;
 import java.time.LocalDateTime;
@@ -23,6 +26,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
@@ -140,7 +144,12 @@ class SessionTokenServiceImplTest {
             // when & then
             assertThatThrownBy(() ->
                 sessionTokenService.verifyAndMatchRefresh(refreshToken, userId))
-                .isInstanceOf(CustomException.class);
+                .isInstanceOf(CustomException.class)
+                .satisfies(ex -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.valueOf(400));
+                    assertThat(customException.getErrorType()).isEqualTo(AuthErrorType.MISMATCH_REFRESH_TOKEN);
+                });
         }
 
         @Test
@@ -164,40 +173,43 @@ class SessionTokenServiceImplTest {
                 });
         }
 
-        // TODO: 현재로썬 방법이 없어서, 추후에 수정 예정
-/*        @Test
+        @Test
         @DisplayName("지원하지 않는 형태의 토큰이라면 토큰 검증에 실패하고 예외를 발생시킨다")
         void 지원하지_않는_형태의_토큰이라면_토큰_검증에_실패하고_예외를_발생시킨다() {
             // given
-            String expiredRefreshToken = "refresh_token";
+            String unsupportedRefreshToken = "refresh_token";
             Long userId = 1L;
 
-            TokenServiceImpl sessionTokenService = new TokenServiceImpl(refreshTokenService);
+            try(MockedStatic<JwtTokenProvider> jwtTokenProvider = mockStatic(JwtTokenProvider.class)) {
+                // when
+                jwtTokenProvider.when(() -> JwtTokenProvider.verifyToken(unsupportedRefreshToken)).thenReturn(VerifyTokenResult.UNSUPPORTED_TOKEN);
 
-            // when & then
-            assertThatThrownBy(() ->
-                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
-                .isInstanceOf(CustomException.class)
-                .satisfies(ex -> {
-                    CustomException customException = (CustomException) ex;
-                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.valueOf(400));
-                    assertThat(customException.getErrorType()).isEqualTo(JwtTokenErrorType.UNSUPPORTED_TOKEN);
-                });
-        }*/
+                SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
+
+                // then
+                assertThatThrownBy(() ->
+                    sessionTokenService.verifyAndMatchRefresh(unsupportedRefreshToken, userId))
+                    .isInstanceOf(CustomException.class)
+                    .satisfies(ex -> {
+                        CustomException customException = (CustomException) ex;
+                        assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.valueOf(400));
+                        assertThat(customException.getErrorType()).isEqualTo(JwtTokenErrorType.UNSUPPORTED_TOKEN);
+                    });
+            }
+        }
 
         @Test
         @DisplayName("올바르지 않은 포맷의 토큰이라면 토큰 검증에 실패하고 예외를 발생시킨다")
         void 올바르지_않은_포맷의_토큰이라면_토큰_검증에_실패하고_예외를_발생시킨다() {
             // given
-            String expiredRefreshToken = "refresh_token";
+            String wrongFormatRefreshToken = "refresh_token";
             Long userId = 1L;
-
 
             SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
             // when & then
             assertThatThrownBy(() ->
-                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
+                sessionTokenService.verifyAndMatchRefresh(wrongFormatRefreshToken, userId))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -206,47 +218,55 @@ class SessionTokenServiceImplTest {
                 });
         }
 
-        // TODO: 현재로썬 방법이 없어서, 추후에 수정 예정
-/*        @Test
+        @Test
         @DisplayName("토큰의 서명 검증에 실패한다면 예외를 발생시킨다")
         void 토큰의_서명_검증에_실패한다면_예외를_발생시킨다() {
             // given
-            String expiredRefreshToken = "refresh_token";
+            String failedSignatureRefreshToken = "refresh_token";
             Long userId = 1L;
 
-            TokenServiceImpl sessionTokenService = new TokenServiceImpl(refreshTokenService);
+            try(MockedStatic<JwtTokenProvider> jwtTokenProvider = mockStatic(JwtTokenProvider.class)) {
+                // when
+                jwtTokenProvider.when(() -> JwtTokenProvider.verifyToken(failedSignatureRefreshToken)).thenReturn(VerifyTokenResult.INVALID_SIGNATURE_TOKEN);
 
-            // when & then
-            assertThatThrownBy(() ->
-                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
-                .isInstanceOf(CustomException.class)
-                .satisfies(ex -> {
-                    CustomException customException = (CustomException) ex;
-                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.valueOf(400));
-                    assertThat(customException.getErrorType()).isEqualTo(JwtTokenErrorType.FAILED_SIGNATURE_VALIDATION);
-                });
-        }*/
+                SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
 
-        // TODO: 현재로썬 방법이 없어서, 추후에 수정 예정
-/*        @Test
+                // then
+                assertThatThrownBy(() ->
+                    sessionTokenService.verifyAndMatchRefresh(failedSignatureRefreshToken, userId))
+                    .isInstanceOf(CustomException.class)
+                    .satisfies(ex -> {
+                        CustomException customException = (CustomException) ex;
+                        assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.valueOf(400));
+                        assertThat(customException.getErrorType()).isEqualTo(JwtTokenErrorType.FAILED_SIGNATURE_VALIDATION);
+                    });
+            }
+        }
+
+        @Test
         @DisplayName("토큰 검증 과정에서 알 수 없는 예외가 발생한 경우 예외를 발생시킨다")
         void 토큰_검증_과정에서_알_수_없는_예외가_발생한_경우_예외를_발생시킨다() {
             // given
-            String expiredRefreshToken = "refresh_token";
+            String unknownRefreshToken = "refresh_token";
             Long userId = 1L;
 
-            TokenServiceImpl sessionTokenService = new TokenServiceImpl(refreshTokenService);
+            try(MockedStatic<JwtTokenProvider> jwtTokenProvider = mockStatic(JwtTokenProvider.class)) {
+                // when
+                jwtTokenProvider.when(() -> JwtTokenProvider.verifyToken(unknownRefreshToken)).thenReturn(VerifyTokenResult.UNKNOWN_ERROR);
 
-            // when & then
-            assertThatThrownBy(() ->
-                sessionTokenService.verifyAndMatchRefresh(expiredRefreshToken, userId))
-                .isInstanceOf(CustomException.class)
-                .satisfies(ex -> {
-                    CustomException customException = (CustomException) ex;
-                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.valueOf(500));
-                    assertThat(customException.getErrorType()).isEqualTo(JwtTokenErrorType.UNKNOWN_VERIFY_ERROR);
-                });
-        }*/
+                SessionTokenServiceImpl sessionTokenService = new SessionTokenServiceImpl(refreshTokenService);
+
+                // then
+                assertThatThrownBy(() ->
+                    sessionTokenService.verifyAndMatchRefresh(unknownRefreshToken, userId))
+                    .isInstanceOf(CustomException.class)
+                    .satisfies(ex -> {
+                        CustomException customException = (CustomException) ex;
+                        assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.valueOf(500));
+                        assertThat(customException.getErrorType()).isEqualTo(JwtTokenErrorType.UNKNOWN_VERIFY_ERROR);
+                    });
+            }
+        }
     }
 
 }

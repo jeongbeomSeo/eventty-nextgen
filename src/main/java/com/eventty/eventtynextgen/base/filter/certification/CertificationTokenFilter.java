@@ -34,7 +34,6 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(jwtAccessToken)) {
             try {
-
                 JwtTokenProvider.verifyToken(jwtAccessToken);
 
                 AccessTokenPayload payload = JwtTokenProvider.retrievePayload(jwtAccessToken);

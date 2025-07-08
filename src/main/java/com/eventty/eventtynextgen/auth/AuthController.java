@@ -50,13 +50,11 @@ public class AuthController {
     @Operation(summary = "토큰 재발급 요청")
     public ResponseEntity<AuthReissueSessionTokenResponseView> reissueSessionToken(
         @RequestBody @Valid AuthReissueSessionTokenRequestCommand authReissueSessionTokenRequestCommand,
-        HttpServletRequest request,
         HttpServletResponse response) {
-        String refreshToken = CookieUtils.getCookie(CookieUtils.REFRESH_TOKEN_HEADER_NAME, request);
 
         return ResponseEntity.ok(this.authService.reissueSessionToken(
             authReissueSessionTokenRequestCommand.accessToken(),
-            refreshToken,
+            authReissueSessionTokenRequestCommand.refreshToken(),
             response
         ));
     }

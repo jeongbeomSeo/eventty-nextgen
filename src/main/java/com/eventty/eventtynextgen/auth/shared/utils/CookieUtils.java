@@ -1,5 +1,6 @@
 package com.eventty.eventtynextgen.auth.shared.utils;
 
+import com.eventty.eventtynextgen.auth.constant.AuthConst;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.experimental.UtilityClass;
@@ -17,11 +18,10 @@ public class CookieUtils {
 
     public static void addRefreshToken(String refreshToken, HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_HEADER_NAME, refreshToken)
-            .httpOnly(true)
-            .secure(true)
             .path("/")
             .sameSite("Strict")
             .domain("localhost")
+            .maxAge(10080L * 60)
             .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -29,8 +29,6 @@ public class CookieUtils {
 
     public static void removeRefreshToken(HttpServletResponse response) {
         ResponseCookie removedRefreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_HEADER_NAME, "")
-            .httpOnly(true)
-            .secure(true)
             .path("/")
             .sameSite("Strict")
             .domain("localhost")
