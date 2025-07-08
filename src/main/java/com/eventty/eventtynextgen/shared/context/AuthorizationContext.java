@@ -9,15 +9,13 @@ public class AuthorizationContext {
 
     private Long userId;
     private String role;
-    private String appName;
 
     public AuthorizationContext() {
     }
 
-    public void updateContext(Long userId, String role, String appName) {
+    // TODO: Role + 사용자 정보 중 필요한 필드 추가 예정
+    public void updateContext(Long userId) {
         this.userId = userId;
-        this.role = role;
-        this.appName = appName;
     }
 
     public boolean validate() {

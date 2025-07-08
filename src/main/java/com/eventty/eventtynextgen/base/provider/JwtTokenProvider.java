@@ -1,8 +1,10 @@
 package com.eventty.eventtynextgen.base.provider;
 
+import static com.eventty.eventtynextgen.base.constant.BaseConst.*;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.ADMIN_EMAIL_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.API_ALLOW_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.APP_NAME_KEY;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_SECRET_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
 
 import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
@@ -28,18 +30,15 @@ import lombok.extern.slf4j.Slf4j;
 @UtilityClass
 public class JwtTokenProvider {
 
-    private static final String secretKey = "d172e90745bcc237af59f500a4d6acded461842227719b69f493cbf29c6a7acc0cfd00ae2117f3d5be5787427ab390988b23bf0968214595e68c2b0613118af3";
-    private static final Long accessTokenValidityInMin = 120L * 60 * 1000;
-    private static final Long refreshTokenValidityInMin = 10080L * 60 * 1000;
     private static final Long certificationTokenValidityInMin = 120L;
 
-    // TODO: 인자로 Long Id, AccessTokenExpiredMin, RefreshTokenExpiredMin을 받아서 생성하기
-    public static SessionTokenInfo createSessionToken() {
+    public static SessionTokenInfo createSessionToken(Long userId, Long accessTokenValidityInMin, Long refreshTokenValidityInMin) {
         long now = new Date(System.currentTimeMillis()).getTime();
         Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMin);
         Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMin);
 
         String accessToken = Jwts.builder()
+            .claim(JWT_CLAIM_USER_ID_KEY, userId)
             .setExpiration(accessTokenExpiredAt)
             .signWith(getSigningKey())
             .compact();
@@ -84,15 +83,12 @@ public class JwtTokenProvider {
         VERIFIED_TOKEN
     }
 
-    // TODO: 삭제 예정
     public static AccessTokenPayload retrievePayload(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
-        Long userId = 1L;
-        String role = "USER_ROLE";
-        String appName = "client-appname1";
+        Long userId = claims.get(JWT_CLAIM_USER_ID_KEY, Long.class);
 
-        return new AccessTokenPayload(userId, role, appName);
+        return new AccessTokenPayload(userId);
     }
 
     private static Claims parseClaims(String accessToken) {
@@ -121,7 +117,7 @@ public class JwtTokenProvider {
     }
 
     private static SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes = Decoders.BASE64.decode(JWT_SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -134,13 +130,9 @@ public class JwtTokenProvider {
     @Getter
     public static class AccessTokenPayload {
         private final Long userId;
-        private final String role;
-        private final String appName;
 
-        private AccessTokenPayload(Long userId, String role, String appName) {
+        private AccessTokenPayload(Long userId) {
             this.userId = userId;
-            this.role = role;
-            this.appName = appName;
         }
     }
 

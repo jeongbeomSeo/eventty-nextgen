@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,16 +29,21 @@ public class RefreshToken {
     @Column(nullable = false, unique = true)
     private Long userId;
 
+    @Column(nullable = false)
+    private LocalDateTime expiredAt;
+
     @Builder
-    private RefreshToken(String refreshToken, Long userId) {
+    private RefreshToken(String refreshToken, Long userId, LocalDateTime expiredAt) {
         this.refreshToken = refreshToken;
         this.userId = userId;
+        this.expiredAt = expiredAt;
     }
 
-    public static RefreshToken of(String refreshToken, Long userId) {
+    public static RefreshToken of(String refreshToken, Long userId, LocalDateTime expiredAt) {
         return RefreshToken.builder()
             .refreshToken(refreshToken)
             .userId(userId)
+            .expiredAt(expiredAt)
             .build();
     }
   

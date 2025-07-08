@@ -30,7 +30,7 @@ public class AuthCodeServiceImpl implements AuthCodeService {
 
     @Override
     public AuthCodeExistsEmailResponseView exists(String authTarget) {
-        return new AuthCodeExistsEmailResponseView(authTarget, this.userComponent.getActivatedUserByEmail(authTarget).isPresent());
+        return new AuthCodeExistsEmailResponseView(authTarget, this.userComponent.getUserByEmail(authTarget).filter(user -> !user.isDeleted()).isPresent());
     }
 
     @Override

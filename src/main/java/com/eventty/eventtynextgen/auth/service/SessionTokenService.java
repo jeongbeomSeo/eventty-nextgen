@@ -12,4 +12,6 @@ public interface SessionTokenService {
     void deleteRefresh(Long userId);
 
     void verifyAndMatchRefresh(String refreshToken, Long userId);
+
+    Long getUserIdFromExpiredAccess(String accessToken);
 }

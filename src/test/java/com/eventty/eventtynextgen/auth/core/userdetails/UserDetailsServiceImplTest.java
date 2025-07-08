@@ -34,7 +34,7 @@ class UserDetailsServiceImplTest {
             String loginId = "example@gmail.com";
             User userFromDb = Mockito.mock(User.class);
 
-            when(userComponent.getActivatedUserByEmail(loginId)).thenReturn(Optional.of(userFromDb));
+            when(userComponent.getUserByEmail(loginId)).thenReturn(Optional.of(userFromDb));
             when(userFromDb.getId()).thenReturn(1L);
             when(userFromDb.getEmail()).thenReturn(loginId);
             when(userFromDb.getPassword()).thenReturn("encoded_password");
@@ -58,7 +58,7 @@ class UserDetailsServiceImplTest {
             // given
             String loginId = "example@gmail.com";
 
-            when(userComponent.getActivatedUserByEmail(loginId)).thenReturn(Optional.empty());
+            when(userComponent.getUserByEmail(loginId)).thenReturn(Optional.empty());
 
             UserDetailsServiceImpl userDetailsService = new UserDetailsServiceImpl(userComponent);
 

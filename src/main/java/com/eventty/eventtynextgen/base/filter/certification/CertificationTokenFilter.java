@@ -28,20 +28,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class CertificationTokenFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String jwtAccessToken = this.parseJwtToken(request);
 
         if (StringUtils.hasText(jwtAccessToken)) {
             try {
+                JwtTokenProvider.verifyToken(jwtAccessToken);
 
-                this.jwtTokenProvider.verifyToken(jwtAccessToken);
+                AccessTokenPayload payload = JwtTokenProvider.retrievePayload(jwtAccessToken);
 
-                AccessTokenPayload payload = this.jwtTokenProvider.retrievePayload(jwtAccessToken);
-
-                AuthorizationContextHolder.getContext().updateContext(payload.getUserId(), payload.getRole(), payload.getAppName());
+                AuthorizationContextHolder.getContext().updateContext(payload.getUserId());
 
                 filterChain.doFilter(request, response);
             } catch (ExpiredJwtException ex) {

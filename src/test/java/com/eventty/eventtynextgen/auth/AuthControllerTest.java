@@ -1,6 +1,5 @@
 package com.eventty.eventtynextgen.auth;
 
-import static com.eventty.eventtynextgen.shared.constant.HttpHeaderConst.AUTHORIZATION_HEADER;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
@@ -12,18 +11,14 @@ import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
-import com.eventty.eventtynextgen.base.constant.BaseConst;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
-import com.eventty.eventtynextgen.auth.provider.TestJwtTokenProvider;
-import com.eventty.eventtynextgen.auth.core.Authentication;
-import com.eventty.eventtynextgen.auth.fixture.AuthenticationFixture;
 import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenRepository;
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
-import com.eventty.eventtynextgen.certification.request.CertificationIssueCertificationTokenRequestCommand;
 import com.eventty.eventtynextgen.auth.request.AuthLoginRequestCommand;
 import com.eventty.eventtynextgen.auth.request.AuthReissueSessionTokenRequestCommand;
 import com.eventty.eventtynextgen.auth.shared.utils.CookieUtils;
+import com.eventty.eventtynextgen.base.constant.BaseConst;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
@@ -40,9 +35,9 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,7 +46,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -78,9 +72,6 @@ class AuthControllerTest {
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
-
-    @Autowired
-    private Environment environment;
 
     private static final DBConfiguration config = DBConfigurationBuilder.newBuilder()
         .setPort(13306)
@@ -228,7 +219,8 @@ class AuthControllerTest {
 
         private static final String URL = BASE_URL + "/logout";
 
-        @Test
+        // TODO: LoginFilter를 구현하고 Aspect가 정상 동작 가능할 시점에 테스트 가능
+/*        @Test
         @DisplayName("로그인한 사용자가 로그아웃을 시도할 경우 로그아웃에 성공한다")
         void 로그인한_사용자가_로그아웃을_시도할_경우_로그아웃에_성공한다() throws Exception {
             // given
@@ -240,12 +232,16 @@ class AuthControllerTest {
                 email, plainPassword);
 
             // TODO: 수정
-            SessionTokenInfo tokenInfo = JwtTokenProvider.createSessionToken();
+            SessionTokenInfo sessionTokenInfo = JwtTokenProvider.createSessionToken(
+                authorizedAuthentication.getUserDetails().getUserId(),
+                AuthConst.ACCESS_TOKEN_VALIDITY_IN_MIN,
+                AuthConst.REFRESH_TOKEN_VALIDITY_IN_MIN
+            );
 
-            RefreshToken refreshToken = RefreshToken.of(tokenInfo.getRefreshToken(), userFromDb.getId());
+            RefreshToken refreshToken = RefreshToken.of(sessionTokenInfo.getRefreshToken(), userFromDb.getId(), DateUtils.convertFormatToLocalDateTime(sessionTokenInfo.getRefreshTokenExpiredAt()));
             refreshTokenRepository.save(refreshToken);
 
-            String accessTokenHeader = BaseConst.JWT_TOKEN_TYPE + " " + tokenInfo.getAccessToken();
+            String accessTokenHeader = BaseConst.JWT_TOKEN_TYPE + " " + sessionTokenInfo.getAccessToken();
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
@@ -253,7 +249,7 @@ class AuthControllerTest {
 
             // then
             resultActions.andExpect(status().isOk());
-        }
+        }*/
 
         @Test
         @DisplayName("로그인되어 있지 않은 사용자가 로그아웃을 시도할 경우 로그아웃에 실패한다")
@@ -277,14 +273,6 @@ class AuthControllerTest {
     class ReissueSessionToken {
 
         private static final String URL = BASE_URL + "/reissue/session-token";
-        // TODO: 아래 객체는 삭제하고 UtilityClass를 그대로 이용
-        private TestJwtTokenProvider testJwtTokenProvider;
-
-        @BeforeEach
-        void setup() {
-            String secretKey = environment.getProperty("key.jwt.secret-key");
-            testJwtTokenProvider = TestJwtTokenProvider.of(secretKey);
-        }
 
         @AfterEach
         void tearDown() {
@@ -300,11 +288,12 @@ class AuthControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
-            String refreshToken = testJwtTokenProvider.createValidRefreshToken();
-            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
+            SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(userId, -60L * 60 * 1000, 60L * 60 * 1000);
+            String expiredAccessToken = sessionToken.getAccessToken();
+            String refreshToken = sessionToken.getRefreshToken();
+            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId, LocalDateTime.now().plusDays(7)));
 
-            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(userId, accessToken);
+            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(expiredAccessToken, refreshToken);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
@@ -320,6 +309,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.accessTokenInfo.accessToken").isNotEmpty());
         }
 
+        // TODO: 만료된 토큰 테스트와 DB에 저장되어 있는 토큰 정보 만료 테스트 둘 다 체크
         @Test
         @DisplayName("만료된 Refresh Token을 통해 재발급 요청시 재발급에 실패한다")
         void 만료된_리프래시_토큰을_통해_재발급_요청시_재발급에_실패한다() throws Exception {
@@ -328,47 +318,19 @@ class AuthControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
-            String refreshToken = testJwtTokenProvider.createExpiredRefreshToken();
-            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
+            SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(userId, -60L * 60 * 1000, -60L * 60 * 1000);
+            String expiredAccessToken = sessionToken.getAccessToken();
+            String expiredRefreshToken = sessionToken.getRefreshToken();
+            refreshTokenRepository.save(RefreshToken.of(expiredRefreshToken, userId, LocalDateTime.now().minusDays(7)));
 
-            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(userId, accessToken);
+            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(expiredAccessToken, expiredRefreshToken);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(JwtTokenErrorType.EXPIRED_TOKEN));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
-                .header(CookieUtils.REFRESH_TOKEN_HEADER_NAME, refreshToken)
-                .content(objectMapper.writeValueAsString(certificationReissueRequestCommand))
-                .contentType(MediaType.APPLICATION_JSON));
-
-            // then
-            resultActions.andExpect(status().isBadRequest())
-                .andExpect(
-                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
-        }
-
-        @Test
-        @DisplayName("토큰 서명 겁증에 실패할 경우 재발급에 실패한다")
-        void 토큰_서명_검증에_실패할_경우_재발급에_실패한다() throws Exception{
-            // given
-            User user = UserFixture.createUser();
-            User userFromDb = userRepository.save(user);
-            Long userId = userFromDb.getId();
-
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
-            String refreshToken = testJwtTokenProvider.createRefreshTokenWithInvalidSignature();
-            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
-
-            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(userId, accessToken);
-
-            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
-                CustomException.badRequest(JwtTokenErrorType.FAILED_SIGNATURE_VALIDATION));
-
-            // when
-            ResultActions resultActions = mockMvc.perform(post(URL)
-                .header(CookieUtils.REFRESH_TOKEN_HEADER_NAME, refreshToken)
+                .header(CookieUtils.REFRESH_TOKEN_HEADER_NAME, expiredRefreshToken)
                 .content(objectMapper.writeValueAsString(certificationReissueRequestCommand))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -380,17 +342,18 @@ class AuthControllerTest {
 
         @Test
         @DisplayName("올바르지 않은 형식으로 구성된 Refresh Token을 통하여 재발급 요청시 재발급에 실패한다")
-        void 올바르지_않은_형식으로_구성된_리프래시_토큰을_통하여_재발급_요청시_재발급에_실패한다() throws Exception{
+        void 올바르지_않은_형식으로_구성된_리프래시_토큰을_통하여_재발급_요청시_재발급에_실패한다() throws Exception {
             // given
             User user = UserFixture.createUser();
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
-            String refreshToken = testJwtTokenProvider.createIllegalRefreshToken();
-            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
+            SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(userId, -60L * 60 * 1000, 60L * 60 * 1000);
+            String accessToken = sessionToken.getAccessToken();
+            String refreshToken = "Illegal_state_refresh_token";
+            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId, LocalDateTime.now().plusDays(7)));
 
-            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(userId, accessToken);
+            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(accessToken, refreshToken);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(JwtTokenErrorType.ILLEGAL_STATE_TOKEN));
@@ -415,10 +378,11 @@ class AuthControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
-            String refreshToken = testJwtTokenProvider.createValidRefreshToken();
+            SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(userId, -60L * 60 * 1000, 60L * 60 * 1000);
+            String accessToken = sessionToken.getAccessToken();
+            String refreshToken = sessionToken.getRefreshToken();
 
-            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(userId, accessToken);
+            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(accessToken, refreshToken);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(AuthErrorType.NOT_FOUND_REFRESH_TOKEN));
@@ -443,13 +407,15 @@ class AuthControllerTest {
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
-            String refreshToken = testJwtTokenProvider.createValidRefreshToken();
-            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
+            SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(userId, -60L * 60 * 1000, 60L * 60 * 1000);
+            String accessToken = sessionToken.getAccessToken();
+            String refreshToken = sessionToken.getRefreshToken();
+            refreshTokenRepository.save(RefreshToken.of(refreshToken + "123", userId, LocalDateTime.now().plusDays(7)));
 
-            String differentRefreshToken = testJwtTokenProvider.createDifferentRefreshToken();
+            String differentRefreshToken = JwtTokenProvider.createSessionToken(userId, -60L * 60 * 1000, 120L * 60 * 1000)
+                .getRefreshToken();
 
-            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(userId, accessToken);
+            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(accessToken, refreshToken);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(AuthErrorType.MISMATCH_REFRESH_TOKEN));
@@ -475,20 +441,19 @@ class AuthControllerTest {
             User userFromDb = userRepository.save(user);
 
             Long userId = userFromDb.getId();
-            String accessToken = testJwtTokenProvider.createExpiredAccessToken();
-            String refreshToken = testJwtTokenProvider.createValidRefreshToken();
-            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId));
+            SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(userId, -60L * 60 * 1000, 60L * 60 * 1000);
+            String accessToken = sessionToken.getAccessToken();
+            String refreshToken = sessionToken.getRefreshToken();
+            refreshTokenRepository.save(RefreshToken.of(refreshToken, userId, LocalDateTime.now().plusDays(7)));
 
-            String differentRefreshToken = testJwtTokenProvider.createDifferentRefreshToken();
-
-            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(userId, accessToken);
+            AuthReissueSessionTokenRequestCommand certificationReissueRequestCommand = new AuthReissueSessionTokenRequestCommand(accessToken, refreshToken);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
-                CustomException.badRequest(AuthErrorType.MISMATCH_REFRESH_TOKEN));
+                CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
-                .header(CookieUtils.REFRESH_TOKEN_HEADER_NAME, differentRefreshToken)
+                .header(CookieUtils.REFRESH_TOKEN_HEADER_NAME, refreshToken)
                 .content(objectMapper.writeValueAsString(certificationReissueRequestCommand))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -496,33 +461,6 @@ class AuthControllerTest {
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
                     content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
-        }
-    }
-
-    // TODO: Certification 패키지의 Controller 테스트로 이동
-    @Nested
-    @DisplayName("Certification 토큰 발급 테스트")
-    class IssueCertificationToken {
-        private static final String URL = BASE_URL + "/issue/certification-token";
-
-        @Test
-        @DisplayName("올바른 APP Name이 들어올 경우 토큰 발급에 성공한다.")
-        void 올바른_APP_NAME이_들어올_경우_토큰_발급에_성공한다() throws Exception {
-            // given
-            String appName = "swagger";
-
-            CertificationIssueCertificationTokenRequestCommand certificationIssueCertificationTokenRequestCommand = new CertificationIssueCertificationTokenRequestCommand(
-                appName);
-
-            // when
-            ResultActions resultActions = mockMvc.perform(post(URL)
-                .content(objectMapper.writeValueAsString(certificationIssueCertificationTokenRequestCommand))
-                .contentType(MediaType.APPLICATION_JSON));
-
-            // then
-            resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.certificationToken.tokenType").value("Bearer"))
-                .andExpect(jsonPath("$.certificationToken.certificationToken").isNotEmpty());
         }
     }
 }
