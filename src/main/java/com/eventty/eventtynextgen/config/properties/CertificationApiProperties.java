@@ -18,10 +18,6 @@ public class CertificationApiProperties {
     @Setter
     public static class ApiPermission {
         private Map<String, Permission> apiPermissions;
-
-        public boolean containsApiPermission(String apiName) {
-            return this.apiPermissions.containsKey(apiName);
-        }
     }
 
     @Getter

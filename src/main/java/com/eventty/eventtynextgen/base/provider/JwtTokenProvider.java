@@ -28,10 +28,10 @@ import org.springframework.boot.context.properties.bind.Nested;
 @UtilityClass
 public class JwtTokenProvider {
 
-    public static SessionTokenInfo createSessionToken(Long userId, Long accessTokenValidityInMin, Long refreshTokenValidityInMin) {
+    public static SessionTokenInfo createSessionToken(Long userId, Long accessTokenValidityInMS, Long refreshTokenValidityInMS) {
         long now = new Date(System.currentTimeMillis()).getTime();
-        Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMin);
-        Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMin);
+        Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMS);
+        Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMS);
 
         String accessToken = Jwts.builder()
             .claim(JWT_CLAIM_USER_ID_KEY, userId)
@@ -95,8 +95,7 @@ public class JwtTokenProvider {
         }
     }
 
-    public static CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions,
-        long certificationTokenValidityInMin) {
+    public static CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions, long certificationTokenValidityInMS) {
         long now = new Date(System.currentTimeMillis()).getTime();
         Map<String, Object> claims = Map.of(APP_NAME_KEY, appName,
             ADMIN_EMAIL_KEY, "jeongbeom4693@gmail.com",
@@ -104,7 +103,7 @@ public class JwtTokenProvider {
 
         String certificationToken = Jwts.builder()
             .addClaims(claims)
-            .setExpiration(new Date(now + certificationTokenValidityInMin))
+            .setExpiration(new Date(now + certificationTokenValidityInMS))
             .signWith(getSigningKey())
             .compact();
 
