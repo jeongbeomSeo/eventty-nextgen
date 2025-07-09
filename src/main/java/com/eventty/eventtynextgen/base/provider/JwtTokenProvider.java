@@ -22,6 +22,7 @@ import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.bind.Nested;
 
 @Slf4j
 @UtilityClass

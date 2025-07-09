@@ -7,9 +7,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Getter
-//@Setter // TODO: 확인
+@Setter
 @Component
-@ConfigurationProperties(prefix = "certifcation-secert")
+@ConfigurationProperties(prefix = "certification-secret")
 public class CertificationSecretProperties {
 
     private Map<String, String> certificationSecrets;

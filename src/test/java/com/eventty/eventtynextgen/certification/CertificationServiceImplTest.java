@@ -1,30 +1,25 @@
 package com.eventty.eventtynextgen.certification;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
-import com.eventty.eventtynextgen.certification.constant.CertificationConst;
-import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
-import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.ApiPermission;
 import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Map;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)

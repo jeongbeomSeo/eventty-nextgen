@@ -1,0 +1,10 @@
+certification:
+  infoMap:
+    client1:
+      api-permissions:
+        user: FREE
+        events: LOGIN
+        auth: OPTIONAL
+    client2:
+      api-permissions:
+        events: OPTIONAL
