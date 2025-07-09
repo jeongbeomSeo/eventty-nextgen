@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
+import com.eventty.eventtynextgen.certification.constant.CertificationConst;
 import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
 import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.ApiPermission;
 import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
@@ -51,12 +54,10 @@ class CertificationServiceImplTest {
             CertificationServiceImpl certificationService = new CertificationServiceImpl(certificationManager);
 
             // when
-            CertificationIssueCertificationTokenResponseView result = certificationService.issueCertificationToken(
-                appName, appSecret, response);
+            certificationService.issueCertificationToken(appName, appSecret, response);
 
             // then
-            assertThat(result.certificationToken().getCertificationToken()).isNotBlank();
-            assertThat(result.certificationToken().getTokenType()).isNotBlank();
+            verify(response, times(1)).addHeader(any(String.class), any(String.class));
         }
 
         @Test
@@ -75,12 +76,10 @@ class CertificationServiceImplTest {
             CertificationServiceImpl certificationService = new CertificationServiceImpl(certificationManager);
 
             // when
-            CertificationIssueCertificationTokenResponseView result = certificationService.issueCertificationToken(
-                appName, appSecret, response);
+            certificationService.issueCertificationToken(appName, appSecret, response);
 
             // then
-            assertThat(result.certificationToken().getCertificationToken()).isNotBlank();
-            assertThat(result.certificationToken().getTokenType()).isNotBlank();
+            verify(response, times(1)).addHeader(any(String.class), any(String.class));
         }
 
         @Test
