@@ -1,15 +1,9 @@
 package com.eventty.eventtynextgen.certification;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
-import com.eventty.eventtynextgen.certification.request.CertificationIssueCertificationTokenRequestCommand;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.sql.Connection;
@@ -17,16 +11,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -69,6 +60,7 @@ class CertificationControllerTest {
     @Nested
     @DisplayName("Certification 토큰 발급 테스트")
     class IssueCertificationToken {
+
         private static final String URL = BASE_URL + "/issue/certification-token";
 
     }

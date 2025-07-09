@@ -1,13 +1,13 @@
 package com.eventty.eventtynextgen.certification;
 
-import com.eventty.eventtynextgen.certification.request.CertificationIssueCertificationTokenRequestCommand;
-import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
 import com.eventty.eventtynextgen.certification.annotation.CertificationApiV1;
+import com.eventty.eventtynextgen.certification.response.CertificationIssueCertificationTokenResponseView;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @CertificationApiV1
 @RequiredArgsConstructor
@@ -17,9 +17,12 @@ public class CertificationController {
     private final CertificationService certificationService;
 
     // TODO: Request Body를 받는 것이 아닌, Request Param required true 를 통해서 받도록 API 스펙 수정
-    @PostMapping("/issue/certification-token")
-    public ResponseEntity<CertificationIssueCertificationTokenResponseView> issueCertificationToken(@RequestBody
-    CertificationIssueCertificationTokenRequestCommand certificationIssueCertificationTokenRequestCommand) {
-        return ResponseEntity.ok(this.certificationService.issueCertificationToken(certificationIssueCertificationTokenRequestCommand.accessToken()));
+    @GetMapping("/issue/certification-token")
+    public ResponseEntity<CertificationIssueCertificationTokenResponseView> issueCertificationToken(
+        @RequestParam(name = "appName") String appName,
+        @RequestParam(name = "appSecret") String appSecret,
+        HttpServletResponse response) {
+        // TODO: Cookie에 담아서 제공하는 형태로 진행하기.
+        return ResponseEntity.ok(this.certificationService.issueCertificationToken(appName, appSecret, response));
     }
 }

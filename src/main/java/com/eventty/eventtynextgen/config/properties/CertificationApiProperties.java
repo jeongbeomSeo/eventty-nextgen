@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.base.properties;
+package com.eventty.eventtynextgen.config.properties;
 
 import java.util.Map;
 import lombok.Getter;
@@ -9,18 +9,18 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "authorization")
-public class AuthorizationApiProperties {
+@ConfigurationProperties(prefix = "certification")
+public class CertificationApiProperties {
 
-    private Map<String, AppPermission> infoMap;
+    private Map<String, ApiPermission> infoMap;
 
     @Getter
     @Setter
-    public static class AppPermission {
-        private Map<String, Permission> appPermissions;
+    public static class ApiPermission {
+        private Map<String, Permission> apiPermissions;
 
         public boolean containsApiPermission(String apiName) {
-            return this.appPermissions.containsKey(apiName);
+            return this.apiPermissions.containsKey(apiName);
         }
     }
 

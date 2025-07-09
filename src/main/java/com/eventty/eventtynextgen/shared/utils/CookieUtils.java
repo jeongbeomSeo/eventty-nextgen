@@ -1,6 +1,5 @@
-package com.eventty.eventtynextgen.auth.shared.utils;
+package com.eventty.eventtynextgen.shared.utils;
 
-import com.eventty.eventtynextgen.auth.constant.AuthConst;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.experimental.UtilityClass;
@@ -16,25 +15,25 @@ public class CookieUtils {
         return request.getHeader(name);
     }
 
-    public static void addRefreshToken(String refreshToken, HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_HEADER_NAME, refreshToken)
+    public static void addLaxCookie(String name, String value, long maxAge, HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
             .path("/")
-            .sameSite("Strict")
+            .sameSite("Lax")
             .domain("localhost")
-            .maxAge(10080L * 60)
+            .maxAge(maxAge)
             .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
-    public static void removeRefreshToken(HttpServletResponse response) {
-        ResponseCookie removedRefreshTokenCookie = ResponseCookie.from(REFRESH_TOKEN_HEADER_NAME, "")
+    public static void removeLaxCookie(String name, HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from(name, "")
             .path("/")
-            .sameSite("Strict")
+            .sameSite("Lax")
             .domain("localhost")
             .maxAge(0)
             .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, removedRefreshTokenCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }
