@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.auth.service;
 
-import static com.eventty.eventtynextgen.auth.constant.AuthConst.ACCESS_TOKEN_VALIDITY_IN_MIN;
-import static com.eventty.eventtynextgen.auth.constant.AuthConst.REFRESH_TOKEN_VALIDITY_IN_MIN;
+import static com.eventty.eventtynextgen.auth.constant.AuthConst.ACCESS_TOKEN_VALIDITY_IN_MS;
+import static com.eventty.eventtynextgen.auth.constant.AuthConst.REFRESH_TOKEN_VALIDITY_IN_MS;
 
 import com.eventty.eventtynextgen.auth.core.Authentication;
 import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenService;
@@ -34,8 +34,8 @@ public class SessionTokenServiceImpl implements SessionTokenService {
 
         SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(
             authentication.getUserDetails().getUserId(),
-            ACCESS_TOKEN_VALIDITY_IN_MIN,
-            REFRESH_TOKEN_VALIDITY_IN_MIN
+            ACCESS_TOKEN_VALIDITY_IN_MS,
+            REFRESH_TOKEN_VALIDITY_IN_MS
         );
 
         this.refreshTokenService.saveOrUpdate(sessionToken.getRefreshToken(), authentication.getUserDetails().getUserId(), sessionToken.getRefreshTokenExpiredAt());
@@ -47,8 +47,8 @@ public class SessionTokenServiceImpl implements SessionTokenService {
     public SessionTokenInfo reissueTokenAndSaveRefresh(Long userId) {
         SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(
             userId,
-            ACCESS_TOKEN_VALIDITY_IN_MIN,
-            REFRESH_TOKEN_VALIDITY_IN_MIN
+            ACCESS_TOKEN_VALIDITY_IN_MS,
+            REFRESH_TOKEN_VALIDITY_IN_MS
         );
 
         this.refreshTokenService.saveOrUpdate(sessionToken.getRefreshToken(), userId, sessionToken.getRefreshTokenExpiredAt());

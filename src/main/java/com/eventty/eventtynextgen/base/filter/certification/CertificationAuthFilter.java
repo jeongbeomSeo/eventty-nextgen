@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.base.filter.certification;
 
-import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties;
+import com.eventty.eventtynextgen.config.properties.CertificationApiProperties;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContext;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
@@ -21,7 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class CertificationAuthFilter extends OncePerRequestFilter {
 
-    private final AuthorizationApiProperties authorizationApiProperties;
+    private final CertificationApiProperties authorizationApiProperties;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

@@ -25,7 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 @Order(-2)
 @RequiredArgsConstructor
-@Component
+//@Component
 public class CertificationTokenFilter extends OncePerRequestFilter {
 
     @Override

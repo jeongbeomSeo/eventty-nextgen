@@ -15,7 +15,7 @@ import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenRepository;
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
 import com.eventty.eventtynextgen.auth.request.AuthLoginRequestCommand;
 import com.eventty.eventtynextgen.auth.request.AuthReissueSessionTokenRequestCommand;
-import com.eventty.eventtynextgen.auth.shared.utils.CookieUtils;
+import com.eventty.eventtynextgen.shared.utils.CookieUtils;
 import com.eventty.eventtynextgen.base.constant.BaseConst;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;

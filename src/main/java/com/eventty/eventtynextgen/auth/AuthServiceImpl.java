@@ -1,11 +1,14 @@
 package com.eventty.eventtynextgen.auth;
 
+import static com.eventty.eventtynextgen.auth.constant.AuthConst.REFRESH_TOKEN_COOKIE_NAME;
+import static com.eventty.eventtynextgen.auth.constant.AuthConst.REFRESH_TOKEN_VALIDITY_IN_MS;
+
 import com.eventty.eventtynextgen.auth.core.Authentication;
 import com.eventty.eventtynextgen.auth.response.AuthLoginResponseView;
 import com.eventty.eventtynextgen.auth.response.AuthReissueSessionTokenResponseView;
 import com.eventty.eventtynextgen.auth.service.AuthUserService;
 import com.eventty.eventtynextgen.auth.service.SessionTokenService;
-import com.eventty.eventtynextgen.auth.shared.utils.CookieUtils;
+import com.eventty.eventtynextgen.shared.utils.CookieUtils;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
 import com.eventty.eventtynextgen.user.entity.User;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +35,7 @@ public class AuthServiceImpl implements AuthService {
         SessionTokenInfo sessionTokenInfo = this.sessionTokenService.issueTokenAndSaveRefresh(authenticate);
 
         // 3. Refresh Token 헤더에 추가
-        CookieUtils.addRefreshToken(sessionTokenInfo.getRefreshToken(), response);
+        CookieUtils.addLaxCookie(REFRESH_TOKEN_COOKIE_NAME, sessionTokenInfo.getRefreshToken(), REFRESH_TOKEN_VALIDITY_IN_MS / 1000, response);
 
         return new AuthLoginResponseView(
             authenticate.getUserDetails().getUserId(),
@@ -44,7 +47,7 @@ public class AuthServiceImpl implements AuthService {
     public void logout(Long userId, HttpServletResponse response) {
         this.sessionTokenService.deleteRefresh(userId);
 
-        CookieUtils.removeRefreshToken(response);
+        CookieUtils.removeLaxCookie(REFRESH_TOKEN_COOKIE_NAME, response);
     }
 
     @Override
@@ -60,13 +63,13 @@ public class AuthServiceImpl implements AuthService {
         User user = this.authUserService.getActivatedUser(userId);
 
         // 4. 토큰 재발급
-        SessionTokenInfo loginTokensInfo = this.sessionTokenService.reissueTokenAndSaveRefresh(user.getId());
+        SessionTokenInfo sessionTokenInfo = this.sessionTokenService.reissueTokenAndSaveRefresh(user.getId());
 
         // 5. Refresh Token 헤더에 추가
-        CookieUtils.addRefreshToken(loginTokensInfo.getRefreshToken(), response);
+        CookieUtils.addLaxCookie(REFRESH_TOKEN_COOKIE_NAME, sessionTokenInfo.getRefreshToken(), REFRESH_TOKEN_VALIDITY_IN_MS / 1000, response);
 
         return new AuthReissueSessionTokenResponseView(
             userId,
-            new AuthReissueSessionTokenResponseView.AccessTokenInfo(loginTokensInfo.getTokenType(), loginTokensInfo.getAccessToken()));
+            new AuthReissueSessionTokenResponseView.AccessTokenInfo(sessionTokenInfo.getTokenType(), sessionTokenInfo.getAccessToken()));
     }
 }

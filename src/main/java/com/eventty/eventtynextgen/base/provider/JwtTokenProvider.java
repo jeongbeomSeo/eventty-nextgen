@@ -1,14 +1,13 @@
 package com.eventty.eventtynextgen.base.provider;
 
-import static com.eventty.eventtynextgen.base.constant.BaseConst.*;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.ADMIN_EMAIL_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.API_ALLOW_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.APP_NAME_KEY;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_CLAIM_USER_ID_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_SECRET_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
 
-import com.eventty.eventtynextgen.base.properties.AuthorizationApiProperties.Permission;
-import com.eventty.eventtynextgen.auth.core.GrantedAuthority;
+import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -17,25 +16,22 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.bind.Nested;
 
 @Slf4j
 @UtilityClass
 public class JwtTokenProvider {
 
-    private static final Long certificationTokenValidityInMin = 120L;
-
-    public static SessionTokenInfo createSessionToken(Long userId, Long accessTokenValidityInMin, Long refreshTokenValidityInMin) {
+    public static SessionTokenInfo createSessionToken(Long userId, Long accessTokenValidityInMS, Long refreshTokenValidityInMS) {
         long now = new Date(System.currentTimeMillis()).getTime();
-        Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMin);
-        Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMin);
+        Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMS);
+        Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMS);
 
         String accessToken = Jwts.builder()
             .claim(JWT_CLAIM_USER_ID_KEY, userId)
@@ -59,8 +55,7 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token);
 
             return VerifyTokenResult.VERIFIED_TOKEN;
-        }
-        catch (ExpiredJwtException ex) {
+        } catch (ExpiredJwtException ex) {
             return VerifyTokenResult.EXPIRED_TOKEN;
         } catch (UnsupportedJwtException ex) {
             return VerifyTokenResult.UNSUPPORTED_TOKEN;
@@ -100,8 +95,7 @@ public class JwtTokenProvider {
         }
     }
 
-    // TODO: APP NAME, APP TOKEN, APP ALLOW, ADMIN_EMAIL, CertificationTokenExpiredMin 정보를 넣어주어 만드는 로직으로 수정
-    public static CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions) {
+    public static CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions, long certificationTokenValidityInMS) {
         long now = new Date(System.currentTimeMillis()).getTime();
         Map<String, Object> claims = Map.of(APP_NAME_KEY, appName,
             ADMIN_EMAIL_KEY, "jeongbeom4693@gmail.com",
@@ -109,7 +103,7 @@ public class JwtTokenProvider {
 
         String certificationToken = Jwts.builder()
             .addClaims(claims)
-            .setExpiration(new Date(now + certificationTokenValidityInMin))
+            .setExpiration(new Date(now + certificationTokenValidityInMS))
             .signWith(getSigningKey())
             .compact();
 
@@ -121,14 +115,9 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private static String convertAuthoritiesToPayload(Collection<? extends GrantedAuthority> authorities) {
-        return authorities.stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));
-    }
-
     @Getter
     public static class AccessTokenPayload {
+
         private final Long userId;
 
         private AccessTokenPayload(Long userId) {
@@ -138,6 +127,7 @@ public class JwtTokenProvider {
 
     @Getter
     public static class CertificationTokenInfo {
+
         private final String tokenType;
         private final String certificationToken;
 
@@ -149,6 +139,7 @@ public class JwtTokenProvider {
 
     @Getter
     public static class SessionTokenInfo {
+
         private final String tokenType;
         private final String accessToken;
         private final Date accessTokenExpiredAt;
