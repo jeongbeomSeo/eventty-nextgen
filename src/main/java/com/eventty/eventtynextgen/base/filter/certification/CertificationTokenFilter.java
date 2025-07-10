@@ -1,13 +1,14 @@
 package com.eventty.eventtynextgen.base.filter.certification;
 
+import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_CLAIM_USER_ID_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
-import static com.eventty.eventtynextgen.shared.constant.HttpHeaderConst.*;
+import static com.eventty.eventtynextgen.shared.constant.HttpHeaderConst.AUTHORIZATION_HEADER;
 
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenPayload;
 import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -36,9 +36,9 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
             try {
                 JwtTokenProvider.verifyToken(jwtAccessToken);
 
-                AccessTokenPayload payload = JwtTokenProvider.retrievePayload(jwtAccessToken);
+                Long userId = JwtTokenProvider.retrieveSessionTokenPayload(jwtAccessToken).getUserId();
 
-                AuthorizationContextHolder.getContext().updateContext(payload.getUserId());
+                AuthorizationContextHolder.getContext().updateContext(userId);
 
                 filterChain.doFilter(request, response);
             } catch (ExpiredJwtException ex) {

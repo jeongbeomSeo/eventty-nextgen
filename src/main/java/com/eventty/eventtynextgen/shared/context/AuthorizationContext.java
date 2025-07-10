@@ -11,6 +11,7 @@ public class AuthorizationContext {
     private String role;
 
     public AuthorizationContext() {
+
     }
 
     // TODO: Role + 사용자 정보 중 필요한 필드 추가 예정

@@ -7,8 +7,8 @@ import com.eventty.eventtynextgen.auth.core.Authentication;
 import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenPayload;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenPayload;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
@@ -89,9 +89,9 @@ public class SessionTokenServiceImpl implements SessionTokenService {
     }
 
     @Override
-    public Long getUserIdFromExpiredAccess(String accessToken) {
-        AccessTokenPayload accessTokenPayload = JwtTokenProvider.retrievePayload(accessToken);
+    public Long getUserIdFromExpiredAccess(String sessionToken) {
+        SessionTokenPayload sessionTokenPayload = JwtTokenProvider.retrieveSessionTokenPayload(sessionToken);
 
-        return accessTokenPayload.getUserId();
+        return sessionTokenPayload.getUserId();
     }
 }
