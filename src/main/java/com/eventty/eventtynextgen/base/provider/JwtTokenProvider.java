@@ -6,8 +6,11 @@ import static com.eventty.eventtynextgen.base.constant.BaseConst.APP_NAME_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_CLAIM_USER_ID_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_SECRET_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
 
 import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -19,10 +22,11 @@ import io.jsonwebtoken.security.SignatureException;
 import java.util.Date;
 import java.util.Map;
 import javax.crypto.SecretKey;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.bind.Nested;
 
 @Slf4j
 @UtilityClass
@@ -45,6 +49,20 @@ public class JwtTokenProvider {
             .compact();
 
         return new SessionTokenInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
+    }
+
+    public static SessionTokenPayload retrieveSessionTokenPayload(String sessionToken) {
+        Claims claims = parseClaims(sessionToken);
+
+        Long userId = claims.get(JWT_CLAIM_USER_ID_KEY, Long.class);
+
+        return new SessionTokenPayload(userId);
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class SessionTokenPayload {
+        private Long userId;
     }
 
     public static VerifyTokenResult verifyToken(String token) {
@@ -78,28 +96,20 @@ public class JwtTokenProvider {
         VERIFIED_TOKEN
     }
 
-    public static AccessTokenPayload retrievePayload(String accessToken) {
-        Claims claims = parseClaims(accessToken);
-
-        Long userId = claims.get(JWT_CLAIM_USER_ID_KEY, Long.class);
-
-        return new AccessTokenPayload(userId);
-    }
-
-    private static Claims parseClaims(String accessToken) {
+    private static Claims parseClaims(String jwtToken) {
         try {
-            return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(accessToken)
+            return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(jwtToken)
                 .getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
         }
     }
 
-    public static CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissions, long certificationTokenValidityInMS) {
+    public static CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissionMap, long certificationTokenValidityInMS) {
         long now = new Date(System.currentTimeMillis()).getTime();
         Map<String, Object> claims = Map.of(APP_NAME_KEY, appName,
             ADMIN_EMAIL_KEY, "jeongbeom4693@gmail.com",
-            API_ALLOW_KEY, apiPermissions);
+            API_ALLOW_KEY, apiPermissionMap);
 
         String certificationToken = Jwts.builder()
             .addClaims(claims)
@@ -110,48 +120,46 @@ public class JwtTokenProvider {
         return new CertificationTokenInfo(JWT_TOKEN_TYPE, certificationToken);
     }
 
+    public static CertificationTokenPayload retrieveCertificationToken(String certificationToken) {
+        Claims claims = parseClaims(certificationToken);
+
+        String appName = claims.get(APP_NAME_KEY, String.class);
+        String adminEmail = claims.get(ADMIN_EMAIL_KEY, String.class);
+
+        Object rawApiPermission = claims.get(API_ALLOW_KEY);
+        Map<String, Permission> apiPermissionMap = OBJECT_MAPPER.convertValue(rawApiPermission, new TypeReference<>() {});
+
+        return new CertificationTokenPayload(appName, apiPermissionMap, adminEmail);
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class CertificationTokenPayload {
+        private String appName;
+        private Map<String, Permission> apiPermissionMap;
+        private String adminEmail;
+    }
+
+
     private static SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(JWT_SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     @Getter
-    public static class AccessTokenPayload {
-
-        private final Long userId;
-
-        private AccessTokenPayload(Long userId) {
-            this.userId = userId;
-        }
-    }
-
-    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class CertificationTokenInfo {
-
         private final String tokenType;
         private final String certificationToken;
-
-        private CertificationTokenInfo(String tokenType, String certificationToken) {
-            this.tokenType = tokenType;
-            this.certificationToken = certificationToken;
-        }
     }
 
     @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class SessionTokenInfo {
-
         private final String tokenType;
         private final String accessToken;
         private final Date accessTokenExpiredAt;
         private final String refreshToken;
         private final Date refreshTokenExpiredAt;
-
-        private SessionTokenInfo(String tokenType, String accessToken, Date accessTokenExpiredAt, String refreshToken, Date refreshTokenExpiredAt) {
-            this.tokenType = tokenType;
-            this.accessToken = accessToken;
-            this.accessTokenExpiredAt = accessTokenExpiredAt;
-            this.refreshToken = refreshToken;
-            this.refreshTokenExpiredAt = refreshTokenExpiredAt;
-        }
     }
 }

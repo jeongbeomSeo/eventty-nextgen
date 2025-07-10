@@ -3,11 +3,15 @@ package com.eventty.eventtynextgen.base.constant;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BaseConst {
 
-    public static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public static final PathMatcher PATH_MATCHER = new AntPathMatcher();
     public static final String APP_NAME_KEY = "AppName";
     public static final String ADMIN_EMAIL_KEY = "AdminEmail";
     public static final String API_ALLOW_KEY = "API_Allow";

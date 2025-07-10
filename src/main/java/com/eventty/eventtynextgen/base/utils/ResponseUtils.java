@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.base.utils;
 
-import static com.eventty.eventtynextgen.base.constant.BaseConst.objectMapper;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
 
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
@@ -29,7 +29,7 @@ public class ResponseUtils {
 
         ErrorResponse errorResponse = ErrorResponse.of(errorType, ex.getMessage());
         try {
-            String json = objectMapper.writeValueAsString(errorResponse);
+            String json = OBJECT_MAPPER.writeValueAsString(errorResponse);
             response.getWriter().write(json);
         } catch (Throwable exception) {
             log.error("Error Response를 response에 담아주는 과정에서 예외가 발생했습니다. ex.msg: {}", exception.getMessage());
