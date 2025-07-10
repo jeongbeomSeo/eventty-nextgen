@@ -2,7 +2,6 @@ package com.eventty.eventtynextgen.base.aspect;
 
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
 import com.eventty.eventtynextgen.auth.authorization.enums.AuthorizationType;
-import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
 import java.util.Arrays;

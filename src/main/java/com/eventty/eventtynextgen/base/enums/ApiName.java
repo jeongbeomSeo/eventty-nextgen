@@ -7,13 +7,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ApiName {
 
-    // swagger
-    SWAGGER("/swagger-ui,/v3/api-docs"),
-    HEALTH("/health"),
+    USER("/api/v1/user"),
+    EVENT("/api/v1/event"),
 
-    // eventty
-    CERTIFICATION("/api/v1/certification"),
-    USER("api/v1/user");
+    // AUTH
+    AUTH_CODE("/api/v1/auth/code"),
+    AUTH_LOGIN("/api/v1/auth/login"),
+    AUTH("/api/v1/auth")
+    ;
 
     private final String pattern;
 }

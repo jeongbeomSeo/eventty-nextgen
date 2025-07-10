@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-@Order(-2)
+@Order(-3)
 @RequiredArgsConstructor
 @Component
 public class CertificationTokenFilter extends OncePerRequestFilter {

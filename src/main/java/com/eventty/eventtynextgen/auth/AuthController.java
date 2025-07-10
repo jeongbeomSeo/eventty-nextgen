@@ -7,7 +7,6 @@ import com.eventty.eventtynextgen.auth.request.AuthReissueSessionTokenRequestCom
 import com.eventty.eventtynextgen.auth.response.AuthLoginResponseView;
 import com.eventty.eventtynextgen.auth.response.AuthReissueSessionTokenResponseView;
 import com.eventty.eventtynextgen.auth.annotation.AuthApiV1;
-import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
