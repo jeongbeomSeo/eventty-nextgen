@@ -1,10 +1,8 @@
 package com.eventty.eventtynextgen.certification.component;
 
 import com.eventty.eventtynextgen.config.properties.CertificationApiProperties;
-import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import com.eventty.eventtynextgen.config.properties.CertificationSecretProperties;
-import java.util.Collections;
-import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -16,14 +14,11 @@ public class CertificationManager {
     private final CertificationApiProperties certificationApiProperties;
 
     public boolean hasAppName(String appName) {
-        return this.certificationSecretProperties.getCertificationSecrets().containsKey(appName) && this.certificationApiProperties.getInfoMap().containsKey(appName);
+        return this.certificationSecretProperties.getCertificationSecrets().containsKey(appName) && this.certificationApiProperties.getApiPermissionMap().containsKey(appName);
     }
 
-    public Map<String, Permission> findApiPermission(String appName) {
-        if (hasAppName(appName)) {
-            return this.certificationApiProperties.getInfoMap().get(appName).getApiPermissions();
-        }
-        return Collections.emptyMap();
+    public Set<String> findApiPermission(String appName) {
+        return this.certificationApiProperties.getApiPermissionMap().get(appName);
     }
 
     public boolean matchesSecretKey(String appName, String appSecret) {

@@ -6,12 +6,11 @@ import static com.eventty.eventtynextgen.certification.constant.CertificationCon
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
-import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.shared.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,14 +34,14 @@ public class CertificationServiceImpl implements CertificationService {
             throw CustomException.badRequest(CertificationErrorType.MISMATCH_SECRET_KEY);
         }
 
-        // 3. Api Allow List 가져오기
-        Map<String, Permission> apiPermissions = this.certificationManager.findApiPermission(appName);
-        if (apiPermissions.isEmpty()) {
+        // 3. Api Allow Set 가져오기
+        Set<String> apiPermission = this.certificationManager.findApiPermission(appName);
+        if (apiPermission.isEmpty()) {
             log.warn("appName의 API 호출 권한 리스트가 빈 상태로 발급되었습니다. appName: {}", appName);
         }
 
         // 4. Certification Token 발급
-        CertificationTokenInfo certificationToken = JwtTokenProvider.createCertificationToken(appName, apiPermissions, CERTIFICATION_TOKEN_VALIDITY_IN_MS);
+        CertificationTokenInfo certificationToken = JwtTokenProvider.createCertificationToken(appName, apiPermission, CERTIFICATION_TOKEN_VALIDITY_IN_MS);
 
         // 5. 생성한 토큰 쿠키에 담기
         CookieUtils.addLaxCookie(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken(), CERTIFICATION_TOKEN_VALIDITY_IN_MS / 1000,
