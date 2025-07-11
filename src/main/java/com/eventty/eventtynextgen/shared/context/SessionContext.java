@@ -9,7 +9,6 @@ public class SessionContext {
 
     private Long userId;
     private String role;
-    private boolean skipSessionCheck;
 
     public SessionContext() {}
 
@@ -20,9 +19,5 @@ public class SessionContext {
 
     public boolean validate() {
         return Objects.nonNull(this.userId) && StringUtils.hasText(role);
-    }
-
-    public void markSessionCheckAsSkipped() {
-        this.skipSessionCheck = true;
     }
 }

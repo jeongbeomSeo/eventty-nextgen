@@ -9,12 +9,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
-import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
-import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ class CertificationServiceImplTest {
             String appName = "client";
             String appSecret = "secretKey";
             HttpServletResponse response = mock(HttpServletResponse.class);
-            Map<String, Permission> apiPermissions = Map.of("user", Permission.OPTIONAL);
+            Set<String> apiPermissions = Set.of("user");
 
             when(certificationManager.hasAppName(appName)).thenReturn(true);
             when(certificationManager.matchesSecretKey(appName, appSecret)).thenReturn(true);
@@ -62,7 +61,7 @@ class CertificationServiceImplTest {
             String appName = "client";
             String appSecret = "secretKey";
             HttpServletResponse response = mock(HttpServletResponse.class);
-            Map<String, Permission> apiPermissions = Collections.emptyMap();
+            Set<String> apiPermissions = Collections.emptySet();
 
             when(certificationManager.hasAppName(appName)).thenReturn(true);
             when(certificationManager.matchesSecretKey(appName, appSecret)).thenReturn(true);

@@ -1,6 +1,5 @@
 package com.eventty.eventtynextgen.base.filter;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -10,10 +9,8 @@ import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
-import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
-import com.eventty.eventtynextgen.shared.context.SessionContext;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import jakarta.servlet.FilterChain;
@@ -21,7 +18,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,8 +43,8 @@ class ApiPermissionVerifiedFilterTest {
     }
 
     @Test
-    @DisplayName("API 호출 권한 검증을 SKIP 해야하는 경우 Skip Session Check를 마킹한 뒤 통과한다")
-    void API_호출_권한_검증을_SKIP_해야하는_경우_SKIP_SESSION_CHECK를_마킹한_뒤_통과한다() throws ServletException, IOException {
+    @DisplayName("API 호출 권한 검증을 SKIP 해야하는 경우 곧바로 다음 필터로 넘어간다")
+    void API_호출_권한_검증을_SKIP_해야하는_경우_곧바로_다음_필터로_넘어간다() throws ServletException, IOException {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -62,23 +59,20 @@ class ApiPermissionVerifiedFilterTest {
 
         // then
         verify(filterChain, times(1)).doFilter(request, response);
-
-        SessionContext sessionContext = SessionContextHolder.getContext();
-        assertThat(sessionContext.isSkipSessionCheck()).isTrue();
     }
 
     @Test
-    @DisplayName("모든 검증을 성공적으로 통과하고 권한이 FREE인 경우 세션 검증을 스킵하도록 마킹한다")
-    void 모든_검증을_성공적으로_통과하고_권한이_FREE인_경우_세션_검증을_통과하도록_마킹한다() throws ServletException, IOException {
+    @DisplayName("모든 검증을 성공적으로 통과하면 다음 필터로 넘어간다")
+    void 모든_검증을_성공적으로_통과하면_다음_필터로_넘어간다() throws ServletException, IOException {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
 
         CertificationContext context = CertificationContextHolder.getContext();
-        context.updateFromTokenClaims("client", Map.of("user", Permission.FREE), "adminEmail@gmail.com");
+        context.updateFromTokenClaims("client", Set.of("user"), "adminEmail@gmail.com");
         when(request.getRequestURI()).thenReturn("/api/v1/user");
-        when(certificationManager.findApiPermission(context.getAppName())).thenReturn(Map.of("user", Permission.FREE));
+        when(certificationManager.findApiPermission(context.getAppName())).thenReturn(Set.of("user"));
 
         ApiPermissionVerifiedFilter apiPermissionVerifiedFilter = new ApiPermissionVerifiedFilter(certificationManager, responseUtils);
 
@@ -87,59 +81,6 @@ class ApiPermissionVerifiedFilterTest {
 
         // then
         verify(filterChain, times(1)).doFilter(request, response);
-
-        SessionContext sessionContext = SessionContextHolder.getContext();
-        assertThat(sessionContext.isSkipSessionCheck()).isTrue();
-    }
-
-    @Test
-    @DisplayName("모든 검증을 성공적으로 통과하고 권한이 OPTIONAL인 경우 세션 검증을 스킵하도록 마킹한다")
-    void 모든_검증을_성공적으로_통과하고_권한이_OPTIONAL인_경우_세션_검증을_통과하도록_마킹한다() throws ServletException, IOException {
-        // given
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        FilterChain filterChain = mock(FilterChain.class);
-
-        CertificationContext context = CertificationContextHolder.getContext();
-        context.updateFromTokenClaims("client", Map.of("user", Permission.OPTIONAL), "adminEmail@gmail.com");
-        when(request.getRequestURI()).thenReturn("/api/v1/user");
-        when(certificationManager.findApiPermission(context.getAppName())).thenReturn(Map.of("user", Permission.OPTIONAL));
-
-        ApiPermissionVerifiedFilter apiPermissionVerifiedFilter = new ApiPermissionVerifiedFilter(certificationManager, responseUtils);
-
-        // when
-        apiPermissionVerifiedFilter.doFilterInternal(request, response, filterChain);
-
-        // then
-        verify(filterChain, times(1)).doFilter(request, response);
-
-        SessionContext sessionContext = SessionContextHolder.getContext();
-        assertThat(sessionContext.isSkipSessionCheck()).isTrue();
-    }
-
-    @Test
-    @DisplayName("모든 검증을 성공적으로 통과하고 권한이 LOGIN인 경우 세션 검증을 스킵하지 않도록 마킹하지 않는다")
-    void 모든_검증을_성공적으로_통과하고_권한이_LOGIN인_경우_세션_검증을_스킵하지_않도록_마킹하지_않는다() throws ServletException, IOException {
-        // given
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-        FilterChain filterChain = mock(FilterChain.class);
-
-        CertificationContext context = CertificationContextHolder.getContext();
-        context.updateFromTokenClaims("client", Map.of("user", Permission.LOGIN), "adminEmail@gmail.com");
-        when(request.getRequestURI()).thenReturn("/api/v1/user");
-        when(certificationManager.findApiPermission(context.getAppName())).thenReturn(Map.of("user", Permission.LOGIN));
-
-        ApiPermissionVerifiedFilter apiPermissionVerifiedFilter = new ApiPermissionVerifiedFilter(certificationManager, responseUtils);
-
-        // when
-        apiPermissionVerifiedFilter.doFilterInternal(request, response, filterChain);
-
-        // then
-        verify(filterChain, times(1)).doFilter(request, response);
-
-        SessionContext sessionContext = SessionContextHolder.getContext();
-        assertThat(sessionContext.isSkipSessionCheck()).isFalse();
     }
 
     @Test
@@ -173,7 +114,7 @@ class ApiPermissionVerifiedFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
 
         CertificationContext context = CertificationContextHolder.getContext();
-        context.updateFromTokenClaims("client", Map.of("user", Permission.FREE), "adminEmail@gmail.com");
+        context.updateFromTokenClaims("client", Set.of("user"), "adminEmail@gmail.com");
 
         when(request.getRequestURI()).thenReturn("/nothing-match-url");
         doNothing().when(responseUtils).writeErrorResponseToResponse(any(HttpServletResponse.class), any(CustomException.class));
@@ -196,7 +137,7 @@ class ApiPermissionVerifiedFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
 
         CertificationContext context = CertificationContextHolder.getContext();
-        context.updateFromTokenClaims("client", Map.of("auth", Permission.FREE), "adminEmail@gmail.com");
+        context.updateFromTokenClaims("client", Set.of("auth"), "adminEmail@gmail.com");
         when(request.getRequestURI()).thenReturn("/api/v1/user");
         doNothing().when(responseUtils).writeErrorResponseToResponse(any(HttpServletResponse.class), any(CustomException.class));
 
@@ -218,9 +159,9 @@ class ApiPermissionVerifiedFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
 
         CertificationContext context = CertificationContextHolder.getContext();
-        context.updateFromTokenClaims("client", Map.of("user", Permission.FREE), "adminEmail@gmail.com");
+        context.updateFromTokenClaims("client", Set.of("user"), "adminEmail@gmail.com");
         when(request.getRequestURI()).thenReturn("/api/v1/user");
-        when(certificationManager.findApiPermission(context.getAppName())).thenReturn(Map.of("auth", Permission.FREE));
+        when(certificationManager.findApiPermission(context.getAppName())).thenReturn(Set.of("auth"));
         doNothing().when(responseUtils).writeErrorResponseToResponse(any(HttpServletResponse.class), any(CustomException.class));
 
         ApiPermissionVerifiedFilter apiPermissionVerifiedFilter = new ApiPermissionVerifiedFilter(certificationManager, responseUtils);

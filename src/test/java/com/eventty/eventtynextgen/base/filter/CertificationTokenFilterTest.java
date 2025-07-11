@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
-import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
 import jakarta.servlet.FilterChain;
@@ -17,7 +16,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,8 +34,8 @@ class CertificationTokenFilterTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
 
-        Map<String, Permission> apiPermissionMap = Map.of("user", Permission.OPTIONAL);
-        CertificationTokenInfo tokenInfo = CertificationTokenFixture.createCertificationToken("client", apiPermissionMap);
+        Set<String> apiPermission = Set.of("user");
+        CertificationTokenInfo tokenInfo = CertificationTokenFixture.createCertificationToken("client", apiPermission);
         String rawToken = tokenInfo.getCertificationToken();
 
         when(request.getRequestURI()).thenReturn("/api/v1/user");
@@ -46,7 +45,7 @@ class CertificationTokenFilterTest {
             // doFilter() 직전에 Context 상태 확인
             CertificationContext context = CertificationContextHolder.getContext();
             assertThat(context.getAppName()).isEqualTo("client");
-            assertThat(context.getApiPermissionMap().get("user")).isEqualTo(Permission.OPTIONAL);
+            assertThat(context.getApiPermission().contains("user")).isEqualTo(true);
             assertThat(context.getAdminEmail()).isNotBlank();
             assertThat(context.isSkipCertificate()).isFalse();
             assertThat(context.getTokenParsingFailureReason()).isNull();
@@ -61,7 +60,7 @@ class CertificationTokenFilterTest {
 
         // then
         assertThat(CertificationContextHolder.getContext().getAppName()).isNull();
-        assertThat(CertificationContextHolder.getContext().getApiPermissionMap()).isNull();
+        assertThat(CertificationContextHolder.getContext().getApiPermission()).isNull();
         assertThat(CertificationContextHolder.getContext().getAdminEmail()).isNull();
     }
 
@@ -79,7 +78,7 @@ class CertificationTokenFilterTest {
             // doFilter() 직전에 Context 상태 확인
             CertificationContext context = CertificationContextHolder.getContext();
             assertThat(context.getAppName()).isNull();
-            assertThat(context.getApiPermissionMap()).isNull();
+            assertThat(context.getApiPermission()).isNull();
             assertThat(context.getAdminEmail()).isNull();
             assertThat(context.isSkipCertificate()).isTrue();
             assertThat(context.getTokenParsingFailureReason()).isNull();
@@ -94,7 +93,7 @@ class CertificationTokenFilterTest {
 
         // then
         assertThat(CertificationContextHolder.getContext().getAppName()).isNull();
-        assertThat(CertificationContextHolder.getContext().getApiPermissionMap()).isNull();
+        assertThat(CertificationContextHolder.getContext().getApiPermission()).isNull();
         assertThat(CertificationContextHolder.getContext().getAdminEmail()).isNull();
     }
 
@@ -113,7 +112,7 @@ class CertificationTokenFilterTest {
             // doFilter() 직전에 Context 상태 확인
             CertificationContext context = CertificationContextHolder.getContext();
             assertThat(context.getAppName()).isNull();
-            assertThat(context.getApiPermissionMap()).isNull();
+            assertThat(context.getApiPermission()).isNull();
             assertThat(context.getAdminEmail()).isNull();
             assertThat(context.isSkipCertificate()).isFalse();
             assertThat(context.getTokenParsingFailureReason()).isNull();
@@ -128,7 +127,7 @@ class CertificationTokenFilterTest {
 
         // then
         assertThat(CertificationContextHolder.getContext().getAppName()).isNull();
-        assertThat(CertificationContextHolder.getContext().getApiPermissionMap()).isNull();
+        assertThat(CertificationContextHolder.getContext().getApiPermission()).isNull();
         assertThat(CertificationContextHolder.getContext().getAdminEmail()).isNull();
     }
 
@@ -140,8 +139,8 @@ class CertificationTokenFilterTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
 
-        Map<String, Permission> apiPermissionMap = Map.of("user", Permission.OPTIONAL);
-        CertificationTokenInfo expiredToken = CertificationTokenFixture.createExpiredCertificationToken("client", apiPermissionMap);
+        Set<String> apiPermission = Set.of("user");
+        CertificationTokenInfo expiredToken = CertificationTokenFixture.createExpiredCertificationToken("client", apiPermission);
 
         when(request.getRequestURI()).thenReturn("/api/v1/user");
         when(request.getHeader(CERTIFICATION_TOKEN_COOKIE_NAME)).thenReturn(expiredToken.getCertificationToken());
@@ -150,7 +149,7 @@ class CertificationTokenFilterTest {
             // doFilter() 직전에 Context 상태 확인
             CertificationContext context = CertificationContextHolder.getContext();
             assertThat(context.getAppName()).isNull();
-            assertThat(context.getApiPermissionMap()).isNull();
+            assertThat(context.getApiPermission()).isNull();
             assertThat(context.getAdminEmail()).isNull();
             assertThat(context.isSkipCertificate()).isFalse();
             assertThat(context.getTokenParsingFailureReason()).isEqualTo(VerifyTokenResult.EXPIRED_TOKEN.name());
@@ -165,7 +164,7 @@ class CertificationTokenFilterTest {
 
         // then
         assertThat(CertificationContextHolder.getContext().getAppName()).isNull();
-        assertThat(CertificationContextHolder.getContext().getApiPermissionMap()).isNull();
+        assertThat(CertificationContextHolder.getContext().getApiPermission()).isNull();
         assertThat(CertificationContextHolder.getContext().getAdminEmail()).isNull();
     }
 }

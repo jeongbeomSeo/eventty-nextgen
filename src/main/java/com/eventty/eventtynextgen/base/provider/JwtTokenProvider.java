@@ -8,9 +8,7 @@ import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_SECRET_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
 
-import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -21,6 +19,7 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import javax.crypto.SecretKey;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -105,11 +104,11 @@ public class JwtTokenProvider {
         }
     }
 
-    public static CertificationTokenInfo createCertificationToken(String appName, Map<String, Permission> apiPermissionMap, long certificationTokenValidityInMS) {
+    public static CertificationTokenInfo createCertificationToken(String appName, Set<String> apiPermission, long certificationTokenValidityInMS) {
         long now = new Date(System.currentTimeMillis()).getTime();
         Map<String, Object> claims = Map.of(APP_NAME_KEY, appName,
             ADMIN_EMAIL_KEY, "jeongbeom4693@gmail.com",
-            API_ALLOW_KEY, apiPermissionMap);
+            API_ALLOW_KEY, apiPermission);
 
         String certificationToken = Jwts.builder()
             .addClaims(claims)
@@ -127,16 +126,16 @@ public class JwtTokenProvider {
         String adminEmail = claims.get(ADMIN_EMAIL_KEY, String.class);
 
         Object rawApiPermission = claims.get(API_ALLOW_KEY);
-        Map<String, Permission> apiPermissionMap = OBJECT_MAPPER.convertValue(rawApiPermission, new TypeReference<>() {});
+        Set<String> apiPermission = OBJECT_MAPPER.convertValue(rawApiPermission, new TypeReference<>() {});
 
-        return new CertificationTokenPayload(appName, apiPermissionMap, adminEmail);
+        return new CertificationTokenPayload(appName, apiPermission, adminEmail);
     }
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class CertificationTokenPayload {
         private String appName;
-        private Map<String, Permission> apiPermissionMap;
+        private Set<String> apiPermission;
         private String adminEmail;
     }
 

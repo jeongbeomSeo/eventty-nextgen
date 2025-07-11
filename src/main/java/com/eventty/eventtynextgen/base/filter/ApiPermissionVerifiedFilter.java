@@ -3,7 +3,6 @@ package com.eventty.eventtynextgen.base.filter;
 import com.eventty.eventtynextgen.base.enums.ApiName;
 import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
-import com.eventty.eventtynextgen.config.properties.CertificationApiProperties.Permission;
 import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
@@ -15,9 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -40,7 +39,6 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
         // 1. Context.isSkipCertificate 값이 true일 경우 다음 Filter로 넘긴다
         CertificationContext context = CertificationContextHolder.getContext();
         if (context.isSkipCertificate()) {
-            SessionContextHolder.getContext().markSessionCheckAsSkipped();
             filterChain.doFilter(request, response);
             return;
         }
@@ -66,11 +64,6 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 6. Permission을 확인하여 FREE, OPTIONAL인 경우 SessionContext의 SkipSessionCheck을 true로 마킹한다
-        if (shouldSkipSessionCheck(apiName, context.getApiPermissionMap())) {
-            SessionContextHolder.getContext().markSessionCheckAsSkipped();
-        }
-
         filterChain.doFilter(request, response);
     }
 
@@ -89,7 +82,7 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
     }
 
     private boolean isTokenPayloadUpdatedInContext(CertificationContext context) {
-        return StringUtils.hasText(context.getAppName()) && Objects.nonNull(context.getApiPermissionMap());
+        return StringUtils.hasText(context.getAppName()) && Objects.nonNull(context.getApiPermission());
     }
 
     private ApiName resolveApiName(String requestURI, HttpServletResponse response) {
@@ -108,10 +101,10 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
     }
 
     private boolean validateApiPermissionInToken(ApiName apiName, CertificationContext context, HttpServletResponse response) {
-        Map<String, Permission> apiPermissionByToken = context.getApiPermissionMap();
+        Set<String> apiPermissionByToken = context.getApiPermission();
         String key = apiName.name().toLowerCase();
 
-        if (!apiPermissionByToken.containsKey(key)) {
+        if (!apiPermissionByToken.contains(key)) {
             CustomException customException = CustomException.of(HttpStatus.FORBIDDEN, CertificationErrorType.NO_API_CALL_PERMISSION_IN_TOKEN);
             writeErrorResponse(customException, response);
             return false;
@@ -121,21 +114,16 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
     }
 
     private boolean validateApiPermissionByYaml(ApiName apiName, String appName, HttpServletResponse response) {
-        Map<String, Permission> apiPermissionByYaml = this.certificationManager.findApiPermission(appName);
+        Set<String> apiPermissionByYaml = this.certificationManager.findApiPermission(appName);
         String key = apiName.name().toLowerCase();
 
-        if (!apiPermissionByYaml.containsKey(key)) {
+        if (!apiPermissionByYaml.contains(key)) {
             CustomException customException = CustomException.of(HttpStatus.FORBIDDEN, CertificationErrorType.NO_API_CALL_PERMISSION_IN_YAML);
             writeErrorResponse(customException, response);
             return false;
         }
 
         return true;
-    }
-
-    public boolean shouldSkipSessionCheck(ApiName apiName, Map<String, Permission> apiPermissionMap) {
-        Permission permission = apiPermissionMap.get(apiName.name().toLowerCase());
-        return permission != Permission.LOGIN;
     }
 
     private void writeErrorResponse(CustomException customException, HttpServletResponse response) {

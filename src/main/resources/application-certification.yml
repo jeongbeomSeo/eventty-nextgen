@@ -1,13 +1,11 @@
 certification:
-  infoMap:
+  api-permission-map:
     client-app0:
-      api-permissions:
-        user: OPTIONAL
-        events: OPTIONAL
+      - user
+      - events
 
-        auth_code: FREE
-        auth_login: FREE
-        auth: LOGIN
+      - auth_code
+      - auth_login
+      - auth
     client-app1:
-      api-permissions:
-        events: OPTIONAL
+      - events

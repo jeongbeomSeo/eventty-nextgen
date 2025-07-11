@@ -28,7 +28,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class CertificationTokenFilter extends OncePerRequestFilter {
 
     private static final List<String> SKIP_PATTERNS = List.of(
-        "/swagger-ui", "/v3/api-docs", "/health", "/api/*/certification"
+        "/swagger-ui/**", "/v3/api-docs/**", "/health/**", "/api/*/certification/**"
     );
 
     @Override
@@ -70,7 +70,7 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
         CertificationTokenPayload payload = JwtTokenProvider.retrieveCertificationToken(token);
         context.updateFromTokenClaims(
             payload.getAppName(),
-            payload.getApiPermissionMap(),
+            payload.getApiPermission(),
             payload.getAdminEmail()
         );
     }

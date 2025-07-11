@@ -1,10 +1,8 @@
 certification:
-  infoMap:
+  api-permission-map:
     client1:
-      api-permissions:
-        user: FREE
-        events: LOGIN
-        auth: OPTIONAL
+      - user
+      - events
+      - auth
     client2:
-      api-permissions:
-        events: OPTIONAL
+      - events
