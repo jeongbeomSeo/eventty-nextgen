@@ -30,21 +30,25 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Order(-2)
 @RequiredArgsConstructor
 @Component
-public class CertificationApiPermissionFilter extends OncePerRequestFilter {
+public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
 
     private final CertificationManager certificationManager;
+    private final ResponseUtils responseUtils;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // 1. Context.isSkipCertificate 값z이 true일 경우 다음 Filter로 넘긴다
+        // 1. Context.isSkipCertificate 값이 true일 경우 다음 Filter로 넘긴다
         CertificationContext context = CertificationContextHolder.getContext();
         if (context.isSkipCertificate()) {
+            SessionContextHolder.getContext().markSessionCheckAsSkipped();
             filterChain.doFilter(request, response);
             return;
         }
 
         // 2. Context에 토큰을 파싱한 결과가 업데이트되어 있지 않은 경우 요청을 필터링하여 예외 메시지를 전달한다
-        if (!verifyTokenParsed(context, response)) return;
+        if (!verifyTokenParsed(context, response)) {
+            return;
+        }
 
         // 3. 요청의 PATH를 통해 APIName을 가져온다.
         ApiName apiName = resolveApiName(request.getRequestURI(), response);
@@ -52,23 +56,24 @@ public class CertificationApiPermissionFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 4. 1차 검증 - 요청의 PATH와 토큰의 Api Allow Map(Context)의 매칭 검사를 한다
+        // 4. 1차 검증 - Token의 API 호출 권한을 검사한다
         if (!validateApiPermissionInToken(apiName, context, response)) {
             return;
         }
 
-        // 5. 2차 검증 - 요청의 PATH와 설정 파일의 Api Allow의 매칭 검사를 한다
+        // 5. 2차 검증 - YAML의 API 호출 권한을 검사한다
         if (!validateApiPermissionByYaml(apiName, context.getAppName(), response)) {
             return;
         }
 
-        // 6. Permission을 확인하여 FREE, OPTIONAL인 경우 SessionContext의 SkipSession을 true로 마킹한다
+        // 6. Permission을 확인하여 FREE, OPTIONAL인 경우 SessionContext의 SkipSessionCheck을 true로 마킹한다
         if (shouldSkipSessionCheck(apiName, context.getApiPermissionMap())) {
             SessionContextHolder.getContext().markSessionCheckAsSkipped();
         }
 
         filterChain.doFilter(request, response);
     }
+
     private boolean verifyTokenParsed(CertificationContext context, HttpServletResponse response) {
         if (!isTokenPayloadUpdatedInContext(context)) {
             String tokenParsingFailureReason = context.getTokenParsingFailureReason();
@@ -101,6 +106,7 @@ public class CertificationApiPermissionFilter extends OncePerRequestFilter {
 
         return apiNameOpt.get();
     }
+
     private boolean validateApiPermissionInToken(ApiName apiName, CertificationContext context, HttpServletResponse response) {
         Map<String, Permission> apiPermissionByToken = context.getApiPermissionMap();
         String key = apiName.name().toLowerCase();
@@ -126,6 +132,7 @@ public class CertificationApiPermissionFilter extends OncePerRequestFilter {
 
         return true;
     }
+
     public boolean shouldSkipSessionCheck(ApiName apiName, Map<String, Permission> apiPermissionMap) {
         Permission permission = apiPermissionMap.get(apiName.name().toLowerCase());
         return permission != Permission.LOGIN;
@@ -138,6 +145,6 @@ public class CertificationApiPermissionFilter extends OncePerRequestFilter {
             customException.getErrorType().getMsg(),
             customException.getDetail());
 
-        ResponseUtils.writeErrorResponseToResponse(response, customException);
+        responseUtils.writeErrorResponseToResponse(response, customException);
     }
 }

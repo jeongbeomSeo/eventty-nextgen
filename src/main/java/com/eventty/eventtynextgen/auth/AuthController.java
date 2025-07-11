@@ -7,6 +7,7 @@ import com.eventty.eventtynextgen.auth.request.AuthReissueSessionTokenRequestCom
 import com.eventty.eventtynextgen.auth.response.AuthLoginResponseView;
 import com.eventty.eventtynextgen.auth.response.AuthReissueSessionTokenResponseView;
 import com.eventty.eventtynextgen.auth.annotation.AuthApiV1;
+import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,7 +37,7 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "로그아웃 API")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
-        Long userId = AuthorizationContextHolder.getContext().getUserId();
+        Long userId = SessionContextHolder.getContext().getUserId();
 
         authService.logout(userId, response);
 
