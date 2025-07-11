@@ -4,6 +4,10 @@ certification:
       api-permissions:
         user: OPTIONAL
         events: OPTIONAL
+
+        auth_code: FREE
+        auth_login: FREE
+        auth: LOGIN
     client-app1:
       api-permissions:
         events: OPTIONAL

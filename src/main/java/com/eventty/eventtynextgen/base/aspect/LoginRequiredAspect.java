@@ -2,7 +2,8 @@ package com.eventty.eventtynextgen.base.aspect;
 
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
 import com.eventty.eventtynextgen.auth.authorization.enums.AuthorizationType;
-import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
+import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
+import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
 import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
 import java.util.Arrays;
@@ -21,13 +22,13 @@ public class LoginRequiredAspect {
     @Before("@annotation(loginRequired)")
     public void checkAuthority(JoinPoint joinPoint, LoginRequired loginRequired) {
         if (loginRequired.loginRequired()) {
-            if (!AuthorizationContextHolder.getContext().validate()) {
+            if (!SessionContextHolder.getContext().validate()) {
                 throw CustomException.of(HttpStatus.FORBIDDEN, AuthErrorType.AUTH_USER_NOT_AUTHORIZED);
             }
 
             // API 호출 권한이 필요한 경우
             if (requiredRole(loginRequired)) {
-                Set<String> userRoles = Arrays.stream(AuthorizationContextHolder.getContext().getRole().split(","))
+                Set<String> userRoles = Arrays.stream(SessionContextHolder.getContext().getRole().split(","))
                     .map(String::trim)
                     .map(String::toUpperCase)
                     .collect(Collectors.toSet());

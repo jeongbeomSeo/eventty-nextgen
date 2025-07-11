@@ -1,15 +1,15 @@
 package com.eventty.eventtynextgen.config.provider;
 
-import com.eventty.eventtynextgen.shared.context.AuthorizationContext;
-import com.eventty.eventtynextgen.shared.context.AuthorizationContextHolder;
+import com.eventty.eventtynextgen.shared.context.SessionContext;
+import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
 import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;
 
-public class UserContextAuditorProvider implements AuditorAware<String> {
+public class SessionContextAuditorProvider implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        AuthorizationContext context = AuthorizationContextHolder.getContext();
+        SessionContext context = SessionContextHolder.getContext();
         String userId = null;
         if (context.getUserId() != null) {
             userId = context.getUserId().toString();

@@ -1,7 +1,10 @@
 package com.eventty.eventtynextgen.shared.context;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.util.Assert;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CertificationContextHolder {
 
     public static final ThreadLocal<CertificationContext> contextHolder = new ThreadLocal<>();
