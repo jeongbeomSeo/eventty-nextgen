@@ -1,8 +1,12 @@
 package com.eventty.eventtynextgen.base.filter;
 
 import static com.eventty.eventtynextgen.base.constant.BaseConst.*;
+import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.FAILED_TOKEN_VERIFIED;
+import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.ILLEGAL_STATE_JWT_TOKEN;
+import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.INVALID_SIGNATURE_JWT_TOKEN;
+import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.JWT_TOKEN_EXPIRED;
+import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.UNSUPPORTED_JWT_TOKEN;
 import static com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult.VERIFIED_TOKEN;
-import static com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType.*;
 
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
@@ -10,9 +14,9 @@ import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.context.SessionContext;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
-import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,8 +47,7 @@ public class SessionCheckFilter extends OncePerRequestFilter {
         String sessionToken = parseBearerToken(request);
 
         if (sessionToken == null) {
-            CustomException customException = CustomException.badRequest(LOGIN_REQUIRED_API);
-            responseUtils.writeErrorResponseToResponse(response, customException);
+            filterChain.doFilter(request, response);
             return;
         }
 

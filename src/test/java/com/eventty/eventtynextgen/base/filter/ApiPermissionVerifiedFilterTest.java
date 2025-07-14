@@ -12,7 +12,7 @@ import com.eventty.eventtynextgen.certification.component.CertificationManager;
 import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

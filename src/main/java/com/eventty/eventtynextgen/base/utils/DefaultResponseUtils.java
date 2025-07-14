@@ -2,9 +2,8 @@ package com.eventty.eventtynextgen.base.utils;
 
 import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
 
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
-import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
+import com.eventty.eventtynextgen.base.exception.ErrorResponse;
+import com.eventty.eventtynextgen.base.exception.enums.ErrorType;
 import jakarta.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import lombok.experimental.UtilityClass;
@@ -18,12 +17,12 @@ import org.springframework.web.server.ResponseStatusException;
 @UtilityClass
 public class DefaultResponseUtils {
 
-    public static void writeErrorResponseToResponse(HttpServletResponse response, HttpStatus status, Throwable ex, ErrorType errorType) {
+    public static void writeErrorResponseToResponse(HttpServletResponse response, HttpStatus status, ErrorType errorType, Object details) {
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        ErrorResponse errorResponse = ErrorResponse.of(errorType, ex.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.of(errorType, details);
         try {
             String json = OBJECT_MAPPER.writeValueAsString(errorResponse);
             response.getWriter().write(json);

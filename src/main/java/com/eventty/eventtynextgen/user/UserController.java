@@ -1,5 +1,7 @@
 package com.eventty.eventtynextgen.user;
 
+import com.eventty.eventtynextgen.base.annotation.LoginRequired;
+import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
 import com.eventty.eventtynextgen.user.request.UserChangePasswordRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
@@ -49,11 +51,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userSignupResponseView);
     }
 
+    @LoginRequired
     @PatchMapping
     @Operation(summary = "사용자 정보 수정 API")
     public ResponseEntity<UserUpdateResponseView> update(@RequestBody @Valid UserUpdateRequestCommand updateUserRequest) {
+        Long userId = SessionContextHolder.getContext().getUserId();
+
         UserUpdateResponseView userUpdateResponseView = this.userService.update(
-            updateUserRequest.id(),
+            userId,
             updateUserRequest.name(),
             updateUserRequest.phone(),
             updateUserRequest.birth());
@@ -61,9 +66,12 @@ public class UserController {
         return ResponseEntity.ok(userUpdateResponseView);
     }
 
+    @LoginRequired
     @DeleteMapping
     @Operation(summary = "사용자 삭제 API")
-    public ResponseEntity<UserDeleteResponseView> delete(@RequestParam(value = "user-id") Long userId) {
+    public ResponseEntity<UserDeleteResponseView> delete() {
+        Long userId = SessionContextHolder.getContext().getUserId();
+
         return ResponseEntity.ok(this.userService.delete(userId));
     }
 

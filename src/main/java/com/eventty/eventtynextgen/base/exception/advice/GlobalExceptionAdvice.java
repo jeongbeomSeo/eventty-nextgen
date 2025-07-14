@@ -1,11 +1,11 @@
-package com.eventty.eventtynextgen.shared.exception.advice;
+package com.eventty.eventtynextgen.base.exception.advice;
 
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
-import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
-import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
-import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseEntityFactory;
-import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.ErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
+import com.eventty.eventtynextgen.base.exception.factory.ErrorMsgFactory;
+import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
+import com.eventty.eventtynextgen.base.exception.ErrorResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(
+    protected ResponseEntity<ErrorResponse> handleValidationException(
         MethodArgumentNotValidException ex) {
         FieldError fieldError = ex.getBindingResult().getFieldError();
 
@@ -40,7 +41,7 @@ public class GlobalExceptionAdvice {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+    protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
         ConstraintViolation<?> violation = ex.getConstraintViolations().iterator().next();
         String field = violation.getPropertyPath().toString();
         String message = violation.getMessage();

@@ -4,7 +4,6 @@ import static com.eventty.eventtynextgen.base.constant.BaseConst.AUTHORIZATION_H
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,7 +15,6 @@ import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.context.SessionContext;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import jakarta.servlet.FilterChain;
@@ -42,15 +40,14 @@ class SessionCheckFilterTest {
     private ResponseUtils responseUtils;
 
     @Test
-    @DisplayName("Session Token이 존재하지 않는 경우 요청은 필터링된다.")
-    void Session_Token이_존재하지_않는_경우_요청은_필터링된다() throws ServletException, IOException {
+    @DisplayName("Session Token이 존재하지 않는 경우 요청은 넘어간다.")
+    void Session_Token이_존재하지_않는_경우_요청은_넘어간다() throws ServletException, IOException {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
 
         when(request.getHeader(AUTHORIZATION_HEADER)).thenReturn(null);
-        doNothing().when(responseUtils).writeErrorResponseToResponse(any(HttpServletResponse.class), any(CustomException.class));
 
         SessionCheckFilter sessionCheckFilter = new SessionCheckFilter(userComponent, responseUtils);
 
@@ -58,7 +55,7 @@ class SessionCheckFilterTest {
         sessionCheckFilter.doFilterInternal(request, response, filterChain);
 
         // then
-        verify(filterChain, times(0)).doFilter(request, response);
+        verify(filterChain, times(1)).doFilter(request, response);
     }
 
     @Test

@@ -7,7 +7,10 @@ import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_CLAIM_USER_
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_SECRET_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
+import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.*;
 
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -52,6 +55,9 @@ public class JwtTokenProvider {
 
     public static SessionTokenPayload retrieveSessionTokenPayload(String sessionToken) {
         Claims claims = parseClaims(sessionToken);
+        if (claims == null) {
+            throw CustomException.badRequest(FAIL_VERIFY_JWT_TOKEN);
+        }
 
         Long userId = claims.get(JWT_CLAIM_USER_ID_KEY, Long.class);
 
@@ -73,15 +79,19 @@ public class JwtTokenProvider {
 
             return VerifyTokenResult.VERIFIED_TOKEN;
         } catch (ExpiredJwtException ex) {
+            log.error("Verify token error. token: {}, msg: {}", token, ex.getMessage());
             return VerifyTokenResult.EXPIRED_TOKEN;
         } catch (UnsupportedJwtException ex) {
+            log.error("Verify token error. token: {}, msg: {}", token, ex.getMessage());
             return VerifyTokenResult.UNSUPPORTED_TOKEN;
         } catch (IllegalStateException | MalformedJwtException ex) {
+            log.error("Verify token error. token: {}, msg: {}", token, ex.getMessage());
             return VerifyTokenResult.ILLEGAL_STATE_TOKEN;
         } catch (SignatureException ex) {
+            log.error("Verify token error. token: {}, msg: {}", token, ex.getMessage());
             return VerifyTokenResult.INVALID_SIGNATURE_TOKEN;
         } catch (Exception ex) {
-            log.error("Token 검증 과정에서 예측하지 못한 예외가 발생했습니다.", ex);
+            log.error("Verify token error. token: {}, msg: {}", token, ex.getMessage());
             return VerifyTokenResult.UNKNOWN_ERROR;
         }
     }
@@ -101,6 +111,8 @@ public class JwtTokenProvider {
                 .getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -121,6 +133,10 @@ public class JwtTokenProvider {
 
     public static CertificationTokenPayload retrieveCertificationToken(String certificationToken) {
         Claims claims = parseClaims(certificationToken);
+
+        if (claims == null) {
+            throw CustomException.badRequest(FAIL_VERIFY_JWT_TOKEN);
+        }
 
         String appName = claims.get(APP_NAME_KEY, String.class);
         String adminEmail = claims.get(ADMIN_EMAIL_KEY, String.class);

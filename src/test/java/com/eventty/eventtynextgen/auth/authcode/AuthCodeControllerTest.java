@@ -1,5 +1,6 @@
 package com.eventty.eventtynextgen.auth.authcode;
 
+import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -18,6 +19,8 @@ import com.eventty.eventtynextgen.auth.authcode.request.AuthCodeValidateCodeRequ
 import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeExistsEmailResponseView;
 import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeSendCodeResponseView;
 import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeValidateCodeResponseView;
+import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
@@ -100,10 +103,12 @@ class AuthCodeControllerTest {
         @DisplayName("DB에 이메일이 존재하지 않을 경우 이메일이 존재하지 않는다고 응답하다.")
         void DB에_이메일이_존재하지_않을_경우_FALSE를_응답하다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String email = "NON_exist@naver.com";
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .param("email", email));
 
             // then
@@ -115,12 +120,14 @@ class AuthCodeControllerTest {
         @DisplayName("DB에 이메일이 존재할 경우 이메일이 존재한다고 응답한다.")
         void DB에_이메일이_존재할_경우_TRUE를_응답한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String email = "test@naver.com";
             User user = UserFixture.createUserByEmail(email);
             userRepository.save(user);
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .param("email", email));
 
             // then
@@ -139,11 +146,13 @@ class AuthCodeControllerTest {
         @DisplayName("인증 코드를 성공적으로 발송했다면, 사용자에게 메시지를 전달해준다.")
         void 인증_코드를_성공적으로_발생했다면_사용자에게_인증_코드를_전달해준다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String certTarget = "test@naver.com";
             AuthCodeSendCodeRequestCommand authCodeSendCodeRequestCommand = new AuthCodeSendCodeRequestCommand(certTarget);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(authCodeSendCodeRequestCommand))
                 .contentType(APPLICATION_JSON));
 
@@ -163,6 +172,7 @@ class AuthCodeControllerTest {
         @DisplayName("이메일과 인증 코드를 성공적으로 인증할 경우, 코드 인증에 성공했다는 응답을 전달해준다.")
         void 인증_코드를_성공적으로_인증할_경우_코드_인증에_성공했다는_응답을_전달해준다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String email = "email@naver.com";
             String code = "ABCDEF";
             int ttl = 10;
@@ -174,6 +184,7 @@ class AuthCodeControllerTest {
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(authCodeValidateCodeRequestCommand))
                 .contentType(APPLICATION_JSON));
 
@@ -186,6 +197,7 @@ class AuthCodeControllerTest {
         @DisplayName("만료 기간이 지난 인증 코드를 인증하려고 시도할 경우, 코드 인증에 실패했다는 응답을 전달한다.")
         void 만료_기간이_지난_인증_코드를_인증하려고_시도할_경우_실패했다는_응답을_전달한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String email = "email@naver.com";
             String code = "ABCDEF";
             int ttl = 0;
@@ -198,6 +210,7 @@ class AuthCodeControllerTest {
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(authCodeValidateCodeRequestCommand))
                 .contentType(APPLICATION_JSON));
 
@@ -210,12 +223,14 @@ class AuthCodeControllerTest {
         @DisplayName("이메일과 인증 코드를 찾을 수 없는 경우, 코드 인증에 실패했다는 응답을 전달한다.")
         void 인증_코드를_찾을_수_없는_경우_코드_인증에_실패했다는_응답을_전달한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String email = "email@naver.com";
             String code = "ABCDEF";
             AuthCodeValidateCodeRequestCommand authCodeValidateCodeRequestCommand = new AuthCodeValidateCodeRequestCommand(email, code);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(authCodeValidateCodeRequestCommand))
                 .contentType(APPLICATION_JSON));
 

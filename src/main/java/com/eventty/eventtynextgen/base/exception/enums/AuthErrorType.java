@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.shared.exception.enums;
+package com.eventty.eventtynextgen.base.exception.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,12 @@ public enum AuthErrorType implements ErrorType {
     AUTH_USER_NOT_ACTIVE("AUTH_USER_NOT_ACTIVE", "해당 유저는 활성화 상태가 아닙니다."),
 
     // JWT
+    FAIL_VERIFY_JWT_TOKEN("FAIL_VERIFY_JWT_TOKEN", "토큰 검증에 실패했습니다"),
     JWT_TOKEN_EXPIRED("JWT_TOKEN_EXPIRED", "토큰 인증 기간이 지났습니다. 재발급을 시도하세요"),
     UNSUPPORTED_JWT_TOKEN("UNSUPPORTED_JWT_TOKEN", "지원하지 않는 JWT 토큰 유형입니다."),
     FAILED_TOKEN_VERIFIED("FAILED_TOKEN_VERIFIED", "토큰 검증에 실패했습니다."),
     ILLEGAL_STATE_JWT_TOKEN("ILLEGAL_STATE_JWT_TOKEN", "올바르지 않은 상태의 JWT 토큰입니다."),
     INVALID_SIGNATURE_JWT_TOKEN("INVALID_SIGNATURE_JWT_TOKEN", "서명이 잘못된 JWT 토큰입니다."),
-
 
     // Authorization
     NOT_ALLOWED_AUTHORIZE_WITHOUT_AUTHENTICATION("NOT_ALLOWED_AUTHORIZE_WITHOUT_AUTHENTICATION", "인증되지 않은 사용자는 권한을 부여할 수 없습니다."),

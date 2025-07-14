@@ -9,11 +9,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LoginRequired {
 
-    boolean loginRequired() default true;
+    boolean requireLogin() default true;
 
-    boolean isAdmin() default false;
+    boolean requireAdmin() default false;
 
-    boolean isHost() default false;
+    boolean requireHost() default false;
 
-    boolean isUser() default false;
+    boolean requireUser() default false;
 }
