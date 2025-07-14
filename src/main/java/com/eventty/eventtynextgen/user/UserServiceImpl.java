@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.user;
 
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;

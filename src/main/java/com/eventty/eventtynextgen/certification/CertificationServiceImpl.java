@@ -6,8 +6,8 @@ import static com.eventty.eventtynextgen.certification.constant.CertificationCon
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.shared.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Set;

@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.user.entity.User;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;

@@ -1,8 +1,8 @@
-package com.eventty.eventtynextgen.shared.exception.factory;
+package com.eventty.eventtynextgen.base.exception.factory;
 
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
-import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
+import com.eventty.eventtynextgen.base.exception.enums.ErrorType;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.ErrorResponse;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 

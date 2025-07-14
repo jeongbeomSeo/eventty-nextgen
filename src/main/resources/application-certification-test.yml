@@ -3,6 +3,9 @@ certification:
     client1:
       - user
       - events
+
+      - auth_code
+      - auth_login
       - auth
     client2:
       - events

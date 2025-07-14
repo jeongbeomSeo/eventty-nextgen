@@ -2,8 +2,8 @@ package com.eventty.eventtynextgen.auth.refreshtoken;
 
 
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.shared.utils.DateUtils;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;

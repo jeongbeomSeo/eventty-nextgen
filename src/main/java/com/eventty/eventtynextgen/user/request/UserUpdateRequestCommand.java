@@ -7,9 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record UserUpdateRequestCommand(
-    @Schema(description = "사용자 PK")
-    @NotNull(message = "id값은 필수값입니다.")
-    Long id,
     @Schema(description = "변경할 이름")
     @NotBlank(message = "이름은 null이거나 빈 문자열일 수 없습니다.")
     String name,

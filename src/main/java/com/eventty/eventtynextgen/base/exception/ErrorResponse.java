@@ -1,6 +1,6 @@
-package com.eventty.eventtynextgen.shared.exception;
+package com.eventty.eventtynextgen.base.exception;
 
-import com.eventty.eventtynextgen.shared.exception.enums.ErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.ErrorType;
 import lombok.Getter;
 
 @Getter

@@ -10,8 +10,8 @@ import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeSendCodeRespons
 import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeValidateCodeResponseView;
 import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.AuthErrorType;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.shared.utils.CodeGeneratorUtil;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;

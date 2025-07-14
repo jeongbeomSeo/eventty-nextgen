@@ -1,5 +1,7 @@
 package com.eventty.eventtynextgen.user;
 
+import static com.eventty.eventtynextgen.base.constant.BaseConst.*;
+import static com.eventty.eventtynextgen.certification.constant.CertificationConst.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -12,12 +14,16 @@ import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.ErrorResponse;
-import com.eventty.eventtynextgen.shared.exception.enums.CommonErrorType;
-import com.eventty.eventtynextgen.shared.exception.enums.UserErrorType;
-import com.eventty.eventtynextgen.shared.exception.factory.ErrorMsgFactory;
-import com.eventty.eventtynextgen.shared.exception.factory.ErrorResponseEntityFactory;
+import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
+import com.eventty.eventtynextgen.base.fixture.SessionTokenFixture;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.ErrorResponse;
+import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.UserErrorType;
+import com.eventty.eventtynextgen.base.exception.factory.ErrorMsgFactory;
+import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
@@ -49,6 +55,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -112,10 +119,12 @@ public class UserControllerTest {
         @DisplayName("이메일이 존재하지 않는 경우 회원가입 요청은 `성공`한다.")
         void 이메일이_존재하지_않는_경우_회원가입_요청_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             UserSignUpRequestCommand signupRequest = SignupRequestFixture.successUserSignUpRequest(email);
 
             // when
             ResultActions resultActions = mockMvc.perform(post(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(signupRequest))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -129,15 +138,17 @@ public class UserControllerTest {
         @DisplayName("이메일이 존재하는 경우 회원가입 요청은 `실패하고 예외를 전달`한다.")
         void 이메일이_존재하는_경우_회원가입_요청_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             UserSignUpRequestCommand signupRequest = SignupRequestFixture.successUserSignUpRequest(email);
             User user = UserFixture.createUserByEmail(email);
-            User userFromDb = userRepository.save(user);
+            userRepository.save(user);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.EMAIL_ALREADY_EXISTS));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(signupRequest))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -151,16 +162,18 @@ public class UserControllerTest {
         @DisplayName("이미 삭제되어 있는 계정이 존재할 경우 회원가입 요청은 `실패하고 예외를 전달`한다.")
         void 이미_삭제되어_있는_계정이_존재할_경우_요청에_실패하고_예외를_전달한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             UserSignUpRequestCommand signupRequest = SignupRequestFixture.successUserSignUpRequest(email);
             User user = UserFixture.createUserByEmail(email);
             user.updateDeleteStatus(UserStatus.DELETED);
-            User userFromDb = userRepository.save(user);
+            userRepository.save(user);
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
 
             // when
             ResultActions resultActions = mockMvc.perform(post(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(signupRequest))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -180,10 +193,12 @@ public class UserControllerTest {
             void 회원가입_입력값_유효성_검증에_통과한다(String fixtureName, UserSignUpRequestCommand request)
                 throws Exception {
                 // given
+                CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
 
                 // when
                 ResultActions resultActions = mockMvc.perform(
                     post(BASE_URL)
+                        .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON));
 
@@ -199,6 +214,7 @@ public class UserControllerTest {
             void 회원가입_입력값_이메일_검증으로_인해_요청은_실패한다(String fixture, UserSignUpRequestCommand request)
                 throws Exception {
                 // given
+                CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
                 ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
                     "email",
                     "이메일은 '@'와 '.'가 포함되어 있어야 합니다.");
@@ -206,6 +222,7 @@ public class UserControllerTest {
                 // when
                 ResultActions resultActions = mockMvc.perform(
                     post(BASE_URL)
+                        .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                 );
@@ -223,6 +240,7 @@ public class UserControllerTest {
             void 회원가입_입력값_패스워드_검증으로_인해_요청은_실패한다(String fixture, UserSignUpRequestCommand request)
                 throws Exception {
                 // given
+                CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
                 ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
                     "password",
                     "패스워드는 8자 이상 16자 이하여야 합니다.");
@@ -230,6 +248,7 @@ public class UserControllerTest {
                 // when
                 ResultActions resultActions = mockMvc.perform(
                     post(BASE_URL)
+                        .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                 );
@@ -247,6 +266,7 @@ public class UserControllerTest {
             void 회원가입_입력값_이름_검증으로_인해_요청은_실패한다(String fixture, UserSignUpRequestCommand request)
                 throws Exception {
                 // given
+                CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
                 ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
                     "name",
                     "이름은 null이거나 빈 문자열일 수 없습니다.");
@@ -254,6 +274,7 @@ public class UserControllerTest {
                 // when
                 ResultActions resultActions = mockMvc.perform(
                     post(BASE_URL)
+                        .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                 );
@@ -269,6 +290,7 @@ public class UserControllerTest {
             @DisplayName("request validation - 핸드폰 번호 포맷이 유효하지 않은 요청은 클라이언트에게 실패한 이유가 제공 되어야 한다.")
             void 회원가입_입력값_핸드폰_번호_검증으로_인해_요청은_실패한다() throws Exception {
                 // given
+                CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
                 UserSignUpRequestCommand request = SignupRequestFixture.invalidPhoneNumberRequest(email);
 
                 ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
@@ -278,6 +300,7 @@ public class UserControllerTest {
                 // when
                 ResultActions resultActions = mockMvc.perform(
                     post(BASE_URL)
+                        .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                 );
@@ -293,6 +316,7 @@ public class UserControllerTest {
             @DisplayName("request validation - 생년월일 포맷이 유효하지 않은 요청은 클라이언트에게 `실패한 이유가 제공` 되어야 한다.")
             void 회원가입_입력값_생년월일_검증에_실패한다() throws Exception {
                 // given
+                CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
                 UserSignUpRequestCommand request = SignupRequestFixture.invalidBirthdateFormatRequest(email);
 
                 ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
@@ -302,6 +326,7 @@ public class UserControllerTest {
                 // when
                 ResultActions resultActions = mockMvc.perform(
                     post(BASE_URL)
+                        .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                 );
@@ -317,6 +342,7 @@ public class UserControllerTest {
             @DisplayName("request validation - 사용자 역할이 올바르지 않은 요청은 클라이언트에게 `실패한 이유가 제공` 되어야 한다.")
             void 회원가입_입력값_사용자역할_검증에_실패한다() throws Exception {
                 // given
+                CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
                 UserSignUpRequestCommand request = SignupRequestFixture.invalidUserRoleRequest(email);
 
                 ResponseEntity<ErrorResponse> responseEntity = getErrorResponseResponseEntity(
@@ -326,6 +352,7 @@ public class UserControllerTest {
                 // when
                 ResultActions resultActions = mockMvc.perform(
                     post(BASE_URL)
+                        .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                 );
@@ -393,13 +420,17 @@ public class UserControllerTest {
         @DisplayName("삭제되어 있지 않는 회원 수정 요청은 `성공`한다.")
         void 삭제되어_있지_않는_회원_수정_요청은_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             User user = UserFixture.createUser();
             User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest(userFromDb.getId());
+            UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest();
 
             // when
             ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .content(objectMapper.writeValueAsString(successUpdateRequest))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -412,21 +443,23 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("존재하지 않은 회원의 수정 요청은 `실패`한다.")
-        void 존재하지_않는_회원의_수정_요청은_실패한다() throws Exception {
+        @DisplayName("로그인하지 않은 유저의 수정 요청은 `실패`한다.")
+        void 로그인하지_않은_유저의_수정_요청은_실패한다() throws Exception {
             // given
-            UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest(1L);
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest();
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+                CustomException.of(HttpStatus.FORBIDDEN, AuthErrorType.LOGIN_REQUIRED_API));
 
             // when
             ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(successUpdateRequest))
                 .contentType(MediaType.APPLICATION_JSON));
 
             // then
-            resultActions.andExpect(status().isNotFound())
+            resultActions.andExpect(status().isForbidden())
                 .andExpect(
                     content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
@@ -435,23 +468,26 @@ public class UserControllerTest {
         @DisplayName("이미 삭제된 회원 수정 요청은 `실패`한다.")
         void 삭제된_회원_수정_요청은_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             User user = UserFixture.createUser();
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
-            UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest(userFromDb.getId());
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+            UserUpdateRequestCommand successUpdateRequest = UpdateRequestFixture.createSuccessUpdateRequest();
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
 
             // when
             ResultActions resultActions = mockMvc.perform(patch(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .content(objectMapper.writeValueAsString(successUpdateRequest))
                 .contentType(MediaType.APPLICATION_JSON));
 
             // then
             resultActions.andExpect(status().isBadRequest())
-                .andExpect(
-                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
     }
 
@@ -463,11 +499,16 @@ public class UserControllerTest {
         @DisplayName("삭제되지 않은 회원의 삭제 요청은 `성공`한다.")
         void 삭제되지_않은_회원의_삭제_요청은_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             User user = UserFixture.createUser();
             User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
 
             // when
             ResultActions resultActions = mockMvc.perform(delete(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .param("user-id", String.valueOf(userFromDb.getId())));
 
             // then
@@ -476,18 +517,20 @@ public class UserControllerTest {
         }
 
         @Test
-        @DisplayName("존재하지 않는 회원의 삭제 요청은 `실패`한다.")
-        void 존재하지_않는_회원_삭제_요청은_실패한다() throws Exception {
+        @DisplayName("로그인하지 않은 회원의 삭제 요청은 `실패`한다.")
+        void 로그인하지_않은_회원의_삭제_요청은_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
-                CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
+                CustomException.badRequest(AuthErrorType.LOGIN_REQUIRED_API));
 
             // when
             ResultActions resultActions = mockMvc.perform(delete(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .param("user-id", String.valueOf(1L)));
 
             // then
-            resultActions.andExpect(status().isNotFound())
+            resultActions.andExpect(status().isForbidden())
                 .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
@@ -495,15 +538,19 @@ public class UserControllerTest {
         @DisplayName("이미 삭제된 회원의 삭제 요청은 `실패`한다.")
         void 이미_삭제된_회원의_삭제_요청은_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             User user = UserFixture.createUser();
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED));
 
             // when
             ResultActions resultActions = mockMvc.perform(delete(BASE_URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .param("user-id", String.valueOf(userFromDb.getId())));
 
             // then
@@ -520,6 +567,7 @@ public class UserControllerTest {
         @DisplayName("삭제된 회원일 경우 활성화 요청에 `성공`한다.")
         void 삭제된_회원일_경우_활성화_요청예_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             User user = UserFixture.createUser();
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
@@ -527,7 +575,9 @@ public class UserControllerTest {
             String url = BASE_URL + "/" + userFromDb.getId() + "/status";
 
             // when
-            ResultActions resultActions = mockMvc.perform(patch(url));
+            ResultActions resultActions = mockMvc.perform(patch(url)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+            );
 
             // then
             resultActions.andExpect(status().isOk())
@@ -540,6 +590,7 @@ public class UserControllerTest {
         @DisplayName("삭제되지 않은 회원일 경우 활성화 요청에 `실패`한다.")
         void 삭제되지_않은_회원일_경우_활성화_요청에_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             User user = UserFixture.createUser();
             User userFromDb = userRepository.save(user);
 
@@ -549,7 +600,9 @@ public class UserControllerTest {
                 CustomException.badRequest(UserErrorType.USER_NOT_DELETED));
 
             // when
-            ResultActions resultActions = mockMvc.perform(patch(url));
+            ResultActions resultActions = mockMvc.perform(patch(url)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+            );
 
             // then
             resultActions.andExpect(status().isBadRequest())
@@ -560,13 +613,16 @@ public class UserControllerTest {
         @DisplayName("존재하지 않는 회원일 경우 활성화 요청에 `실패`한다.")
         void 존재하지_않는_회원일_경우_활성화_요청에_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String url = BASE_URL + "/" + "1" + "/status";
 
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(UserErrorType.NOT_FOUND_USER));
 
             // when
-            ResultActions resultActions = mockMvc.perform(patch(url));
+            ResultActions resultActions = mockMvc.perform(patch(url)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+            );
 
             // then
             resultActions.andExpect(status().isBadRequest())
@@ -587,11 +643,13 @@ public class UserControllerTest {
         @DisplayName("요청으로 들어온 데이터를 통해 1개의 계정을 찾을 경우 요청에 `성공`한다.")
         void 요청으로_들어온_데이터를_통해_1개의_계정을_찾을_경우_요청에_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             User user = UserFixture.createUserByNameAndPhone(NAME, PHONE);
             User userFromDb = userRepository.save(user);
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .param("name", NAME)
                 .param("phone", PHONE));
 
@@ -606,6 +664,7 @@ public class UserControllerTest {
         @DisplayName("요청으로 들어온 데이터를 통해 모든 활성화 계정 찾아서 요청에 `모든 계정의 정보를 담아서 반환`한다.")
         void 요청으로_들어온_데이터를_통해_2개_이상의_계정을_찾을_경우_요청에_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             List<User> users = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 String email = "test" + i + "@naver.com";
@@ -617,6 +676,7 @@ public class UserControllerTest {
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .param("name", NAME)
                 .param("phone", PHONE));
 
@@ -631,6 +691,7 @@ public class UserControllerTest {
         @DisplayName("요청으로 들어온 데이터를 통해 3개의 활성화 계정과 2개의 삭제된 계정을 찾을 경우 요청에 `3개의 계정만 반환`한다.")
         void 요청으로_들어온_데이터를_통해_3개의_활성화_계정과_2개의_삭제된_계정을_찾을_경우_요청에_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             List<User> users = new ArrayList<>();
             for (int i = 0; i < 5; i++) {
                 String email = "test" + i + "@naver.com";
@@ -645,6 +706,7 @@ public class UserControllerTest {
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .param("name", NAME)
                 .param("phone", PHONE));
 
@@ -659,9 +721,11 @@ public class UserControllerTest {
         @DisplayName("요청으로 들어온 데이터를 통해 0개의 계정을 찾을 경우 요청에 `성공`한다.")
         void 요청으로_들어온_데이터를_통해_0개의_계정을_찾을_경우_요청에_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .param("name", NAME)
                 .param("phone", PHONE));
 
@@ -681,6 +745,7 @@ public class UserControllerTest {
         @DisplayName("현재 비밀번호 매칭 검증과 변경 비밀번호 확인 검증에 통과할 경우 요청에 `성공`한다.")
         void 현재_비밀번호_매칭_검증과_변경_비밀번호_확인_검증에_통과할_경우_요청에_성공한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String currentPassword = "currentPassword";
             String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
             User user = UserFixture.createUserByPassword(encodedCurrentPassword);
@@ -692,6 +757,7 @@ public class UserControllerTest {
 
             // when
             ResultActions result = mockMvc.perform(patch(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -706,6 +772,7 @@ public class UserControllerTest {
         @DisplayName("현재 비밀번호 매칭 검증에 실패할 경우 요청에 `실패`한다.")
         void 현재_비밀번호_매칭_검증에_실패할_경우_요청에_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String currentPassword = "currentPassword";
             String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
             User user = UserFixture.createUserByPassword(encodedCurrentPassword);
@@ -720,6 +787,7 @@ public class UserControllerTest {
 
             // when
             ResultActions result = mockMvc.perform(patch(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -732,6 +800,7 @@ public class UserControllerTest {
         @DisplayName("삭제된 계정일 경우 요청에 `실패`한다.")
         void 삭제된_계정일_경우_요청에_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String currentPassword = "currentPassword";
             String encodedCurrentPassword = PasswordEncoder.encode(currentPassword);
             User user = UserFixture.createUserByPassword(encodedCurrentPassword);
@@ -744,6 +813,7 @@ public class UserControllerTest {
 
             // when
             ResultActions result = mockMvc.perform(patch(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -757,6 +827,7 @@ public class UserControllerTest {
         @DisplayName("비밀번호를 변경하고자 하는 계정을 찾을 수 없는 경우 요청에 `실패`한다.")
         void 계정을_찾을_수_없는_경우_요청에_실패한다() throws Exception {
             // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             String currentPassword = "currentPassword";
             String updatedPassword = "updatedPassword";
 
@@ -765,6 +836,7 @@ public class UserControllerTest {
 
             // when
             ResultActions result = mockMvc.perform(patch(URL)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
                 .content(objectMapper.writeValueAsString(userChangePasswordRequestCommand))
                 .contentType(MediaType.APPLICATION_JSON));
 

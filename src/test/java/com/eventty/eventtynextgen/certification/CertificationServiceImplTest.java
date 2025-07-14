@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
-import com.eventty.eventtynextgen.shared.exception.CustomException;
-import com.eventty.eventtynextgen.shared.exception.enums.CertificationErrorType;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.CertificationErrorType;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.shared.exception.factory;
+package com.eventty.eventtynextgen.base.exception.factory;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.shared.exception.enums;
+package com.eventty.eventtynextgen.base.exception.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

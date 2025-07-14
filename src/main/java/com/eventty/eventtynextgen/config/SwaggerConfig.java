@@ -1,5 +1,9 @@
 package com.eventty.eventtynextgen.config;
 
+import static com.eventty.eventtynextgen.base.constant.BaseConst.AUTHORIZATION_HEADER;
+import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
+
+import com.eventty.eventtynextgen.base.constant.BaseConst;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -13,28 +17,35 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-    private final String JWT_SCHEMA_NAME = "JwtAuth";
-
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-            .addSecurityItem(new SecurityRequirement().addList(JWT_SCHEMA_NAME))
+            .addSecurityItem(new SecurityRequirement().addList(AUTHORIZATION_HEADER).addList(CERTIFICATION_TOKEN_COOKIE_NAME))
             .components(components())
             .info(info());
     }
 
     private Components components() {
         return new Components()
-            .addSecuritySchemes(JWT_SCHEMA_NAME, securityScheme());
+            .addSecuritySchemes(AUTHORIZATION_HEADER, accessTokenSchema())
+            .addSecuritySchemes(CERTIFICATION_TOKEN_COOKIE_NAME, certificationTokenSchema());
+    }
+    private SecurityScheme certificationTokenSchema() {
+        return new SecurityScheme()
+            .name(CERTIFICATION_TOKEN_COOKIE_NAME)
+            .type(Type.APIKEY)
+            .in(In.HEADER)
+            .description("발급 받은 Certification Token(API 호출 권한)");
     }
 
-    private SecurityScheme securityScheme() {
+    private SecurityScheme accessTokenSchema() {
         return new SecurityScheme()
-            .name(JWT_SCHEMA_NAME)
+            .name(AUTHORIZATION_HEADER)
             .type(Type.HTTP)
             .scheme("bearer")
             .in(In.HEADER)
-            .bearerFormat("Authorization");
+            .bearerFormat("JWT")
+            .description("발급 받은 Access Token(로그인한 사용자 세션 토콘)");
     }
 
     private Info info() {
