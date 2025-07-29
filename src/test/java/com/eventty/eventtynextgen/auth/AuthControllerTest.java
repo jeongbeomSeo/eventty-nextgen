@@ -51,6 +51,7 @@ import org.springframework.test.web.servlet.ResultActions;
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 @TestInstance(Lifecycle.PER_CLASS)
+@DisplayName("Auth Controller 통합 테스트")
 class AuthControllerTest {
 
     private static final String BASE_URL = "/api/v1/auth";
