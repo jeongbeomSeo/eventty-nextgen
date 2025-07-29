@@ -6,19 +6,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import ch.vorburger.exec.ManagedProcessException;
-import ch.vorburger.mariadb4j.DB;
-import ch.vorburger.mariadb4j.DBConfiguration;
-import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.ErrorResponse;
 import com.eventty.eventtynextgen.base.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -48,30 +40,6 @@ class CertificationControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private static final DBConfiguration config = DBConfigurationBuilder.newBuilder()
-        .setPort(13306)
-        .setDataDir(new File(".embedded/mariadb"))
-        .build();
-
-    private static final DB db;
-
-    static {
-        System.out.println("초기화 시작: static 영역");
-        try {
-            db = DB.newEmbeddedDB(config);
-            System.out.println("DB 시작 전");
-            db.start();
-            System.out.println("DB 시작 후");
-            db.createDB("eventty-nextgen", "root", "");
-            Thread.sleep(2000);
-            Connection conn = DriverManager.getConnection("jdbc:mariadb://localhost:13306/eventty-nextgen", "root", "");
-            System.out.println("DB 연결 성공");
-            conn.close();
-        } catch (ManagedProcessException | InterruptedException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Nested
     @DisplayName("API 호출 권한인 Certification Token 발행 통합 테스트")

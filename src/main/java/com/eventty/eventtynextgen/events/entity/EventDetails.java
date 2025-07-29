@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "event_details")
+@Table(name = "event_detail")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EventDetails extends BaseEntity {
@@ -27,7 +27,7 @@ public class EventDetails extends BaseEntity {
     @Column(name = "event_basic_id", nullable = false)
     private Long eventBasicId;
 
-    private String content;
+    private String description;
 
     @Column(name = "apply_start_at", nullable = false)
     private LocalDateTime applyStartAt;
@@ -47,10 +47,10 @@ public class EventDetails extends BaseEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    private EventDetails(Long eventBasicId, String content, LocalDateTime applyStartAt, LocalDateTime applyEndAt, Long views, boolean isDeleted,
+    private EventDetails(Long eventBasicId, String description, LocalDateTime applyStartAt, LocalDateTime applyEndAt, Long views, boolean isDeleted,
         LocalDateTime deletedAt) {
         this.eventBasicId = eventBasicId;
-        this.content = content;
+        this.description = description;
         this.applyStartAt = applyStartAt;
         this.applyEndAt = applyEndAt;
         this.views = views;
@@ -58,10 +58,10 @@ public class EventDetails extends BaseEntity {
         this.deletedAt = deletedAt;
     }
 
-    public static EventDetails of(Long eventBasicId, String content, LocalDateTime applyStartAt, LocalDateTime applyEndAt) {
+    public static EventDetails of(Long eventBasicId, String description, LocalDateTime applyStartAt, LocalDateTime applyEndAt) {
         return EventDetails.builder()
             .eventBasicId(eventBasicId)
-            .content(content)
+            .description(description)
             .applyStartAt(applyStartAt)
             .applyEndAt(applyEndAt)
             .views(0L)

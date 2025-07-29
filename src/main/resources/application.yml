@@ -4,40 +4,24 @@ spring:
   profiles:
     default: local
     group:
+      dev:
+        - properties
+        - certification
+        - certification-secret
       local:
-        - local
         - properties
         - certification
         - certification-secret
       test:
-        - test
         - properties
         - certification-test
         - certification-secret-test
 
-  datasource:
-    url: ${db.url}
-    username: ${db.username}
-    password: ${db.password}
-    driver-class-name: ${db.driver-class-name}
   data:
     redis:
       client-type: lettuce
       port: 6379
-      host: ${redis.host}
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-
-mail:
-  username: ${mail.username}
-  password: ${mail.password}
+      host: 127.0.0.1
 
 
 

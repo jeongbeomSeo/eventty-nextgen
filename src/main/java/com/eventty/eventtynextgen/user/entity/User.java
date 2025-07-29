@@ -1,5 +1,6 @@
 package com.eventty.eventtynextgen.user.entity;
 
+import com.eventty.eventtynextgen.shared.entity.BaseTimeEntity;
 import com.eventty.eventtynextgen.user.entity.enums.UserRoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +24,7 @@ import org.hibernate.annotations.ColumnDefault;
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +37,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "user_role", nullable = false)
     private UserRoleType userRole;
 
     @Column(nullable = false)
@@ -48,13 +49,12 @@ public class User {
     @Column(nullable = false)
     private String birth;
 
-    @Column(nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     @ColumnDefault("false")
     private boolean isDeleted;
 
+    @Column(name = "delete_time")
     private LocalDateTime deleteTime;
-
-    // TODO: createAt, ModifyAt 및 추적을 위한 데이터 추가 고려 (abstract class: MappedSuperclass)
 
     @Builder
     private User(String email, String password, UserRoleType userRole, String name, String phone, String birth) {

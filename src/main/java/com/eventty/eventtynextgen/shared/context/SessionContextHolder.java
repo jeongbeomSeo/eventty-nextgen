@@ -32,5 +32,4 @@ public class SessionContextHolder {
     private static SessionContext createEmptyContext() {
         return new SessionContext();
     }
-
 }

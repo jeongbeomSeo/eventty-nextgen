@@ -100,8 +100,6 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
-src/main/resources/application-local.yml
-src/main/resources/application-test.yml
-src/main/resources/application-key.yml
-
 .embedded
+
+src/main/resources/.env
