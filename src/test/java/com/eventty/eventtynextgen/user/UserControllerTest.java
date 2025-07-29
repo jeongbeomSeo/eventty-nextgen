@@ -10,10 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import ch.vorburger.exec.ManagedProcessException;
-import ch.vorburger.mariadb4j.DB;
-import ch.vorburger.mariadb4j.DBConfiguration;
-import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
 import com.eventty.eventtynextgen.base.fixture.SessionTokenFixture;
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
@@ -35,10 +31,6 @@ import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
 import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,30 +71,6 @@ public class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    private static final DBConfiguration config = DBConfigurationBuilder.newBuilder()
-        .setPort(13306)
-        .setDataDir(new File(".embedded/mariadb"))
-        .build();
-
-    private static final DB db;
-
-    static {
-        System.out.println("초기화 시작: static 영역");
-        try {
-            db = DB.newEmbeddedDB(config);
-            System.out.println("DB 시작 전");
-            db.start();
-            System.out.println("DB 시작 후");
-            db.createDB("eventty-nextgen", "root", "");
-            Thread.sleep(2000);
-            Connection conn = DriverManager.getConnection("jdbc:mariadb://localhost:13306/eventty-nextgen", "root", "");
-            System.out.println("DB 연결 성공");
-            conn.close();
-        } catch (ManagedProcessException | InterruptedException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @AfterEach
     void tearDown() {

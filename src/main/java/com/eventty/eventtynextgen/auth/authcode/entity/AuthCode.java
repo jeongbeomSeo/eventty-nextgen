@@ -31,8 +31,10 @@ public class AuthCode {
     @Column(nullable = false)
     private String code;
 
+    @Column(name = "expired_at")
     private LocalDateTime expiredAt;
 
+    @Column(name = "is_expired")
     private boolean isExpired;
 
     @Builder

@@ -6,3 +6,5 @@ mail:
   starttls-enable: true
   auth: true
   debug: true
+  username: ${MAIL_USERNAME}
+  password: ${MAIL_PASSWORD}

@@ -23,13 +23,13 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "refresh_token", nullable = false)
     private String refreshToken;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
 
     @Builder

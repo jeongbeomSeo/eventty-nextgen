@@ -2,6 +2,12 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.3'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco'
+	id 'org.asciidoctor.jvm.convert' version '3.3.2'
+}
+
+configurations {
+	asciidoctorExt
 }
 
 group = 'com.eventty'
@@ -30,7 +36,7 @@ dependencies {
 	implementation ('org.springframework.boot:spring-boot-starter-aop')
 
 	// database
-	runtimeOnly ('com.mysql:mysql-connector-j')
+	implementation("com.mysql:mysql-connector-j")
 
 	// redis
 	implementation('org.springframework.boot:spring-boot-starter-data-redis')
@@ -52,20 +58,62 @@ dependencies {
 	// swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 
-	// Embedded test
-	testImplementation("ch.vorburger.mariaDB4j:mariaDB4j:3.2.0")
-	testImplementation("org.mariadb.jdbc:mariadb-java-client:3.5.3")
-
 	// JWT
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+	// .env
+	implementation("io.github.cdimascio:java-dotenv:5.2.2")
+
+	// docker-compose
+	developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
 	// test
 	testImplementation ('org.springframework.boot:spring-boot-starter-test')
 	testRuntimeOnly ('org.junit.platform:junit-platform-launcher')
 }
 
-tasks.named('test') {
+ext {
+	snippetsDir = file('build/generated-snippets')
+}
+
+test {
 	useJUnitPlatform()
+	finalizedBy('jacocoTestReport')
+	outputs.dir snippetsDir
+}
+
+jacoco {
+	toolVersion = "0.8.13"
+	reportsDirectory = layout.buildDirectory.dir('build/generated-snippets')
+}
+
+jacocoTestReport {
+	reports {
+		xml.required.set(true)
+		csv.required.set(false)
+		html.required.set(true)
+		html.outputLocation = layout.buildDirectory.dir('build/generated-snippets/html')
+	}
+	finalizedBy('jacocoTestCoverageVerification')
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 0.80
+			}
+		}
+	}
+}
+
+asciidoctor {
+	configurations 'asciidoctorExt'
+	baseDirFollowsSourceFile()
+	inputs.dir snippetsDir
+	dependsOn test
 }

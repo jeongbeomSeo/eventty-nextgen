@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.events.entity;
 
 import com.eventty.eventtynextgen.shared.entity.BaseEntity;
+import com.eventty.eventtynextgen.shared.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +19,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Table(name = "event_interest")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EventInterest extends BaseEntity {
+public class EventInterest extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
