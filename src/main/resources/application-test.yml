@@ -6,7 +6,7 @@ spring:
   # Docker 컨테이너로 MySQL, Redis 서버 구동
   docker:
     compose:
-      enabled: true
+      enabled: false
 
   jpa:
     hibernate:

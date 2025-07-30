@@ -3,7 +3,6 @@ plugins {
 	id 'org.springframework.boot' version '3.4.3'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'jacoco'
-	id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
 configurations {
@@ -74,32 +73,26 @@ dependencies {
 	testRuntimeOnly ('org.junit.platform:junit-platform-launcher')
 
 	// test containers
-	testImplementation "org.testcontainers:testcontainers:1.16.0"
-	testImplementation "org.testcontainers:junit-jupiter:1.16.0"
-	testImplementation "org.testcontainers:mysql:1.16.0"
-}
-
-ext {
-	snippetsDir = file('build/generated-snippets')
+	testImplementation("org.springframework.boot:spring-boot-testcontainers")
+	testImplementation("org.testcontainers:junit-jupiter")
+	testImplementation("org.testcontainers:mysql")
 }
 
 test {
 	useJUnitPlatform()
 	finalizedBy('jacocoTestReport')
-	outputs.dir snippetsDir
 }
 
 jacoco {
 	toolVersion = "0.8.13"
-	reportsDirectory = layout.buildDirectory.dir('build/generated-snippets')
 }
 
 jacocoTestReport {
+	dependsOn(test)
 	reports {
-		xml.required.set(true)
 		csv.required.set(false)
+		xml.required.set(true)
 		html.required.set(true)
-		html.outputLocation = layout.buildDirectory.dir('build/generated-snippets/html')
 	}
 	finalizedBy('jacocoTestCoverageVerification')
 }
@@ -114,11 +107,4 @@ jacocoTestCoverageVerification {
 			}
 		}
 	}
-}
-
-asciidoctor {
-	configurations 'asciidoctorExt'
-	baseDirFollowsSourceFile()
-	inputs.dir snippetsDir
-	dependsOn test
 }
