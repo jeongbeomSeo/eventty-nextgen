@@ -23,6 +23,7 @@ import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -55,12 +56,11 @@ class AuthCodeControllerTest {
     @Autowired
     private AuthCodeRepository authCodeRepository;
 
-    @AfterEach
+    @BeforeEach
     void tearDown() {
         authCodeRepository.deleteAllInBatch();
         userRepository.deleteAllInBatch();
     }
-
 
     @Nested
     @DisplayName("이메일 사용 가능 여부 검사 테스트")

@@ -37,7 +37,7 @@ class ApiPermissionVerifiedFilterTest {
     @Mock
     private ResponseUtils responseUtils;
 
-    @AfterEach
+    @BeforeEach
     void tearDown() {
         CertificationContextHolder.clearContext();
         SessionContextHolder.clearContext();

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,7 @@ public class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @AfterEach
+    @BeforeEach
     void tearDown() {
         userRepository.deleteAll();
     }

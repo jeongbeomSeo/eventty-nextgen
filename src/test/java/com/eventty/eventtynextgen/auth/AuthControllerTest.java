@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -68,7 +69,7 @@ class AuthControllerTest {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    @AfterEach
+    @BeforeEach
     void tearDown() {
         userRepository.deleteAllInBatch();
     }
@@ -243,7 +244,7 @@ class AuthControllerTest {
 
         private static final String URL = BASE_URL + "/reissue/session-token";
 
-        @AfterEach
+        @BeforeEach
         void tearDown() {
             refreshTokenRepository.deleteAllInBatch();
             userRepository.deleteAllInBatch();
