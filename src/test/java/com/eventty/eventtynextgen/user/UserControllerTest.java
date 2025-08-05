@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.user;
 
-import static com.eventty.eventtynextgen.base.constant.BaseConst.*;
-import static com.eventty.eventtynextgen.certification.constant.CertificationConst.*;
+import static com.eventty.eventtynextgen.base.constant.BaseConst.AUTHORIZATION_HEADER;
+import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -10,9 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
-import com.eventty.eventtynextgen.base.fixture.SessionTokenFixture;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.ErrorResponse;
 import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
@@ -20,6 +17,10 @@ import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.base.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
+import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
+import com.eventty.eventtynextgen.base.fixture.SessionTokenFixture;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
 import com.eventty.eventtynextgen.user.fixture.SignupRequestFixture;
@@ -36,17 +37,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,10 +55,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-@SpringBootTest
 @ActiveProfiles("test")
+@Import(TestcontainersConfiguration.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@TestInstance(Lifecycle.PER_CLASS)
 @DisplayName("User Controller 통합 테스트")
 public class UserControllerTest {
 
@@ -72,7 +73,7 @@ public class UserControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @AfterEach
+    @BeforeEach
     void tearDown() {
         userRepository.deleteAll();
     }
@@ -471,7 +472,6 @@ public class UserControllerTest {
             User user = UserFixture.createUser();
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
-
 
             // when
             ResultActions resultActions = mockMvc.perform(delete(BASE_URL)

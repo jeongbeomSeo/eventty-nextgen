@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,7 @@ class ApiPermissionVerifiedFilterTest {
     private ResponseUtils responseUtils;
 
     @BeforeEach
-    void setup() {
+    void tearDown() {
         CertificationContextHolder.clearContext();
         SessionContextHolder.clearContext();
     }

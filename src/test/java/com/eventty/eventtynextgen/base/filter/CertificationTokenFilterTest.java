@@ -11,12 +11,14 @@ import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTo
 import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
 import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
+import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +27,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Certification Token Filter 단위 테스트")
 class CertificationTokenFilterTest {
+
+    @BeforeEach
+    void tearDown() {
+        CertificationContextHolder.clearContext();
+        SessionContextHolder.clearContext();
+    }
 
     @Test
     @DisplayName("유효한 Certification Token과 함께 요청이 들어올 경우, filterChain.doFilter() 직전에 Context에 페이로드 정보가 저장된다")
