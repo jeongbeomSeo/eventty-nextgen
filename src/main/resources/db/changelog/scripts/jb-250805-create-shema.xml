@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="250805-create-shema-01-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="auth_code"/>
+      </not>
+    </preConditions>
+    <createTable tableName="auth_code">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="email" type="varchar(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="code" type="varchar(6)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="expired_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_expired" type="bit"/>
+    </createTable>
+    <createIndex tableName="auth_code" indexName="idx_auth_code_email_code" unique="false">
+      <column name="email"/>
+      <column name="code"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="250805-create-shema-02-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="refresh_token"/>
+      </not>
+    </preConditions>
+    <createTable tableName="refresh_token">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="refresh_token" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_id" type="bigint">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="expired_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="250805-create-shema-03-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="users"/>
+      </not>
+    </preConditions>
+    <createTable tableName="users">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="email" type="varchar(100)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+      <column name="password" type="varchar(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_role" type="ENUM('ADMIN','HOST','USER')">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="phone" type="varchar(25)"/>
+      <column name="birth" type="varchar(20)"/>
+      <column name="is_deleted" type="bit" defaultValue="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="delete_time" type="timestamp"/>
+      <column name="created_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp"/>
+    </createTable>
+    <createIndex tableName="users" indexName="idx_users_email">
+      <column name="email"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="250805-create-schema-04-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="event_basic"/>
+      </not>
+    </preConditions>
+    <createTable tableName="event_basic">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="host_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="title" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="image" type="varchar(255)"/>
+      <column name="category" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="event_start_at" type="timestamp" remarks="행사 시작 시간">
+        <constraints nullable="false"/>
+      </column>
+      <column name="event_end_at" type="timestamp" remarks="행사 종료 시간">
+        <constraints nullable="false"/>
+      </column>
+      <column name="participant_limit_policy" type="ENUM('LIMITED','UNLIMITED')" remarks="참가 인원 정책">
+        <constraints nullable="false"/>
+      </column>
+      <column name="max_participants" type="int" remarks="최대 참가 인원"/>
+      <column name="location" type="varchar(255)" remarks="행사 주최지">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_deleted" type="bit">
+        <constraints nullable="false"/>
+      </column>
+      <column name="deleted_at" type="timestamp"/>
+
+      <column name="created_by" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_by" type="varchar(255)"/>
+      <column name="created_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="250805-create-schema-05-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="event_detail"/>
+      </not>
+    </preConditions>
+    <createTable tableName="event_detail">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="event_basic_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="TEXT"/>
+      <column name="apply_start_at" type="timestamp" remarks="예약 시작 일자">
+        <constraints nullable="false"/>
+      </column>
+      <column name="apply_end_at" type="timestamp" remarks="예약 종료 일자">
+        <constraints nullable="false"/>
+      </column>
+      <column name="views" type="bigint" remarks="조회수" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_deleted" type="bit" defaultValue="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="deleted_at" type="timestamp"/>
+
+      <column name="created_by" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_by" type="varchar(255)"/>
+      <column name="created_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="250805-create-schema-06-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="event_interest"/>
+      </not>
+    </preConditions>
+    <createTable tableName="event_interest">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="event_basic_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_deleted" type="bit" defaultValue="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="deleted_at" type="timestamp"/>
+
+      <column name="created_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="250805-create-schema-07-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="event_ticket"/>
+      </not>
+    </preConditions>
+    <createTable tableName="event_ticket">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="event_basic_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="varchar(50)" remarks="쿠폰 이름">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="varchar(255)"/>
+      <column name="price" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="quantity_limit_policy" type="ENUM('LIMITED','UNLIMITED')" remarks="총 수량 제한 정책">
+        <constraints nullable="false"/>
+      </column>
+      <column name="max_quantity_limit" type="int" remarks="수량 제한의 최대값"/>
+      <column name="issued_quantity" type="int" remarks="발급된 수량" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="purchase_limit_policy" type="ENUM('LIMITED','UNLIMITED')" remarks="1인당 구매 제한 정책">
+        <constraints nullable="false"/>
+      </column>
+      <column name="max_quantity_per_user" type="int" remarks="1인당 구매 제한 수량"/>
+      <column name="sale_start_at" type="timestamp" remarks="판매 시작일시">
+        <constraints nullable="false"/>
+      </column>
+      <column name="sale_end_at" type="timestamp" remarks="판매 종료일시">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="ENUM('ACTIVE', 'SOLD_OUT', 'INACTIVE')" remarks="티켓 상태">
+        <constraints nullable="false"/>
+      </column>
+      <column name="is_deleted" type="bit" defaultValue="false">
+        <constraints nullable="false"/>
+      </column>
+      <column name="deleted_at" type="timestamp"/>
+
+      <column name="created_by" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_by" type="varchar(255)"/>
+      <column name="created_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_modified_at" type="timestamp"/>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

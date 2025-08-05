@@ -20,7 +20,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "users", indexes = {
-    @Index(name = "email_idx", columnList = "email")
+    @Index(name = "idx_users_email", columnList = "email")
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,10 +43,8 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
     private String phone;
 
-    @Column(nullable = false)
     private String birth;
 
     @Column(name = "is_deleted", nullable = false)

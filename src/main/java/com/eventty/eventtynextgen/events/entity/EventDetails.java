@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Entity
 @Table(name = "event_detail")
@@ -29,12 +30,15 @@ public class EventDetails extends BaseEntity {
 
     private String description;
 
+    @Comment("예약 시작 일자")
     @Column(name = "apply_start_at", nullable = false)
     private LocalDateTime applyStartAt;
 
+    @Comment("예약 종료 일자")
     @Column(name = "apply_end_at", nullable = false)
     private LocalDateTime applyEndAt;
 
+    @Comment("조회수")
     @Column(nullable = false)
     @ColumnDefault("0")
     private Long views;

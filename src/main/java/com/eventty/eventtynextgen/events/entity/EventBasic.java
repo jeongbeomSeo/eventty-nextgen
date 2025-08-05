@@ -58,6 +58,7 @@ public class EventBasic extends BaseEntity {
     @Column(name = "max_participants")
     private Integer maxParticipants;
 
+    @Comment("행사 주최지")
     @Column(nullable = false)
     private String location;
 

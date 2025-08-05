@@ -1,6 +1,5 @@
 package com.eventty.eventtynextgen.events.entity;
 
-import com.eventty.eventtynextgen.shared.entity.BaseEntity;
 import com.eventty.eventtynextgen.shared.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
