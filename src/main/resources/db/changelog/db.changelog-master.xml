@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <include file="/db/changelog/scripts/jb-250805-create-shema.xml"/>
+  <include file="/db/changelog/scripts/jb-250805-create-schema.xml"/>
 
 
 </databaseChangeLog>

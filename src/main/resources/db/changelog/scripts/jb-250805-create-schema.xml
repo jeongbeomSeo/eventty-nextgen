@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="250805-create-shema-01-01" author="jeongbeomSeo">
+  <changeSet id="250805-create-schema-01-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="auth_code"/>
@@ -31,7 +31,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet id="250805-create-shema-02-01" author="jeongbeomSeo">
+  <changeSet id="250805-create-schema-02-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="refresh_token"/>
@@ -53,7 +53,7 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="250805-create-shema-03-01" author="jeongbeomSeo">
+  <changeSet id="250805-create-schema-03-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="users"/>
@@ -66,7 +66,7 @@
       <column name="email" type="varchar(100)">
         <constraints nullable="false" unique="true"/>
       </column>
-      <column name="password" type="varchar(20)">
+      <column name="password" type="varchar(255)">
         <constraints nullable="false"/>
       </column>
       <column name="user_role" type="ENUM('ADMIN','HOST','USER')">
@@ -91,7 +91,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet id="250805-create-schema-04-01" author="jeongbeomSeo">
+  <changeSet id="250805-create-schema-04-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="event_basic"/>
@@ -140,7 +140,7 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="250805-create-schema-05-01" author="jeongbeomSeo">
+  <changeSet id="250805-create-schema-05-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="event_detail"/>
@@ -179,7 +179,7 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="250805-create-schema-06-01" author="jeongbeomSeo">
+  <changeSet id="250805-create-schema-06-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="event_interest"/>
@@ -207,7 +207,7 @@
     </createTable>
   </changeSet>
 
-  <changeSet id="250805-create-schema-07-01" author="jeongbeomSeo">
+  <changeSet id="250805-create-schema-07-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="event_ticket"/>
@@ -220,7 +220,7 @@
       <column name="event_basic_id" type="bigint">
         <constraints nullable="false"/>
       </column>
-      <column name="name" type="varchar(50)" remarks="쿠폰 이름">
+      <column name="name" type="varchar(50)" remarks="티켓 이름">
         <constraints nullable="false"/>
       </column>
       <column name="description" type="varchar(255)"/>
