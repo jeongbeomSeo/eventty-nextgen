@@ -1,9 +1,9 @@
 package com.eventty.eventtynextgen.events.ticket.entity;
 
-import com.eventty.eventtynextgen.events.entity.EventBasic;
 import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketQuantityLimitType;
 import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketStatusType;
 import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketPurchaseLimitPolicyType;
+import com.eventty.eventtynextgen.shared.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,7 +24,7 @@ import org.hibernate.annotations.Comment;
 @Table(name = "event_ticket")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EventTicket {
+public class EventTicket extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,7 +61,7 @@ public class EventTicket {
     private EventTicketPurchaseLimitPolicyType purchaseLimitPolicy;
 
     @Comment("1인당 구매 제한 수량")
-    @Column(name = "max_quantity_per_user", nullable = false)
+    @Column(name = "max_quantity_per_user")
     private Integer maxQuantityPerUser;
 
     @Comment("판매 시작일시")

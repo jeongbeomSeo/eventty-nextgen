@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "auth_code", indexes = {
-    @Index(name = "idx_code", columnList = "email, code")
+    @Index(name = "ix_auth_code_email_code", columnList = "email, code")
 })
 public class AuthCode {
 
@@ -31,7 +31,7 @@ public class AuthCode {
     @Column(nullable = false)
     private String code;
 
-    @Column(name = "expired_at")
+    @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
 
     @Column(name = "is_expired")
