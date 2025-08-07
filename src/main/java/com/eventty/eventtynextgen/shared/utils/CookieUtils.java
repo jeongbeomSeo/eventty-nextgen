@@ -15,12 +15,12 @@ public class CookieUtils {
         return request.getHeader(name);
     }
 
-    public static void addLaxCookie(String name, String value, long maxAge, HttpServletResponse response) {
+    public static void addLaxCookie(String name, String value, long maxAgeSeconds, HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
             .path("/")
             .sameSite("Lax")
             .domain("localhost")
-            .maxAge(maxAge)
+            .maxAge(maxAgeSeconds)
             .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

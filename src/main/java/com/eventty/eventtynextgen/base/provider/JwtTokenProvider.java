@@ -8,9 +8,9 @@ import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_SECRET_KEY;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
 import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.*;
+import static com.eventty.eventtynextgen.shared.utils.sequence.Assertions.notNull;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
-import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -35,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtTokenProvider {
 
     public static SessionTokenInfo createSessionToken(Long userId, Long accessTokenValidityInMS, Long refreshTokenValidityInMS) {
+        notNull("userId", userId);
+
         long now = new Date(System.currentTimeMillis()).getTime();
         Date accessTokenExpiredAt = new Date(now + accessTokenValidityInMS);
         Date refreshTokenExpiredAt = new Date(now + refreshTokenValidityInMS);
@@ -53,20 +55,20 @@ public class JwtTokenProvider {
         return new SessionTokenInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
     }
 
-    public static SessionTokenPayload retrieveSessionTokenPayload(String sessionToken) {
-        Claims claims = parseClaims(sessionToken);
+    public static AccessTokenPayload extractAccessTokenPayloadIgnoringExpiration(String accessToken) {
+        Claims claims = parseClaims(accessToken);
         if (claims == null) {
             throw CustomException.badRequest(FAIL_VERIFY_JWT_TOKEN);
         }
 
         Long userId = claims.get(JWT_CLAIM_USER_ID_KEY, Long.class);
 
-        return new SessionTokenPayload(userId);
+        return new AccessTokenPayload(userId);
     }
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class SessionTokenPayload {
+    public static class AccessTokenPayload {
         private Long userId;
     }
 
@@ -131,7 +133,7 @@ public class JwtTokenProvider {
         return new CertificationTokenInfo(JWT_TOKEN_TYPE, certificationToken);
     }
 
-    public static CertificationTokenPayload retrieveCertificationToken(String certificationToken) {
+    public static CertificationTokenPayload extractCertificationTokenPayloadIgnoringExpiration(String certificationToken) {
         Claims claims = parseClaims(certificationToken);
 
         if (claims == null) {

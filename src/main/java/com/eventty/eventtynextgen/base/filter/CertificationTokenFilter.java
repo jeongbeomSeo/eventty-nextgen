@@ -10,11 +10,9 @@ import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +67,7 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        CertificationTokenPayload payload = JwtTokenProvider.retrieveCertificationToken(token);
+        CertificationTokenPayload payload = JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiration(token);
         context.updateFromTokenClaims(
             payload.getAppName(),
             payload.getApiPermission(),
