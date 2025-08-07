@@ -6,12 +6,11 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-@Disabled("Date Utility Class 단위 테스트")
+@DisplayName("Date Utility Class 단위 테스트")
 class DateUtilsTest {
 
     @Nested

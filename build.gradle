@@ -96,6 +96,8 @@ jacocoTestReport {
 		csv.required.set(false)
 		xml.required.set(true)
 		html.required.set(true)
+
+		html.destination file("build/reports/jacocoTestCoverageReport.html")
 	}
 	finalizedBy('jacocoTestCoverageVerification')
 }
