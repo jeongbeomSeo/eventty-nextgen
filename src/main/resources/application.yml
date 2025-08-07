@@ -23,3 +23,5 @@ spring:
       host: 127.0.0.1
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
+  config:
+    import: optional:.env

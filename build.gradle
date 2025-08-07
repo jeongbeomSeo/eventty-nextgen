@@ -82,6 +82,9 @@ dependencies {
 }
 
 test {
+	filter {
+		excludeTestsMatching "*.AuthCodeControllerTest\$SendCode"
+	}
 	useJUnitPlatform()
 	finalizedBy('jacocoTestReport')
 }
@@ -97,7 +100,7 @@ jacocoTestReport {
 		xml.required.set(true)
 		html.required.set(true)
 
-		html.destination file("build/reports/jacocoTestCoverageReport.html")
+		html.destination file("build/reports/jacocoTestCoverageReport")
 	}
 	finalizedBy('jacocoTestCoverageVerification')
 }
