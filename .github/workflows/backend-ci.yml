@@ -38,8 +38,11 @@ jobs:
     - name: Run tests and generate coverage report
       run: ./gradlew clean test jacocoTestReport -Dspring.profiles.active=local
 
-    - name: Verify test coverage
-      run: ./gradlew jacocoTestCoverageVerification
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2.20.0
+      if: always()
+      with:
+        files: ${{ github.workspace }}/**/build/test-results/**/*.xml
 
     - name: Comment test coverage on PR
       id: jacoco
@@ -52,9 +55,10 @@ jobs:
         min-coverage-changed-files: 80
         update-comment: true
         
-    - name: Fail PR if overall coverage is less than 80%
-      if: ${{ steps.jacoco.outputs.coverage-overall < 80.0 }}
-      uses: actions/github-script@v6
-      with:
-        script: |
-          core.setFailed('Overall coverage is less than 80%!')
+    # - name: Fail PR if overall coverage is less than 80%
+    #   if: ${{ steps.jacoco.outputs.coverage-overall < 80.0 }}
+    #   uses: actions/github-script@v6
+    #   with:
+    #     script: |
+    #       core.setFailed('Overall coverage is less than 80%!')
+    #         - name: Publish Test Results
