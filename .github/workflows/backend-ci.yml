@@ -10,6 +10,7 @@ name: backend test for PR to develop
 on:
   pull_request:
     branches: ["develop"]
+  workflow_dispatch: 
 
 jobs:
   build:
