@@ -15,7 +15,9 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     permissions:
-      contents: read
+      contents: read        # 코드 읽기
+      pull-requests: write  # PR에 코멘트 달기 권한
+      checks: write         # (필요하다면) 상태 검사 결과 업데이트 권한
 
     steps:
     - name: Checkout Repository
@@ -35,11 +37,9 @@ jobs:
 
     - name: Run tests and generate coverage report
       run: ./gradlew clean test jacocoTestReport -Dspring.profiles.active=local
-      continue-on-error: true
 
     - name: Verify test coverage
       run: ./gradlew jacocoTestCoverageVerification
-      continue-on-error: true
 
     - name: Comment test coverage on PR
       id: jacoco
