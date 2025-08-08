@@ -9,7 +9,6 @@ name: backend test for PR to develop
 
 on:
   pull_request:
-    types: [opened, ready_for_review]
     branches: ["develop"]
 
 jobs:
