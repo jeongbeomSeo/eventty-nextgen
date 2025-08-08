@@ -97,7 +97,7 @@ class LoginRequiredAspectTest {
         }
 
         @Test
-        @DisplayName("로그인 검증에 성공하고 Host 권한 검증에 성공할 경우 통관한다")
+        @DisplayName("로그인 검증에 성공하고 Host 권한 검증에 성공할 경우 통과한다")
         void 로그인_검증에_성공하고_Host_권한_검증에_성공할_경우_통과한다() {
             // given
             JoinPoint joinPoint = mock(JoinPoint.class);

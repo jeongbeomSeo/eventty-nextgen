@@ -1,11 +1,9 @@
 package com.eventty.eventtynextgen.ticket.entity;
 
-import com.eventty.eventtynextgen.events.entity.EventInterest;
-import com.eventty.eventtynextgen.events.entity.EventInterest.EventInterestStatus;
+import com.eventty.eventtynextgen.shared.entity.BaseEntity;
+import com.eventty.eventtynextgen.ticket.entity.enums.EventTicketPurchaseLimitPolicyType;
 import com.eventty.eventtynextgen.ticket.entity.enums.EventTicketQuantityLimitType;
 import com.eventty.eventtynextgen.ticket.entity.enums.EventTicketStatusType;
-import com.eventty.eventtynextgen.ticket.entity.enums.EventTicketPurchaseLimitPolicyType;
-import com.eventty.eventtynextgen.shared.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

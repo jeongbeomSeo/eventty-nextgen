@@ -16,8 +16,8 @@ class EventBasicTest {
     class UpdateDeletedStatus {
 
         @Test
-        @DisplayName("기본 행사 정보 상태 변경 인자로 ACTIVE가 들어올 경우 사용자 삭제 정보가 사라진다")
-        void 기본_행사_정보_상태_변경_인자로_ACTIVE가_들어올_경우_사용자_삭제_정보가_사라진다() {
+        @DisplayName("기본 행사 정보 상태 변경 인자로 ACTIVE가 들어올 경우 사용자 삭제 정보가 갱신된다")
+        void 기본_행사_정보_상태_변경_인자로_ACTIVE가_들어올_경우_사용자_삭제_정보가_갱신된다() {
             // given
             EventBasic eventBasic = EventBasicFixture.createEventBasic();
 
@@ -30,8 +30,8 @@ class EventBasicTest {
         }
 
         @Test
-        @DisplayName("기본 행사 정보 상태 변경 인자로 DELETED가 들어올 경우 사용자 삭제 정보가 사라진다")
-        void 기본_행사_정보_상태_변경_인자로_DELETEDE가_들어올_경우_사용자_삭제_정보가_사라진다() {
+        @DisplayName("기본 행사 정보 상태 변경 인자로 DELETED가 들어올 경우 사용자 삭제 정보가 갱신된다")
+        void 기본_행사_정보_상태_변경_인자로_DELETEDE가_들어올_경우_사용자_삭제_정보가_갱신된다() {
             // given
             EventBasic eventBasic = EventBasicFixture.createEventBasic();
 

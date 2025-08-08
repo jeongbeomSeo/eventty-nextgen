@@ -15,7 +15,7 @@ class CodeGeneratorUtilTest {
     class GenerateRandomCode {
         @RepeatedTest(100)
         @DisplayName("4부터 20까지 랜덤하게 주어지는 길이 인자를 받아 여러번 랜덤 코드를 생성하는데 성공한다")
-        void 랜덤하게_주어지는_길이_인자를_받아_여러번_랜덤_코드_생선하는데_성공한다() {
+        void 랜덤하게_주어지는_길이_인자를_받아_여러번_랜덤_코드_생성하는데_성공한다() {
             // given
             int len = RandomUtils.nextInt(4, 21);
 

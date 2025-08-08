@@ -16,8 +16,8 @@ class EventDetailsTest {
     class UpdateDeletedStatus {
 
         @Test
-        @DisplayName("행사 세부 정보 상태 변경 인자로 ACTIVE가 들어올 경우 사용자 삭제 정보가 사라진다")
-        void 행사_세부_정보_상태_변경_인자로_ACTIVE가_들어올_경우_사용자_삭제_정보가_사라진다() {
+        @DisplayName("행사 세부 정보 상태 변경 인자로 ACTIVE가 들어올 경우 사용자 삭제 정보가 갱신된다")
+        void 행사_세부_정보_상태_변경_인자로_ACTIVE가_들어올_경우_사용자_삭제_정보가_갱신된다() {
             // given
             EventDetails eventDetails = EventDetailsFixture.createEventDetails();
 
@@ -30,8 +30,8 @@ class EventDetailsTest {
         }
 
         @Test
-        @DisplayName("행사 세부 정보 상태 변경 인자로 DELETED가 들어올 경우 사용자 삭제 정보가 사라진다")
-        void 행사_세부_정보_상태_변경_인자로_DELETED가_들어올_경우_사용자_삭제_정보가_사라진다() {
+        @DisplayName("행사 세부 정보 상태 변경 인자로 DELETED가 들어올 경우 사용자 삭제 정보가 갱신된다")
+        void 행사_세부_정보_상태_변경_인자로_DELETED가_들어올_경우_사용자_삭제_정보가_갱신된다() {
             // given
             EventDetails eventDetails = EventDetailsFixture.createEventDetails();
 

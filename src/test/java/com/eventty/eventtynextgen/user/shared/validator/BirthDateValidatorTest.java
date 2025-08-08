@@ -1,9 +1,7 @@
 package com.eventty.eventtynextgen.user.shared.validator;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +11,7 @@ class BirthDateValidatorTest {
     @Nested
     @DisplayName("생년월일 포맷 검증 테스트")
     class isValid {
+
         @Test
         @DisplayName("yyyy.mm.dd 형식일 경우 검증에 성공한다")
         void dot_형식으로_구성된_올바른_형태인_생년월일은_검증에_성공한다() {
