@@ -35,7 +35,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Run tests and generate coverage report
-      run: ./gradlew clean test jacocoTestReport -Dspring.profiles.active=dev
+      run: ./gradlew clean test jacocoTestReport -Dspring.profiles.active=local
       continue-on-error: true
 
     - name: Verify test coverage
