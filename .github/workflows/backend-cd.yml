@@ -46,5 +46,5 @@ jobs:
 
     - name: Image build and push
       run: |
-        docker build --build-arg PROFILE=dev -t ${{ secrets.DOCKER_HUB_NAMESPACE_EVENTTY_NG }}/${{ DOCKER_HUB_REPOSITORY_EVENTTY_NG }}-${{ steps.datetime.outputs.datetime }} --platform linux/arm64 .
+        docker build --build-arg PROFILE=dev -t ${{ secrets.DOCKER_HUB_NAMESPACE_EVENTTY_NG }}/${{ secrets.DOCKER_HUB_REPOSITORY_EVENTTY_NG }}-${{ steps.datetime.outputs.datetime }} --platform linux/arm64 .
         docker push ${{ secrets.DOCKER_HUB_NAMESPACE_EVENTTY_NG }}/${{ secrets.DOCKER_HUB_REPOSITORY_EVENTTY_NG }}:dev-${{ steps.datetime.outputs.datetime }}
