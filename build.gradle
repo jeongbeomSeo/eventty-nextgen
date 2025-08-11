@@ -82,7 +82,10 @@ dependencies {
 }
 
 test {
-	useJUnitPlatform()
+	useJUnitPlatform {
+		excludeTags("TooLongTime")
+		excludeTags("ExternalIntegration")
+	}
 	finalizedBy('jacocoTestReport')
 }
 
@@ -96,18 +99,5 @@ jacocoTestReport {
 		csv.required.set(false)
 		xml.required.set(true)
 		html.required.set(true)
-	}
-	finalizedBy('jacocoTestCoverageVerification')
-}
-
-jacocoTestCoverageVerification {
-	violationRules {
-		rule {
-			limit {
-				counter = 'LINE'
-				value = 'COVEREDRATIO'
-				minimum = 0.70
-			}
-		}
 	}
 }

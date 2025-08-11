@@ -54,7 +54,7 @@ public class EventInterest extends BaseTimeEntity {
             .build();
     }
 
-    private void updateDeletedStatus(EventInterestStatus status) {
+    public void updateDeletedStatus(EventInterestStatus status) {
         if (status == EventInterestStatus.ACTIVE) {
             this.isDeleted = false;
             this.deletedAt = null;

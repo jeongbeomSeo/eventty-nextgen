@@ -6,7 +6,6 @@ import com.eventty.eventtynextgen.base.exception.enums.MailErrorType;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-@Profile("!test")
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -38,7 +36,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
 
             log.info("Succeeded to send email");
         } catch (Exception e) {
-            log.error("Failed to send email verification mail");
+            log.error("Failed to send email verification mail, message={}", e.getMessage());
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, MailErrorType.FAILED_SEND_TO_EMAIL_VERIFICATION_MAIL);
         }
     }

@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.events.ticket.entity.enums;
+package com.eventty.eventtynextgen.ticket.entity.enums;
 
 public enum EventTicketStatusType {
 

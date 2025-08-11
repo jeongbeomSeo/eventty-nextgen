@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.events.ticket.annotation;
+package com.eventty.eventtynextgen.ticket.annotation;
 
 
 import java.lang.annotation.ElementType;

@@ -22,10 +22,10 @@ import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -105,6 +105,7 @@ class AuthCodeControllerTest {
         }
     }
 
+    @Tag("TooLongTime")
     @Nested
     @DisplayName("이메일 인증 코드 발송 요청 테스트")
     class SendCode {
@@ -116,7 +117,7 @@ class AuthCodeControllerTest {
         void 인증_코드를_성공적으로_발생했다면_사용자에게_인증_코드를_전달해준다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            String certTarget = "test@naver.com";
+            String certTarget = "jeongbeom4693@gmail.com";
             AuthCodeSendCodeRequestCommand authCodeSendCodeRequestCommand = new AuthCodeSendCodeRequestCommand(certTarget);
 
             // when

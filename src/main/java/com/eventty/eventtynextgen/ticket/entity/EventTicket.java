@@ -1,9 +1,9 @@
-package com.eventty.eventtynextgen.events.ticket.entity;
+package com.eventty.eventtynextgen.ticket.entity;
 
-import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketQuantityLimitType;
-import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketStatusType;
-import com.eventty.eventtynextgen.events.ticket.entity.enums.EventTicketPurchaseLimitPolicyType;
 import com.eventty.eventtynextgen.shared.entity.BaseEntity;
+import com.eventty.eventtynextgen.ticket.entity.enums.EventTicketPurchaseLimitPolicyType;
+import com.eventty.eventtynextgen.ticket.entity.enums.EventTicketQuantityLimitType;
+import com.eventty.eventtynextgen.ticket.entity.enums.EventTicketStatusType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -124,5 +124,20 @@ public class EventTicket extends BaseEntity {
             .isDeleted(false)
             .deletedAt(null)
             .build();
+    }
+
+    public void updateDeletedStatus(EventTicketStatus status) {
+        if (status == EventTicketStatus.ACTIVE) {
+            this.isDeleted = false;
+            this.deletedAt = null;
+        } else if (status == EventTicketStatus.DELETED) {
+            this.isDeleted = true;
+            this.deletedAt = LocalDateTime.now();
+        }
+    }
+
+    public enum EventTicketStatus {
+        ACTIVE,
+        DELETED
     }
 }

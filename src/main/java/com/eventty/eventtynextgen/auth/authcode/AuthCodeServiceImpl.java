@@ -12,7 +12,7 @@ import com.eventty.eventtynextgen.component.EmailSenderService;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
-import com.eventty.eventtynextgen.shared.utils.CodeGeneratorUtil;
+import com.eventty.eventtynextgen.shared.utils.CodeGeneratorUtils;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class AuthCodeServiceImpl implements AuthCodeService {
 
     @Override
     public AuthCodeSendCodeResponseView sendCode(String authTarget) {
-        String code = CodeGeneratorUtil.generateVerificationCode(EMAIL_VERIFICATION_CODE_LEN);
+        String code = CodeGeneratorUtils.generateRandomCode(EMAIL_VERIFICATION_CODE_LEN);
 
         AuthCode authCode = AuthCode.of(authTarget, code, AUTH_CODE_TTL);
         AuthCode authCodeFromDb = this.authCodeRepository.save(authCode);

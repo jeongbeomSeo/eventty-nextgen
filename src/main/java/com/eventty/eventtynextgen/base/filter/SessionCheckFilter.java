@@ -119,7 +119,7 @@ public class SessionCheckFilter extends OncePerRequestFilter {
         return true;
     }
     private User getUserBySessionToken(String sessionToken, HttpServletResponse response) {
-        Long userId = JwtTokenProvider.retrieveSessionTokenPayload(sessionToken).getUserId();
+        Long userId = JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiration(sessionToken).getUserId();
         Optional<User> userOpt = userComponent.getUserByUserId(userId);
 
         if (userOpt.isEmpty()) {
