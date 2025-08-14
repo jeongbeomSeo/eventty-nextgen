@@ -45,6 +45,7 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
+        platforms: linux/amd64
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}        
@@ -64,3 +65,48 @@ jobs:
     #   run: |
     #     docker build --build-arg PROFILE=dev -t ${{ secrets.DOCKER_HUB_NAMESPACE_EVENTTY_NG }}/${{ secrets.DOCKER_HUB_REPOSITORY_EVENTTY_NG }}:dev-${{ steps.datetime.outputs.datetime }} --platform linux/arm64 .
     #     docker push ${{ secrets.DOCKER_HUB_NAMESPACE_EVENTTY_NG }}/${{ secrets.DOCKER_HUB_REPOSITORY_EVENTTY_NG }}:dev-${{ steps.datetime.outputs.datetime }}
+  
+  deploy:
+    needs: build
+    runs-on: [self-hosted, dev]
+    env:
+      IMAGE: ${{ secrets.DOCKER_HUB_NAMESPACE_EVENTTY_NG }}/${{ secrets.DOCKER_HUB_REPOSITORY_EVENTTY_NG }}:dev
+      CONTAINER_NAME: eventty-api
+      HOST_PORT: "8080"
+      CONTAINER_PORT: "8080"
+      SPRING_PROFILE: "dev"
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_DEPLOY_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_DEPLOY_TOKEN }}    
+
+      - name: Pull latest image
+        run: sudo docker pull "${IMAGE}"
+
+      - name: Stop & remove existing container if present
+        shell: bash
+        run: |
+          # 스크립트에서 발생하는 오류나 에러가 발생하면 즉시 스크립트를 종료
+          set -e
+          if sudo docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+            echo "Stopping ${CONTAINER_NAME}…"
+            # || true 구문을 통해서 실패를 무시 
+            sudo docker stop "${CONTAINER_NAME}" || true
+            echo "Removing ${CONTAINER_NAME}…"
+            sudo docker rm "${CONTAINER_NAME}" || true
+          else
+            echo "No existing container named ${CONTAINER_NAME}"
+          fi
+
+      - name: Run new container
+        shell: bash
+        run: |
+          sudo docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped \
+            -p "${HOST_PORT}:${CONTAINER_PORT}" \
+            -e SPRING_PROFILES_ACTIVE="${SPRING_PROFILE}" \
+            "${IMAGE}"
+
+      - name: Docker image Prune
+        run: sudo docker image prune -af
