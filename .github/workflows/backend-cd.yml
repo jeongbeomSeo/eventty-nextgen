@@ -109,7 +109,7 @@ jobs:
         run: |
           # 스크립트에서 발생하는 오류나 에러가 발생하면 즉시 스크립트를 종료
           set -e
-          if sudo docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+          if sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
             echo "Stopping ${CONTAINER_NAME}…"
             # || true 구문을 통해서 실패를 무시 
             sudo docker stop "${CONTAINER_NAME}" || true
