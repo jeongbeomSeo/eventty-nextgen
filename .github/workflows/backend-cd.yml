@@ -85,6 +85,25 @@ jobs:
       - name: Pull latest image
         run: sudo docker pull "${IMAGE}"
 
+      - name: Create .env from GitHub Secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+  
+          # 작업 디렉터리에 .env 생성
+          cat > .env <<'ENV'
+          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+          DB_URL=${{ secrets.DB_URL }}
+          DB_DRIVER_CLASS_NAME=${{ secrets.DB_DRIVER_CLASS_NAME }}
+          DB_USER_NAME=${{ secrets.DB_USER_NAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          ENV
+  
+          # 권한 최소화
+          sudo chown $USER:$USER .env || true
+          sudo chmod 600 .env        
+
       - name: Stop & remove existing container if present
         shell: bash
         run: |
@@ -100,13 +119,20 @@ jobs:
             echo "No existing container named ${CONTAINER_NAME}"
           fi
 
-      - name: Run new container
+      - name: Run new container with .env
         shell: bash
         run: |
+          set -e
           sudo docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped \
-            -p "${HOST_PORT}:${CONTAINER_PORT}" \
+            --env-file ./.env \
             -e SPRING_PROFILES_ACTIVE="${SPRING_PROFILE}" \
+            -p "${HOST_PORT}:${CONTAINER_PORT}" \
             "${IMAGE}"
+
+      - name: Remove .env from host
+        if: always()
+        run: |
+          sudo rm -f .env || true            
 
       - name: Docker image Prune
         run: sudo docker image prune -af
