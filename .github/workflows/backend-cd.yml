@@ -146,7 +146,7 @@ jobs:
               
               server {
                 listen 80; listen [::]:80;
-                server_name ${{ env.DOMAIN }} www.${{ env.DOMAIN }};
+                server_name ${{ env.DOMAIN }};
                 
                 location ^~ /.well-known/acme-challenge/ {
                   root /var/www/certbot;
@@ -170,7 +170,7 @@ jobs:
           set -e
           if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
             sudo certbot certonly --webroot -w /var/www/certbot \
-              -d ${DOMAIN} -d www.${DOMAIN} \
+              -d ${DOMAIN} \
               --email "${CERTBOT_EMAIL:-admin@${DOMAIN}}" \
               --agree-tos --non-interactive
           else
@@ -221,7 +221,7 @@ jobs:
             # 80 → 443 리다이렉트 + ACME 허용
             server {
               listen 80; listen [::]:80;
-              server_name ${{ env.DOMAIN }} www.${{ env.DOMAIN }};
+              server_name ${{ env.DOMAIN }};
               
               location ^~ /.well-known/acme-challenge/ {
                 root /var/www/certbot;
@@ -231,7 +231,7 @@ jobs:
 
             server {
               listen 443 ssl http2; listen [::]:443 ssl http2;
-              server_name ${{ env.DOMAIN }} www.${{ env.DOMAIN }};
+              server_name ${{ env.DOMAIN }};
 
               ssl_certificate     /etc/letsencrypt/live/${{ env.DOMAIN }}/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/${{ env.DOMAIN }}/privkey.pem;
