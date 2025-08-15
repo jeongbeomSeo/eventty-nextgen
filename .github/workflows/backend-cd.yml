@@ -277,13 +277,14 @@ jobs:
             echo "No existing container named ${CONTAINER_NAME}"
           fi          
 
-      - name: Run new container (localhost only)
+      - name: Run new container (host network, localhost bind)
         run: |
           set -e
           sudo docker run -d --name "${CONTAINER_NAME}" \
             --env-file ./.env \
             -e SPRING_PROFILES_ACTIVE="${SPRING_PROFILE}" \
-            -p 127.0.0.1:${HOST_PORT}:${CONTAINER_PORT} \
+            -e SERVER_ADDRESS=127.0.0.1 \
+            --network host \
             "${IMAGE}"
 
       - name: Remove .env from host
