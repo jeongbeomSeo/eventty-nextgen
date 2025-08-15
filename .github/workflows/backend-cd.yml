@@ -91,15 +91,15 @@ jobs:
         run: |
           set -euo pipefail
   
-          # 작업 디렉터리에 .env 생성 & heredoc 시작, 'ENV'를 heredoc 종료 토큰으로 지정
-          cat > .env <<'ENV'
+          # 작업 디렉터리에 .env 생성 & heredoc 시작, EOF를 heredoc 종료 토큰으로 지정
+          cat > .env << 'EOF'
           MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
           DB_URL=${{ secrets.DB_URL }}
           DB_DRIVER_CLASS_NAME=${{ secrets.DB_DRIVER_CLASS_NAME }}
           DB_USER_NAME=${{ secrets.DB_USER_NAME }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          ENV
+          EOF
           sudo chmod 600 .env        
 
       # Nginx & Certbot 준비
@@ -117,9 +117,9 @@ jobs:
         run: |
           set -e
           if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
-            # heredoc 시작, 'NGINX' 종료 토큰으로 지정 & tee 명령어를 통해 표준 입력을 통해 받은 내용을 표준 출력 및 파일에 저장하도록 명령 + /dev/null 블랙홀로 리다이렉션 시켜 표준 출력은 버림
+            # heredoc 시작, EOF를 종료 토큰으로 지정 & tee 명령어를 통해 표준 입력을 통해 받은 내용을 표준 출력 및 파일에 저장하도록 명령 + /dev/null 블랙홀로 리다이렉션 시켜 표준 출력은 버림
             # heredoc으로 인해 변수 치환, 명령치환, 백슬래시 이스케이프가 일절 일어나지 않으므로 ${DOMAIN}이 아닌 ${{ env.DOMAIN }} 스크립트 실행 전 GitHub Runner가 치환하도록 구성
-            cat <<'NGINX' | sudo tee /etc/nginx/nginx.conf > /dev/null
+            sudo tee /etc/nginx/nginx.conf > /dev/null << 'EOF'
             user www-data;
             worker_processes auto;
             pid /run/nginx.pid;
@@ -158,7 +158,7 @@ jobs:
                 }
               }
             }
-            NGINX
+            EOF
             sudo nginx -t
             sudo systemctl reload nginx
           fi          
@@ -182,7 +182,7 @@ jobs:
       - name: Render nginx HTTPS reverse-proxy config
         run: |
           set -e
-          cat <<'NGINX' | sudo tee /etc/nginx/nginx.conf > /dev/null
+          sudo tee /etc/nginx/nginx.conf > /dev/null << 'EOF'
           user www-data;
           worker_processes auto;
           pid /run/nginx.pid;
@@ -258,7 +258,7 @@ jobs:
               }
             }
           }
-          NGINX
+          EOF
           sudo nginx -t
           sudo systemctl reload nginx
 
