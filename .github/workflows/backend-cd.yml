@@ -70,6 +70,7 @@ jobs:
     needs: build
     runs-on: [self-hosted, dev]
     env:
+      DOMAIN: "eventty-nextgen.site"
       IMAGE: ${{ secrets.DOCKER_HUB_NAMESPACE_EVENTTY_NG }}/${{ secrets.DOCKER_HUB_REPOSITORY_EVENTTY_NG }}:dev
       CONTAINER_NAME: eventty-api
       HOST_PORT: "8080"
@@ -90,7 +91,7 @@ jobs:
         run: |
           set -euo pipefail
   
-          # 작업 디렉터리에 .env 생성
+          # 작업 디렉터리에 .env 생성 & heredoc 시작, 'ENV'를 heredoc 종료 토큰으로 지정
           cat > .env <<'ENV'
           MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
           MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
@@ -99,10 +100,167 @@ jobs:
           DB_USER_NAME=${{ secrets.DB_USER_NAME }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           ENV
-  
-          # 권한 최소화
-          sudo chown $USER:$USER .env || true
           sudo chmod 600 .env        
+
+      # Nginx & Certbot 준비
+      - name: Ensure nginx & certbot installed
+        run: |
+          set -e
+          sudo apt-get update -y
+          sudo apt-get install -y nginx certbot
+          # webroot 경로
+          sudo mkdir -p /var/www/certbot
+          sudo chown www-data:www-data /var/www/certbot
+
+      - name: Render nginx HTTP-only config (first-issue path)
+        # 인증서가 없으면 먼저 80만 띄워 ACME 응답 준비
+        run: |
+          set -e
+          if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+            # heredoc 시작, 'NGINX' 종료 토큰으로 지정 & tee 명령어를 통해 표준 입력을 통해 받은 내용을 표준 출력 및 파일에 저장하도록 명령 + /dev/null 블랙홀로 리다이렉션 시켜 표준 출력은 버림
+            # heredoc으로 인해 변수 치환, 명령치환, 백슬래시 이스케이프가 일절 일어나지 않으므로 ${DOMAIN}이 아닌 ${{ env.DOMAIN }} 스크립트 실행 전 GitHub Runner가 치환하도록 구성
+            cat <<'NGINX' | sudo tee /etc/nginx/nginx.conf > /dev/null
+            user www-data;
+            worker_processes auto;
+            pid /run/nginx.pid;
+            
+            events { 
+              worker_connections 1024; 
+            }
+            
+            http {
+              include /etc/nginx/mime.types;
+              default_type application/octet-stream;
+              
+              access_log /var/log/nginx/access.log;
+              error_log  /var/log/nginx/error.log;
+              
+              sendfile on; 
+              tcp_nopush on; 
+              keepalive_timeout 65s;
+              
+              upstream api { 
+                server 127.0.0.1:8080; 
+                keepalive 64; 
+              }
+              
+              server {
+                listen 80; listen [::]:80;
+                server_name ${{ env.DOMAIN }} www.${{ env.DOMAIN }};
+                
+                location ^~ /.well-known/acme-challenge/ {
+                  root /var/www/certbot;
+                }
+                
+                location / { 
+                  return 200 'provisioning...'; 
+                  add_header Content-Type text/plain; 
+                }
+              }
+            }
+            NGINX
+            sudo nginx -t
+            sudo systemctl reload nginx
+          fi          
+
+      - name: Obtain/renew certificate (webroot)
+        env:
+          CERTBOT_EMAIL: ${{ secrets.CERTBOT_EMAIL }}
+        run: |
+          set -e
+          if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+            sudo certbot certonly --webroot -w /var/www/certbot \
+              -d ${DOMAIN} -d www.${DOMAIN} \
+              --email "${CERTBOT_EMAIL:-admin@${DOMAIN}}" \
+              --agree-tos --non-interactive
+          else
+            # 갱신 시도(필요 시)
+            sudo certbot renew --non-interactive --deploy-hook "systemctl reload nginx" || true
+          fi
+
+      # HTTPS 설정이 포함된 nginx.conf 파일 작성
+      - name: Render nginx HTTPS reverse-proxy config
+        run: |
+          set -e
+          cat <<'NGINX' | sudo tee /etc/nginx/nginx.conf > /dev/null
+          user www-data;
+          worker_processes auto;
+          pid /run/nginx.pid;
+
+          events { 
+            worker_connections 1024; 
+          }
+
+          http {
+            include /etc/nginx/mime.types;
+            default_type application/octet-stream;
+
+            log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                            '$status $body_bytes_sent "$http_referer" '
+                            '"$http_user_agent" "$http_x_forwarded_for"';
+                            
+            access_log /var/log/nginx/access.log main;
+            error_log  /var/log/nginx/error.log;
+
+            sendfile on; 
+            tcp_nopush on; 
+            keepalive_timeout 65s;
+            
+            client_max_body_size 10M;
+            server_tokens off;
+
+            # TLS 최신만
+            ssl_protocols TLSv1.2 TLSv1.3;
+            ssl_prefer_server_ciphers off;
+
+            upstream api {
+              server 127.0.0.1:8080;
+              keepalive 64;
+            }
+
+            # 80 → 443 리다이렉트 + ACME 허용
+            server {
+              listen 80; listen [::]:80;
+              server_name ${{ env.DOMAIN }} www.${{ env.DOMAIN }};
+              
+              location ^~ /.well-known/acme-challenge/ {
+                root /var/www/certbot;
+              }
+              return 301 https://$host$request_uri;
+            }
+
+            server {
+              listen 443 ssl http2; listen [::]:443 ssl http2;
+              server_name ${{ env.DOMAIN }} www.${{ env.DOMAIN }};
+
+              ssl_certificate     /etc/letsencrypt/live/${{ env.DOMAIN }}/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/${{ env.DOMAIN }}/privkey.pem;
+
+              add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+              add_header X-Content-Type-Options "nosniff" always;
+              add_header X-Frame-Options "SAMEORIGIN" always;
+              add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+              location / {
+                proxy_http_version 1.1;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Port $server_port;
+
+                proxy_connect_timeout 5s;
+                proxy_read_timeout 65s;
+                proxy_send_timeout 30s;
+
+                proxy_pass http://api;
+              }
+            }
+          }
+          NGINX
+          sudo nginx -t
+          sudo systemctl reload nginx
 
       - name: Stop & remove existing container if present
         shell: bash
@@ -117,16 +275,15 @@ jobs:
             sudo docker rm "${CONTAINER_NAME}" || true
           else
             echo "No existing container named ${CONTAINER_NAME}"
-          fi
+          fi          
 
-      - name: Run new container with .env
-        shell: bash
+      - name: Run new container (localhost only)
         run: |
           set -e
           sudo docker run -d --name "${CONTAINER_NAME}" \
             --env-file ./.env \
             -e SPRING_PROFILES_ACTIVE="${SPRING_PROFILE}" \
-            -p "${HOST_PORT}:${CONTAINER_PORT}" \
+            -p 127.0.0.1:${HOST_PORT}:${CONTAINER_PORT} \
             "${IMAGE}"
 
       - name: Remove .env from host
