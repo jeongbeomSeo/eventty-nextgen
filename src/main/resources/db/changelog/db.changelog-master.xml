@@ -5,6 +5,7 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
   <include file="/db/changelog/scripts/jb-250805-create-schema.xml"/>
+  <include file="/db/changelog/scripts/jb-250823-update-schema.xml"/>
 
 
 </databaseChangeLog>

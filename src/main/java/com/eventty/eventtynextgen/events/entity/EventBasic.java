@@ -2,8 +2,11 @@ package com.eventty.eventtynextgen.events.entity;
 
 import com.eventty.eventtynextgen.events.entity.enums.EventCategoryType;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
+import com.eventty.eventtynextgen.shared.converter.ListToJsonConverter;
 import com.eventty.eventtynextgen.shared.entity.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Converter;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,12 +15,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.Type;
+import org.hibernate.usertype.UserType;
 
 @Entity
 @Table(name = "event_basic")
@@ -35,7 +41,10 @@ public class EventBasic extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String title;
 
-    private String image;
+    @Comment("상품 이미지 URL 리스트")
+    @Convert(converter = ListToJsonConverter.class)
+    @Column(name = "image_urls", columnDefinition = "TEXT")
+    private List<String> imageUrls;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -70,12 +79,12 @@ public class EventBasic extends BaseEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    private EventBasic(Long hostId, String title, String image, EventCategoryType category, LocalDateTime eventStartAt, LocalDateTime eventEndAt,
+    private EventBasic(Long hostId, String title, List<String> imageUrls, EventCategoryType category, LocalDateTime eventStartAt, LocalDateTime eventEndAt,
         EventParticipantLimitPolicyType participantLimitPolicy, Integer maxParticipants, String location, boolean isDeleted,
         LocalDateTime deletedAt) {
         this.hostId = hostId;
         this.title = title;
-        this.image = image;
+        this.imageUrls = imageUrls;
         this.category = category;
         this.eventStartAt = eventStartAt;
         this.eventEndAt = eventEndAt;
@@ -86,12 +95,12 @@ public class EventBasic extends BaseEntity {
         this.deletedAt = deletedAt;
     }
 
-    public static EventBasic of(Long hostId, String title, String image, EventCategoryType category, LocalDateTime eventStartAt, LocalDateTime eventEndAt,
+    public static EventBasic of(Long hostId, String title, List<String> imageUrls, EventCategoryType category, LocalDateTime eventStartAt, LocalDateTime eventEndAt,
         EventParticipantLimitPolicyType participantLimitPolicy, Integer maxParticipants, String location) {
         return EventBasic.builder()
             .hostId(hostId)
             .title(title)
-            .image(image)
+            .imageUrls(imageUrls)
             .category(category)
             .eventStartAt(eventStartAt)
             .eventEndAt(eventEndAt)

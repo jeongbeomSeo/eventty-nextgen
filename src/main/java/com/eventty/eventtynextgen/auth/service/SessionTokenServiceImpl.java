@@ -13,6 +13,7 @@ import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.JwtTokenErrorType;
+import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +65,8 @@ public class SessionTokenServiceImpl implements SessionTokenService {
     @Override
     public void verifyAndMatchRefresh(String refreshToken, Long userId) {
         // 1. Refresh 토큰 검증
-        verifyAndHandleTokenException(refreshToken);
+        VerifyTokenResult verifyTokenResult = JwtTokenProvider.verifyToken(refreshToken);
+        handleTokenException(verifyTokenResult);
 
         // 2. Refresh 토큰 값 일치 확인
         RefreshToken refreshTokenFromDb = this.refreshTokenService.getRefreshToken(userId);
@@ -78,8 +80,8 @@ public class SessionTokenServiceImpl implements SessionTokenService {
         }
     }
 
-    private void verifyAndHandleTokenException(String token) {
-        switch (JwtTokenProvider.verifyToken(token)) {
+    private void handleTokenException(VerifyTokenResult verifyTokenResult) {
+        switch (verifyTokenResult) {
             case EXPIRED_TOKEN -> throw CustomException.badRequest(JwtTokenErrorType.EXPIRED_TOKEN);
             case UNSUPPORTED_TOKEN -> throw CustomException.badRequest(JwtTokenErrorType.UNSUPPORTED_TOKEN);
             case ILLEGAL_STATE_TOKEN -> throw CustomException.badRequest(JwtTokenErrorType.ILLEGAL_STATE_TOKEN);

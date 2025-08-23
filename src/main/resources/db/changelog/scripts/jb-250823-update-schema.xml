@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="250823-create-schema-01-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="event_basic" columnName="image"/>
+      </not>
+    </preConditions>
+    <dropColumn tableName="event_basic" columnName="image"/>
+    <addColumn tableName="event_basic">
+      <column name="image_urls" type="text"/>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>
