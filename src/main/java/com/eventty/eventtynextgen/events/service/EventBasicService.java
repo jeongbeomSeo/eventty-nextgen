@@ -35,6 +35,7 @@ public class EventBasicService {
         switch (verifyResult.getVerifyEventBasicResult()) {
             case ILLEGAL_EVENT_END_BEFORE_START -> throw CustomException.badRequest(EventsErrorType.ILLEGAL_EVENT_END_BEFORE_START, verifyResult.getDetails());
             case ILLEGAL_EVENT_IMAGE -> throw CustomException.badRequest(EventsErrorType.ILLEGAL_EVENT_IMAGE, verifyResult.getDetails());
+            case ILLEGAL_ARGUMENT_MAX_PARTICIPANTS -> throw CustomException.badRequest(EventsErrorType.ILLEGAL_MAX_PARTICIPANTS, verifyResult.getDetails());
         }
     }
 
