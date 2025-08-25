@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.shared.converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +30,19 @@ class ListToJsonConverterTest {
             // then
             assertThat(json).isEqualTo((new ObjectMapper().writeValueAsString(list)));
         }
+
+        @Test
+        @DisplayName("List에 직렬화 불가능한 객체가 포함된 경우 예외가 발생한다")
+        void List에_직렬화_불가능한_객체가_포함된_경우_에외가_발생한다() {
+            // given
+            List<Object> list = List.of(new Object());
+            ListToJsonConverter listToJsonConverter = new ListToJsonConverter();
+
+            // when & then
+            assertThatThrownBy(() -> listToJsonConverter.convertToDatabaseColumn((List<String>)(List<?>)list))
+                .isInstanceOf(RuntimeException.class);
+        }
+
     }
 
     @Nested
@@ -48,5 +62,47 @@ class ListToJsonConverterTest {
             // then
             assertThat(result).isEqualTo(list);
         }
+
+        @Test
+        @DisplayName("null이 들어오면 빈 리스트를 반환한다")
+        void null이_들어오면_빈_리스트를_반환한다() {
+            // given
+            String json = null;
+            ListToJsonConverter listToJsonConverter = new ListToJsonConverter();
+
+            // when
+            List<String> result = listToJsonConverter.convertToEntityAttribute(json);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("빈 문자열이 들어오면 빈 리스트를 반환한다")
+        void 빈_문자열이_들어오면_빈_리스트를_반환한다() {
+            // given
+            String json = "";
+            ListToJsonConverter listToJsonConverter = new ListToJsonConverter();
+
+            // when
+            List<String> result = listToJsonConverter.convertToEntityAttribute(json);
+
+            // then
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("잘못된 JSON 문자열이 들어오면 예외가 발생한다.")
+        void 잘못된_JSON_문자열이_들어오면_예외가_발생한다() {
+            // given
+            String invalidJson = "{invalid json}";
+            ListToJsonConverter listToJsonConverter = new ListToJsonConverter();
+
+            // when & then
+            assertThatThrownBy(() -> listToJsonConverter.convertToEntityAttribute(invalidJson))
+                .isInstanceOf(RuntimeException.class);
+        }
     }
+
+
 }

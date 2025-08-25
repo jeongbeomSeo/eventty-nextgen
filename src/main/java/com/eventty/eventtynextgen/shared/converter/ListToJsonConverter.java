@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,8 +27,11 @@ public class ListToJsonConverter implements AttributeConverter<List<String>, Str
     @Override
     public List<String> convertToEntityAttribute(String string) {
         try {
+            if (string == null || string.isEmpty()) {
+                return Collections.emptyList();
+            }
             return OBJECT_MAPPER.readValue(string, new TypeReference<>() {});
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             log.error("ListToJsonConverter: Error while converting json to list \nmessage: {}", e.getMessage());
             throw new RuntimeException(e);
         }
