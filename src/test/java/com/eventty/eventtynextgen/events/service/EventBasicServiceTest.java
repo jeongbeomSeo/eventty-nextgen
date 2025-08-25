@@ -188,7 +188,7 @@ class EventBasicServiceTest {
         }
 
         @Test
-        @DisplayName("DB에_저장시_제약조건이_위배되었을_경우_저장에_실패한다")
+        @DisplayName("DB에 저장시 제약조건이 위배되었을 경우 저장에 실패한다")
         void DB에_저장시_제약조건이_위배되었을_경우_저장에_실패한다() {
             // given
             EventBasicArgs args = EventBasicArgs.builder()
