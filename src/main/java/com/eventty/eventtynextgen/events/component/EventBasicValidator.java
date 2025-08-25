@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class CreateEventValidator {
+public class EventBasicValidator {
 
     private final StorageService storageService;
 

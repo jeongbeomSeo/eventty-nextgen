@@ -2,8 +2,8 @@ package com.eventty.eventtynextgen.events.service;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.EventsErrorType;
-import com.eventty.eventtynextgen.events.component.CreateEventValidator;
-import com.eventty.eventtynextgen.events.component.CreateEventValidator.VerifyResult;
+import com.eventty.eventtynextgen.events.component.EventBasicValidator;
+import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyResult;
 import com.eventty.eventtynextgen.events.entity.EventBasic;
 import com.eventty.eventtynextgen.events.entity.enums.EventCategoryType;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
@@ -19,11 +19,11 @@ import org.springframework.stereotype.Service;
 public class EventBasicService {
 
     private final EventBasicRepository eventBasicRepository;
-    private final CreateEventValidator createEventValidator;
+    private final EventBasicValidator eventBasicValidator;
 
     public EventBasic saveEventBasic(EventBasicArgs args) {
 
-        VerifyResult verifyResult = this.createEventValidator.validateEventBasic(args.eventStartAt, args.eventEndAt, args.imageUrls(), args.participantLimitPolicy, args.maxParticipants);
+        VerifyResult verifyResult = this.eventBasicValidator.validateEventBasic(args.eventStartAt, args.eventEndAt, args.imageUrls(), args.participantLimitPolicy, args.maxParticipants);
         handleVerifyResult(verifyResult);
 
         EventBasic eventBasic = EventBasic.of(args.hostId, args.title, args.imageUrls, args.category, args.eventStartAt, args.eventEndAt, args.participantLimitPolicy, args.maxParticipants, args.location);

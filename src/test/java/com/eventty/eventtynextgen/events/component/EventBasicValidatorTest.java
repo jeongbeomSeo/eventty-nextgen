@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.component.StorageService;
-import com.eventty.eventtynextgen.events.component.CreateEventValidator.VerifyEventBasicResult;
-import com.eventty.eventtynextgen.events.component.CreateEventValidator.VerifyResult;
+import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyEventBasicResult;
+import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyResult;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,8 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CreateEventValidator 단위 테스트")
-class CreateEventValidatorTest {
+@DisplayName("EventBasicValidator 단위 테스트")
+class EventBasicValidatorTest {
 
     @Mock
     private StorageService storageService;
@@ -40,10 +40,10 @@ class CreateEventValidatorTest {
             when(storageService.fileExists(imageUrls.get(0))).thenReturn(true);
             when(storageService.fileExists(imageUrls.get(1))).thenReturn(true);
 
-            CreateEventValidator createEventValidator = new CreateEventValidator(storageService);
+            EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
             // when
-            VerifyResult verifyResult = createEventValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
+            VerifyResult verifyResult = eventBasicValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
 
             // then
             assertThat(verifyResult.getVerifyEventBasicResult()).isEqualTo(VerifyEventBasicResult.VERIFIED);
@@ -62,10 +62,10 @@ class CreateEventValidatorTest {
             when(storageService.fileExists(imageUrls.get(0))).thenReturn(true);
             when(storageService.fileExists(imageUrls.get(1))).thenReturn(true);
 
-            CreateEventValidator createEventValidator = new CreateEventValidator(storageService);
+            EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
             // when
-            VerifyResult verifyResult = createEventValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
+            VerifyResult verifyResult = eventBasicValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
 
             // then
             assertThat(verifyResult.getVerifyEventBasicResult()).isEqualTo(VerifyEventBasicResult.VERIFIED);
@@ -81,10 +81,10 @@ class CreateEventValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.UNLIMITED;
             Integer eventParticipantLimit = null;
 
-            CreateEventValidator createEventValidator = new CreateEventValidator(storageService);
+            EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
             // when
-            VerifyResult verifyResult = createEventValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
+            VerifyResult verifyResult = eventBasicValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
 
             // then
             assertThat(verifyResult.getVerifyEventBasicResult()).isEqualTo(VerifyEventBasicResult.ILLEGAL_EVENT_END_BEFORE_START);
@@ -101,10 +101,10 @@ class CreateEventValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.UNLIMITED;
             Integer eventParticipantLimit = null;
 
-            CreateEventValidator createEventValidator = new CreateEventValidator(storageService);
+            EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
             // when
-            VerifyResult verifyResult = createEventValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
+            VerifyResult verifyResult = eventBasicValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
 
             // then
             assertThat(verifyResult.getVerifyEventBasicResult()).isEqualTo(VerifyEventBasicResult.VERIFIED);
@@ -124,10 +124,10 @@ class CreateEventValidatorTest {
             when(storageService.fileExists(imageUrls.get(1))).thenReturn(false);
             when(storageService.fileExists(imageUrls.get(2))).thenReturn(false);
 
-            CreateEventValidator createEventValidator = new CreateEventValidator(storageService);
+            EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
             // when
-            VerifyResult verifyResult = createEventValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
+            VerifyResult verifyResult = eventBasicValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
 
             // then
             assertThat(verifyResult.getVerifyEventBasicResult()).isEqualTo(VerifyEventBasicResult.ILLEGAL_EVENT_IMAGE);
@@ -147,10 +147,10 @@ class CreateEventValidatorTest {
             when(storageService.fileExists(imageUrls.get(0))).thenReturn(true);
             when(storageService.fileExists(imageUrls.get(1))).thenReturn(true);
 
-            CreateEventValidator createEventValidator = new CreateEventValidator(storageService);
+            EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
             // when
-            VerifyResult verifyResult = createEventValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
+            VerifyResult verifyResult = eventBasicValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
 
             // then
             assertThat(verifyResult.getVerifyEventBasicResult()).isEqualTo(VerifyEventBasicResult.ILLEGAL_ARGUMENT_MAX_PARTICIPANTS);
@@ -169,10 +169,10 @@ class CreateEventValidatorTest {
             when(storageService.fileExists(imageUrls.get(0))).thenReturn(true);
             when(storageService.fileExists(imageUrls.get(1))).thenReturn(true);
 
-            CreateEventValidator createEventValidator = new CreateEventValidator(storageService);
+            EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
             // when
-            VerifyResult verifyResult = createEventValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
+            VerifyResult verifyResult = eventBasicValidator.validateEventBasic(eventStartAt, eventEndAt, imageUrls, eventParticipantLimitPolicyType, eventParticipantLimit);
 
             // then
             assertThat(verifyResult.getVerifyEventBasicResult()).isEqualTo(VerifyEventBasicResult.ILLEGAL_ARGUMENT_MAX_PARTICIPANTS);

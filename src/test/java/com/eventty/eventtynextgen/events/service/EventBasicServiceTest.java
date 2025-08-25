@@ -9,9 +9,9 @@ import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.EventsErrorType;
-import com.eventty.eventtynextgen.events.component.CreateEventValidator;
-import com.eventty.eventtynextgen.events.component.CreateEventValidator.VerifyEventBasicResult;
-import com.eventty.eventtynextgen.events.component.CreateEventValidator.VerifyResult;
+import com.eventty.eventtynextgen.events.component.EventBasicValidator;
+import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyEventBasicResult;
+import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyResult;
 import com.eventty.eventtynextgen.events.entity.EventBasic;
 import com.eventty.eventtynextgen.events.entity.enums.EventCategoryType;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
@@ -35,7 +35,7 @@ class EventBasicServiceTest {
     private EventBasicRepository eventBasicRepository;
 
     @Mock
-    private CreateEventValidator createEventValidator;
+    private EventBasicValidator eventBasicValidator;
 
 
     @Nested
@@ -63,11 +63,11 @@ class EventBasicServiceTest {
 
             EventBasic savedEventBasic = mock(EventBasic.class);
 
-            when(createEventValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
+            when(eventBasicValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
                 args.maxParticipants())).thenReturn(verifyResult);
             when(eventBasicRepository.save(any(EventBasic.class))).thenReturn(savedEventBasic);
 
-            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, createEventValidator);
+            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, eventBasicValidator);
 
             // when
             EventBasic result = eventBasicService.saveEventBasic(args);
@@ -96,11 +96,11 @@ class EventBasicServiceTest {
             when(verifyResult.getVerifyEventBasicResult()).thenReturn(VerifyEventBasicResult.ILLEGAL_EVENT_END_BEFORE_START);
             when(verifyResult.getDetails()).thenReturn("details");
 
-            when(createEventValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
+            when(eventBasicValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
                 args.maxParticipants()))
                 .thenReturn(verifyResult);
 
-            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, createEventValidator);
+            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, eventBasicValidator);
 
             // when & then
             assertThatThrownBy(() -> eventBasicService.saveEventBasic(args))
@@ -133,11 +133,11 @@ class EventBasicServiceTest {
             when(verifyResult.getVerifyEventBasicResult()).thenReturn(VerifyEventBasicResult.ILLEGAL_EVENT_IMAGE);
             when(verifyResult.getDetails()).thenReturn("details");
 
-            when(createEventValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
+            when(eventBasicValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
                 args.maxParticipants()))
                 .thenReturn(verifyResult);
 
-            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, createEventValidator);
+            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, eventBasicValidator);
 
             // when & then
             assertThatThrownBy(() -> eventBasicService.saveEventBasic(args))
@@ -170,11 +170,11 @@ class EventBasicServiceTest {
             when(verifyResult.getVerifyEventBasicResult()).thenReturn(VerifyEventBasicResult.ILLEGAL_ARGUMENT_MAX_PARTICIPANTS);
             when(verifyResult.getDetails()).thenReturn("details");
 
-            when(createEventValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
+            when(eventBasicValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
                 args.maxParticipants()))
                 .thenReturn(verifyResult);
 
-            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, createEventValidator);
+            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, eventBasicValidator);
 
             // when & then
             assertThatThrownBy(() -> eventBasicService.saveEventBasic(args))
@@ -206,11 +206,11 @@ class EventBasicServiceTest {
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyEventBasicResult()).thenReturn(VerifyEventBasicResult.VERIFIED);
 
-            when(createEventValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
+            when(eventBasicValidator.validateEventBasic(args.eventStartAt(), args.eventEndAt(), args.imageUrls(), args.participantLimitPolicy(),
                 args.maxParticipants())).thenReturn(verifyResult);
             doThrow(ConstraintViolationException.class).when(eventBasicRepository).save(any(EventBasic.class));
 
-            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, createEventValidator);
+            EventBasicService eventBasicService = new EventBasicService(eventBasicRepository, eventBasicValidator);
 
             // when & then
             assertThatThrownBy(() -> eventBasicService.saveEventBasic(args))
