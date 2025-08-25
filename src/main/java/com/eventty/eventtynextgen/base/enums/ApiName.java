@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum ApiName {
 
     USER("/api/v1/user"),
-    EVENT("/api/v1/event"),
+    EVENTS("/api/v1/events"),
 
     // AUTH
     AUTH_CODE("/api/v1/auth/code"),

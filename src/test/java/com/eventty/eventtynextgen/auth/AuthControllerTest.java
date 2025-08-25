@@ -32,7 +32,6 @@ import com.eventty.eventtynextgen.user.utils.PasswordEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -70,7 +69,7 @@ class AuthControllerTest {
     private RefreshTokenRepository refreshTokenRepository;
 
     @BeforeEach
-    void tearDown() {
+    void setup() {
         userRepository.deleteAllInBatch();
     }
 
@@ -186,7 +185,7 @@ class AuthControllerTest {
                 .content(objectMapper.writeValueAsString(loginRequest))
                 .contentType(MediaType.APPLICATION_JSON));
 
-            // then
+            // then`
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(
                     content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
@@ -255,7 +254,7 @@ class AuthControllerTest {
         void 저장되어_있는_유효한_리프래시_토큰을_통해_재발급_요청시_재발급에_성공한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
@@ -283,7 +282,7 @@ class AuthControllerTest {
         void 만료된_리프래시_토큰을_통해_재발급_요청시_재발급에_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
@@ -312,7 +311,7 @@ class AuthControllerTest {
         void DB에서_만료된_리프래시_토큰을_통해_재발급_요청시_재발급에_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
@@ -341,7 +340,7 @@ class AuthControllerTest {
         void 올바르지_않은_형식으로_구성된_리프래시_토큰을_통하여_재발급_요청시_재발급에_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
@@ -370,7 +369,7 @@ class AuthControllerTest {
         void 저장되어_있지_않은_리프래시_토큰을_통해_재발급_요청시_재발급에_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
@@ -398,7 +397,7 @@ class AuthControllerTest {
         void 저장되어_있는_리프래시_토큰과_값이_일치하지_않을_경우_재발급에_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();
 
@@ -427,7 +426,7 @@ class AuthControllerTest {
         void 사용자가_삭제된_상태로_변경된_경우_재발급에_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
             Long userId = userFromDb.getId();

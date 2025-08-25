@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.base.constant;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.cloud.storage.Storage;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.util.AntPathMatcher;
@@ -9,8 +10,8 @@ import org.springframework.util.PathMatcher;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BaseConst {
 
+    // TODO: OBJECT_MAPPER, PATH_MATCHER는 여러 곳에서 활용되므로,shared로 옮기기
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
     public static final PathMatcher PATH_MATCHER = new AntPathMatcher();
     public static final String APP_NAME_KEY = "AppName";
     public static final String ADMIN_EMAIL_KEY = "AdminEmail";

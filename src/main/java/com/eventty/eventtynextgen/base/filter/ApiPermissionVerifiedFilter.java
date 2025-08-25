@@ -84,6 +84,7 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
         return StringUtils.hasText(context.getAppName()) && Objects.nonNull(context.getApiPermission());
     }
 
+    // TODO: api/v1/events로 요청이 들어오고 ApiName이 api/v1/event로 되어 있는 경우에도 패턴 매칭이 된다. -> Test 케이스 추가 후 수정
     private ApiName resolveApiName(String requestURI, HttpServletResponse response) {
         Optional<ApiName> apiNameOpt = Arrays.stream(ApiName.values())
             .filter(apiName -> requestURI.startsWith(apiName.getPattern()))

@@ -25,3 +25,8 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
   config:
     import: optional:.env[.properties]
+  cloud:
+    gcp:
+      storage:
+        credentials:
+          encoded-key: ${GCP_SA_IMAGE_KEY}

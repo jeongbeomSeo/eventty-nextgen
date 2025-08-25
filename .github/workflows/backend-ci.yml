@@ -36,6 +36,14 @@ jobs:
       run: chmod +x gradlew
 
     - name: Run tests and generate coverage report
+      env:
+        MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+        MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        DB_URL: ${{ secrets.DB_URL }}
+        DB_DRIVER_CLASS_NAME: ${{ secrets.DB_DRIVER_CLASS_NAME }}
+        DB_USER_NAME: ${{ secrets.DB_USER_NAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        GCP_SA_IMAGE_KEY: ${{ secrets.GCP_SA_IMAGE_KEY }}
       run: ./gradlew clean test jacocoTestReport -Dspring.profiles.active=local
 
     - name: Publish Test Results

@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -390,7 +389,7 @@ public class UserControllerTest {
         void 삭제되어_있지_않는_회원_수정_요청은_성공한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
@@ -438,7 +437,7 @@ public class UserControllerTest {
         void 삭제된_회원_수정_요청은_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
@@ -469,7 +468,7 @@ public class UserControllerTest {
         void 삭제되지_않은_회원의_삭제_요청은_성공한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
@@ -507,7 +506,7 @@ public class UserControllerTest {
         void 이미_삭제된_회원의_삭제_요청은_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
@@ -536,7 +535,7 @@ public class UserControllerTest {
         void 삭제된_회원일_경우_활성화_요청예_성공한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             user.updateDeleteStatus(UserStatus.DELETED);
             User userFromDb = userRepository.save(user);
 
@@ -559,7 +558,7 @@ public class UserControllerTest {
         void 삭제되지_않은_회원일_경우_활성화_요청에_실패한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
-            User user = UserFixture.createUser();
+            User user = UserFixture.createUserWithRoledUser();
             User userFromDb = userRepository.save(user);
 
             String url = BASE_URL + "/" + userFromDb.getId() + "/status";
