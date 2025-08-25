@@ -5,9 +5,11 @@ import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolic
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// TODO: 나중에 Create 관련 Request Command는 중복된 검증 작업은 어떻게 할지 고민 필요
 public record EventsCreateEventRequestCommand (
     @Schema(description = "행사 제목")
     @NotBlank
@@ -26,7 +28,8 @@ public record EventsCreateEventRequestCommand (
     @Schema(description = "참가 인원 정책")
     @NotNull
     EventParticipantLimitPolicyType participantLimitPolicy,
-    @Schema(description = "최대 참가 인원", nullable = true)
+    @Schema(description = "최대 참가 인원", minimum = "0")
+    @PositiveOrZero
     Integer maxParticipants,
     @Schema(description = "행사 주최지")
     @NotBlank

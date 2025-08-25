@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.events;
 
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
+import com.eventty.eventtynextgen.events.EventsService.CreateEventArgs;
 import com.eventty.eventtynextgen.events.annotation.EventApiV1;
 import com.eventty.eventtynextgen.events.request.EventsCreateEventRequestCommand;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
@@ -28,12 +29,22 @@ public class EventsController {
 
         Long hostId = SessionContextHolder.getContext().getUserId();
 
-        this.eventsService.createEvent(
-            hostId, eventsCreateEventRequestCommand.title(), eventsCreateEventRequestCommand.imageUrls(), eventsCreateEventRequestCommand.category(),
-            eventsCreateEventRequestCommand.eventStartAt(), eventsCreateEventRequestCommand.eventEndAt(),
-            eventsCreateEventRequestCommand.participantLimitPolicy(), eventsCreateEventRequestCommand.maxParticipants(),
-            eventsCreateEventRequestCommand.location(), eventsCreateEventRequestCommand.description(), eventsCreateEventRequestCommand.applyStartAt(),
-            eventsCreateEventRequestCommand.applyEndAt());
+        CreateEventArgs createEventArgs = CreateEventArgs.builder()
+            .hostId(hostId)
+            .title(eventsCreateEventRequestCommand.title())
+            .imageUrls(eventsCreateEventRequestCommand.imageUrls())
+            .category(eventsCreateEventRequestCommand.category())
+            .eventStartAt(eventsCreateEventRequestCommand.eventStartAt())
+            .eventEndAt(eventsCreateEventRequestCommand.eventEndAt())
+            .participantLimitPolicy(eventsCreateEventRequestCommand.participantLimitPolicy())
+            .maxParticipants(eventsCreateEventRequestCommand.maxParticipants())
+            .location(eventsCreateEventRequestCommand.location())
+            .description(eventsCreateEventRequestCommand.description())
+            .applyStartAt(eventsCreateEventRequestCommand.applyStartAt())
+            .applyEndAt(eventsCreateEventRequestCommand.applyEndAt())
+            .build();
+
+        this.eventsService.createEvent(createEventArgs);
 
         return ResponseEntity.status(201).build();
     }

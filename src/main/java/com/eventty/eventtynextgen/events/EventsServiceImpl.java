@@ -2,12 +2,9 @@ package com.eventty.eventtynextgen.events;
 
 import com.eventty.eventtynextgen.events.entity.EventBasic;
 import com.eventty.eventtynextgen.events.entity.EventDetails;
-import com.eventty.eventtynextgen.events.entity.enums.EventCategoryType;
-import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
 import com.eventty.eventtynextgen.events.service.EventBasicService;
+import com.eventty.eventtynextgen.events.service.EventBasicService.EventBasicArgs;
 import com.eventty.eventtynextgen.events.service.EventDetailsService;
-import java.time.LocalDateTime;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +16,22 @@ public class EventsServiceImpl implements EventsService {
     private final EventDetailsService eventDetailsService;
 
     @Override
-    public void createEvent(Long hostId, String title, List<String> imageUrls, EventCategoryType categoryType, LocalDateTime eventStartAt, LocalDateTime eventEndAt,
-        EventParticipantLimitPolicyType participantLimitPolicyType, Integer maxParticipants, String location, String description, LocalDateTime applyStartAt,
-        LocalDateTime applyEndAt) {
+    public void createEvent(CreateEventArgs args) {
 
-        EventBasic eventBasic = this.eventBasicService.saveEventBasic(hostId, title, imageUrls, categoryType, eventStartAt, eventEndAt,
-            participantLimitPolicyType, maxParticipants, location);
+        EventBasicArgs eventBasicArgs = EventBasicArgs.builder()
+            .hostId(args.hostId())
+            .title(args.title())
+            .imageUrls(args.imageUrls())
+            .category(args.category())
+            .eventStartAt(args.eventStartAt())
+            .eventEndAt(args.eventEndAt())
+            .participantLimitPolicy(args.participantLimitPolicy())
+            .maxParticipants(args.maxParticipants())
+            .location(args.location())
+            .build();
 
-        EventDetails eventDetails = this.eventDetailsService.saveEventDetails(eventBasic.getId(), description, applyStartAt, applyEndAt);
+        EventBasic eventBasic = this.eventBasicService.saveEventBasic(eventBasicArgs);
+
+        EventDetails eventDetails = this.eventDetailsService.saveEventDetails(eventBasic.getId(), args.description(), args.applyStartAt(), args.applyEndAt());
     }
 }
