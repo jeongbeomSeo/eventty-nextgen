@@ -11,7 +11,7 @@ public class EventDetailsValidator {
 
     public VerifyResult validateEventDetails(LocalDateTime applyStartAt, LocalDateTime applyEndAt) {
         if (!validateApplyTime(applyStartAt, applyEndAt)) {
-            return new VerifyResult(VerifyEventDetailsResult.ILLEGAL_ARGUMENT_APPLY_END_BEFORE_START, "Apply end time should be after apply start time applyStartAt: " + applyStartAt + " applyEndAt: " + applyEndAt + " applyEndAt: " + applyEndAt);
+            return new VerifyResult(VerifyEventDetailsResult.ILLEGAL_ARGUMENT_APPLY_END_BEFORE_START, "Apply end time should be after apply start time applyStartAt: " + applyStartAt + " applyEndAt: " + applyEndAt);
         }
 
         return new VerifyResult(VerifyEventDetailsResult.VERIFIED, "");

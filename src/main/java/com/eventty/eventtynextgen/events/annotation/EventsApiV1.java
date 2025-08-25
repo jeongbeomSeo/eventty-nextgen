@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @RestController
-@RequestMapping("api/v1/event")
-public @interface EventApiV1 {
+@RequestMapping("api/v1/events")
+public @interface EventsApiV1 {
 
 }

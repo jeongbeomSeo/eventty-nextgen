@@ -26,7 +26,7 @@ public class EventBasicValidator {
         }
 
         if (!validateParticipantLimitPolicy(participantLimitPolicy, maxParticipants)) {
-            return new VerifyResult(VerifyEventBasicResult.ILLEGAL_ARGUMENT_MAX_PARTICIPANTS, "maxParticipants can not be negative number: " + maxParticipants);
+            return new VerifyResult(VerifyEventBasicResult.ILLEGAL_ARGUMENT_MAX_PARTICIPANTS, "maxParticipants can not be negative number or zero: " + maxParticipants);
         }
 
         return new VerifyResult(VerifyEventBasicResult.VERIFIED, "");

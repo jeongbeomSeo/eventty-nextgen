@@ -27,6 +27,6 @@ public class GcsStorageService implements StorageService {
 
     @Override
     public boolean fileExists(String fileUrl) {
-        return false;
+        return true;
     }
 }

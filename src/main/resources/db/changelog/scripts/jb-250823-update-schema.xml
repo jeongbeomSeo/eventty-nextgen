@@ -4,13 +4,19 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="250823-create-schema-01-01" author="jeongbeomSeo">
+  <changeSet id="250823-create-schema-01-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
-      <not>
         <columnExists tableName="event_basic" columnName="image"/>
-      </not>
     </preConditions>
     <dropColumn tableName="event_basic" columnName="image"/>
+  </changeSet>
+
+  <changeSet id="250823-create-schema-02-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="event_basic" columnName="image_urls"/>
+      </not>
+    </preConditions>
     <addColumn tableName="event_basic">
       <column name="image_urls" type="text"/>
     </addColumn>
