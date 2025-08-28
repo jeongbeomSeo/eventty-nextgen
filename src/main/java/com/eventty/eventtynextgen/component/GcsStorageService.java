@@ -1,7 +1,20 @@
 package com.eventty.eventtynextgen.component;
 
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.StorageErrorType;
+import com.google.cloud.WriteChannel;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Optional;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,9 +23,30 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class GcsStorageService implements StorageService {
 
+    private final Storage storage;
+
     @Override
     public String uploadFile(MultipartFile file, Purpose purpose) {
-        return "";
+        String fileName = UUID.randomUUID().toString();
+        String ext = file.getContentType();
+        String bucketName = BucketName.getBucketName(purpose.name()).orElseThrow(
+                () -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, StorageErrorType.NOT_FOUND_BUCKET_NAME, "GcsImageStorageService.uploadImage"))
+            .getBucketName();
+
+        BlobId blobId = BlobId.of(bucketName, fileName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+            .setContentType(ext)
+            .build();
+
+        try (WriteChannel writer = storage.writer(blobInfo)) {
+            byte[] imageData = file.getBytes();
+            writer.write(ByteBuffer.wrap(imageData));
+        } catch (IOException e) {
+            log.error("Failed to upload image caused: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        return fileName;
     }
 
     @Override
@@ -27,6 +61,27 @@ public class GcsStorageService implements StorageService {
 
     @Override
     public boolean fileExists(String fileUrl) {
-        return true;
+        return false;
+    }
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private enum BucketName {
+
+        EVENTTY_EVENT_IMAGE("eventty-event-image", "event_image");
+
+        private final String bucketName;
+        private final String purpose;
+
+        public static Optional<BucketName> getBucketName(String purpose) {
+            String purposeLowerCase = purpose.toLowerCase();
+            for (BucketName bucketName : BucketName.values()) {
+                if (bucketName.purpose.equals(purposeLowerCase)) {
+                    return Optional.of(bucketName);
+                }
+            }
+            return Optional.empty();
+        }
     }
 }
+
