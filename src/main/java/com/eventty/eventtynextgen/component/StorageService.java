@@ -1,25 +1,23 @@
 package com.eventty.eventtynextgen.component;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface StorageService {
 
-    String uploadFile(MultipartFile file, Purpose purpose);
+    String uploadFile(MultipartFile file, Context context);
 
     void deleteFile(String fileName);
 
-    byte[] downloadFile(String fileName);
+    String findFileDownloadlink(String fileName, Context context);
 
-    String findFileUrl(String fileName, Purpose purpose);
+    String findFileUrl(String fileName, Context context);
 
-    FindFileUrlResult findFileUrls(List<String> fileNames, Purpose purpose);
+    FindFileUrlResult findFileUrls(List<String> fileNames, Context context);
 
-    boolean existsFile(String fileName, Purpose purpose);
+    boolean existsFile(String fileName, Context context);
 
-    enum Purpose {
+    enum Context {
         EVENT_IMAGE
     }
 
