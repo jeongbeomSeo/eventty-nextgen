@@ -1,13 +1,18 @@
 package com.eventty.eventtynextgen.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import com.eventty.eventtynextgen.base.exception.enums.StorageErrorType;
+import com.eventty.eventtynextgen.component.StorageService.FindFileUrlResult;
 import com.eventty.eventtynextgen.component.StorageService.Purpose;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -519,6 +524,8 @@ class GcsStorageServiceTest {
     @DisplayName("파일 유무 확인 테스트")
     class FileExistsTest {
 
+        // TODO: Delete file after test
+
         @Test
         @DisplayName("존재하는 파일인 경우 true를 반환한다")
         void 존재하는_파일인_경우_true를_반환한다() throws Exception {
@@ -530,9 +537,8 @@ class GcsStorageServiceTest {
 
             String fileUrl = gcsImageStorageService.uploadFile(imageFile, Purpose.EVENT_IMAGE);
 
-            System.out.println(fileUrl);
             // when
-            boolean fileExists = gcsImageStorageService.fileExists(fileUrl, Purpose.EVENT_IMAGE);
+            boolean fileExists = gcsImageStorageService.existsFile(fileUrl, Purpose.EVENT_IMAGE);
 
             // then
             assertThat(fileExists).isTrue();
@@ -547,7 +553,7 @@ class GcsStorageServiceTest {
             String fileUrl = "not_exist_file_name";
 
             // when
-            boolean fileExists = gcsImageStorageService.fileExists(fileUrl, Purpose.EVENT_IMAGE);
+            boolean fileExists = gcsImageStorageService.existsFile(fileUrl, Purpose.EVENT_IMAGE);
 
             // then
             assertThat(fileExists).isFalse();
@@ -560,10 +566,203 @@ class GcsStorageServiceTest {
             String fileUrl = "";
 
             // when
-            boolean fileExists = gcsImageStorageService.fileExists(fileUrl, Purpose.EVENT_IMAGE);
+            boolean fileExists = gcsImageStorageService.existsFile(fileUrl, Purpose.EVENT_IMAGE);
 
             // then
             assertThat(fileExists).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("단일 파일 URL 조회 테스트")
+    class FindFileUrlTest {
+        @Test
+        @DisplayName("1개의 파일 Name을 인자로 받아 공개 File Url를 조회하여 반환한다")
+        void 단일_파일_Name을__인자로_받아_공개_File_Url를_조회하여_반환한다() throws Exception {
+            // given
+            String lowerSizeJpgImagePath = "src/test/resources/images/512KB_size_image.jpg";
+            String imageContextType = ImageContextType.JPG.getType();
+
+            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+
+            String fileName = gcsImageStorageService.uploadFile(imageFile, Purpose.EVENT_IMAGE);
+
+            // when
+            String fileUrl = gcsImageStorageService.findFileUrl(fileName, Purpose.EVENT_IMAGE);
+
+            System.out.println(fileUrl);
+
+            // then
+            assertThat(fileUrl).isNotNull();
+            assertThat(fileUrl).startsWith("https://storage.googleapis.com");
+        }
+
+        @Test
+        @DisplayName("fileName이 null일 경우 예외를 발생시킨다")
+        void fileName이_null일_경우_예외를_발생시킨다() {
+            // given
+            String fileName = null;
+
+            // when & then
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, Purpose.EVENT_IMAGE))
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("fileName이 빈 값일 경우 예외를 발생시킨다")
+        void fileName이_빈_값일_경우_예외를_발생시킨다() {
+            // given
+            String fileName = "";
+
+            // when & then
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, Purpose.EVENT_IMAGE))
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("fileName을 통해 파일을 찾을 수 없는 경우 예외를 발생시킨다")
+        void fileName을_통해_파일을_찾을_수_없는_경우_예외를_발생시킨다() {
+            // given
+            String fileName = "not_exist_file_name";
+
+            // when & then
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, Purpose.EVENT_IMAGE))
+                .isInstanceOf(CustomException.class)
+                .satisfies(ex -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(StorageErrorType.NOT_FOUND_FILES);
+                });
+        }
+    }
+
+    @Nested
+    @DisplayName("여러 파일 URL 조회 테스트")
+    class FindFileUrlsTest {
+
+        // TODO: Delete file after test
+
+        @Test
+        @DisplayName("여러 개의 파일 Name을 인자로 받아 공개 File Urls를 조회하여 반환한다")
+        void 여러_개의_파일_Name을_인자로_받아_공개_File_Urls를_조회하여_반환한다() throws Exception {
+            // given
+            String rootPath = "src/test/resources/images/";
+            String imageContextType = ImageContextType.JPG.getType();
+
+            String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
+
+            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+
+            List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
+
+            List<String> fileNames = imageFiles.stream()
+                .map(file -> gcsImageStorageService.uploadFile(file, Purpose.EVENT_IMAGE))
+                .toList();
+
+            // when
+            FindFileUrlResult result = gcsImageStorageService.findFileUrls(fileNames, Purpose.EVENT_IMAGE);
+
+            // then
+            assertThat(result.fileUrls().size()).isEqualTo(5);
+            assertThat(result.failedFileNames()).isEmpty();
+            result.fileUrls().forEach(url ->
+                assertThat(url).startsWith("https://storage.googleapis.com"));
+        }
+
+        @Test
+        @DisplayName("여러 개의 fileName 중 하나라도 null이 포함되어 있으면 예외를 발생시킨다")
+        void 여러_개의_fileName_중_하나라도_null이_포함되어_있으면_예외를_발생시킨다() throws Exception {
+            // given
+            String rootPath = "src/test/resources/images/";
+            String imageContextType = ImageContextType.JPG.getType();
+
+            String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
+
+            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+
+            List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
+
+            List<String> fileNames = imageFiles.stream()
+                .map(file -> gcsImageStorageService.uploadFile(file, Purpose.EVENT_IMAGE))
+                .toList();
+
+            List<String> list = new ArrayList<>(fileNames);
+            list.add(null);
+
+            // when & then
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(list, Purpose.EVENT_IMAGE))
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("여러 개의 fileName 중 하나라도 빈 값이 포함되어 있으면 예외를 발생시킨다")
+        void 여러_개의_fileName_중_하나라도_빈_값이_포함되어_있으면_예외를_발생시킨다() throws Exception {
+            // given
+            String rootPath = "src/test/resources/images/";
+            String imageContextType = ImageContextType.JPG.getType();
+
+            String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
+
+            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+
+            List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
+
+            List<String> fileNames = imageFiles.stream()
+                .map(file -> gcsImageStorageService.uploadFile(file, Purpose.EVENT_IMAGE))
+                .toList();
+
+            List<String> list = new ArrayList<>(fileNames);
+            list.add("");
+
+            // when & then
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(list, Purpose.EVENT_IMAGE))
+                .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("존재하는 파일 Name에 대해서는 공개 URL을 반환하고, 존재하지 않는 파일 Name은 별도의 필드에 리스트로 반환한다.")
+        void 존재하는_파일_Name에_대해서는_공개_URL을_반환하고_존재하지_않는_파일_Name은_별도의_필드에_리스트로_반환한다() throws Exception {
+            // given
+            String rootPath = "src/test/resources/images/";
+            String imageContextType = ImageContextType.JPG.getType();
+
+            String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
+
+            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+
+            List<MultipartFile> imageFiles = IntStream.range(0, 3).mapToObj(i -> imageFile).toList();
+
+            List<String> fileNames = imageFiles.stream()
+                .map(file -> gcsImageStorageService.uploadFile(file, Purpose.EVENT_IMAGE))
+                .toList();
+
+            List<String> list = new ArrayList<>(fileNames);
+            list.add("not_exist_file_name1");
+            list.add("not_exist_file_name2");
+
+            // when
+            FindFileUrlResult result = gcsImageStorageService.findFileUrls(list, Purpose.EVENT_IMAGE);
+
+            // then
+            assertThat(result.fileUrls().size()).isEqualTo(3);
+            assertThat(result.failedFileNames().size()).isEqualTo(2);
+            assertThat(result.failedFileNames()).contains("not_exist_file_name1", "not_exist_file_name2");
+            result.fileUrls().forEach(url ->
+                assertThat(url).startsWith("https://storage.googleapis.com"));
+        }
+
+        @Test
+        @DisplayName("모든 파일이 존재하지 않는 경우에는 예외를 발생시킨다")
+        void 모든_파일이_존재하지_않는_경우에는_예외를_발생시킨다() throws Exception {
+            // given
+            List<String> fileNames = List.of("not_exist_file_name1", "not_exist_file_name2", "not_exist_file_name2");
+
+            // when & then
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(fileNames, Purpose.EVENT_IMAGE))
+                .isInstanceOf(CustomException.class)
+                .satisfies(ex -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(StorageErrorType.NOT_FOUND_FILES);
+                });
         }
     }
 
