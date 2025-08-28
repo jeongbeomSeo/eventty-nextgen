@@ -31,10 +31,10 @@ public class GcsStorageService implements StorageService {
     private final Storage storage;
 
     @Override
-    public String uploadFile(MultipartFile file, Purpose purpose) {
+    public String uploadFile(MultipartFile file, Context context) {
         String fileName = UUID.randomUUID().toString();
         String ext = file.getContentType();
-        String bucketName = getBucketInfo(purpose).getBucketName();
+        String bucketName = getBucketInfo(context).getBucketName();
 
         BlobId blobId = BlobId.of(bucketName, fileName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
@@ -53,21 +53,21 @@ public class GcsStorageService implements StorageService {
     }
 
     @Override
-    public String findFileUrl(String fileName, Purpose purpose) {
+    public String findFileUrl(String fileName, Context context) {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("파일명이 null이거나 공백일 수 없습니다");
         }
 
         List<String> fileNames = List.of(fileName);
 
-        FindFileUrlResult result = findFileUrls(fileNames, purpose);
+        FindFileUrlResult result = findFileUrls(fileNames, context);
 
         return result.fileUrls().get(0);
     }
 
     // TODO: 파일 조회 실패시 구체적인 예외를 받아올 수 있도록 추후에 수정
     @Override
-    public FindFileUrlResult findFileUrls(List<String> fileNames, Purpose purpose) {
+    public FindFileUrlResult findFileUrls(List<String> fileNames, Context context) {
         if (fileNames == null || fileNames.isEmpty()) {
             throw new IllegalArgumentException("파일명 리스트가 null이거나 비어있을 수 없습니다");
         }
@@ -76,7 +76,7 @@ public class GcsStorageService implements StorageService {
             throw new IllegalArgumentException("파일명이 null이거나 공백일 수 없습니다");
         }
 
-        BucketInfo bucketInfo = getBucketInfo(purpose);
+        BucketInfo bucketInfo = getBucketInfo(context);
         String bucketName = bucketInfo.getBucketName();
 
         List<Blob> blobs = fileNames.stream()
@@ -104,8 +104,20 @@ public class GcsStorageService implements StorageService {
     }
 
     @Override
-    public byte[] downloadFile(String fileUrl) {
-        return new byte[0];
+    public String findFileDownloadlink(String fileName, Context context) {
+        if (fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("파일명이 null이거나 공백일 수 없습니다");
+        }
+
+        String bucketName = getBucketInfo(context).getBucketName();
+
+        Blob blob = this.storage.get(BlobId.of(bucketName, fileName));
+
+        if (blob == null) {
+            throw CustomException.badRequest(StorageErrorType.NOT_FOUND_FILES);
+        }
+
+        return blob.getMediaLink();
     }
 
     @Override
@@ -114,20 +126,20 @@ public class GcsStorageService implements StorageService {
     }
 
     @Override
-    public boolean existsFile(String fileName, Purpose purpose) {
+    public boolean existsFile(String fileName, Context context) {
         if (fileName == null || fileName.isBlank()) {
             return false;
         }
 
-        String bucketName = getBucketInfo(purpose).getBucketName();
+        String bucketName = getBucketInfo(context).getBucketName();
 
         Blob blob = this.storage.get(BlobId.of(bucketName, fileName));
 
         return Optional.ofNullable(blob).map(Blob::exists).orElse(false);
     }
 
-    private BucketInfo getBucketInfo(Purpose purpose) {
-        return BucketInfo.getBucketInfo(purpose).orElseThrow(
+    private BucketInfo getBucketInfo(Context context) {
+        return BucketInfo.getBucketInfo(context).orElseThrow(
                 () -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, StorageErrorType.NOT_FOUND_BUCKET_NAME, "GcsImageStorageService.uploadImage"));
 
     }
@@ -136,15 +148,15 @@ public class GcsStorageService implements StorageService {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum BucketInfo {
 
-        EVENTTY_EVENT_IMAGE("eventty-event-image", Purpose.EVENT_IMAGE, "https://storage.googleapis.com/eventty-event-image/");
+        EVENTTY_EVENT_IMAGE("eventty-event-image", Context.EVENT_IMAGE, "https://storage.googleapis.com/eventty-event-image/");
 
         private final String bucketName;
-        private final Purpose purpose;
+        private final Context context;
         private final String baseUrl;
 
-        public static Optional<BucketInfo> getBucketInfo(Purpose purpose) {
+        public static Optional<BucketInfo> getBucketInfo(Context context) {
             for (BucketInfo bucketInfo : BucketInfo.values()) {
-                if (bucketInfo.purpose == purpose) {
+                if (bucketInfo.context == context) {
                     return Optional.of(bucketInfo);
                 }
             }
