@@ -46,7 +46,7 @@ public class EventBasicValidator {
     }
 
     private boolean isStorageUrl(String fileUrl) {
-        return this.storageService.fileExists(fileUrl, Purpose.EVENT_IMAGE);
+        return this.storageService.existsFile(fileUrl, Purpose.EVENT_IMAGE);
     }
 
     @Getter

@@ -38,8 +38,8 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.UNLIMITED;
             Integer eventParticipantLimit = null;
 
-            when(storageService.fileExists(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.fileExists(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(true);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
@@ -60,8 +60,8 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.LIMITED;
             Integer eventParticipantLimit = 100;
 
-            when(storageService.fileExists(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.fileExists(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(true);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
@@ -121,9 +121,9 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.UNLIMITED;
             Integer eventParticipantLimit = null;
 
-            when(storageService.fileExists(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.fileExists(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(false);
-            when(storageService.fileExists(imageUrls.get(2), Purpose.EVENT_IMAGE)).thenReturn(false);
+            when(storageService.existsFile(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(false);
+            when(storageService.existsFile(imageUrls.get(2), Purpose.EVENT_IMAGE)).thenReturn(false);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
@@ -145,8 +145,8 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.LIMITED;
             Integer eventParticipantLimit = -100;
 
-            when(storageService.fileExists(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.fileExists(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(true);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
@@ -167,8 +167,8 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.LIMITED;
             Integer eventParticipantLimit = 0;
 
-            when(storageService.fileExists(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.fileExists(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(0), Purpose.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), Purpose.EVENT_IMAGE)).thenReturn(true);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
