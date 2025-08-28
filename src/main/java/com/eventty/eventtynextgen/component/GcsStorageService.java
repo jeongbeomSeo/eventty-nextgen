@@ -104,7 +104,7 @@ public class GcsStorageService implements StorageService {
     }
 
     @Override
-    public String findFileDownloadlink(String fileName, Context context) {
+    public String findFileDownloadLink(String fileName, Context context) {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("파일명이 null이거나 공백일 수 없습니다");
         }
@@ -121,8 +121,18 @@ public class GcsStorageService implements StorageService {
     }
 
     @Override
-    public void deleteFile(String fileUrl) {
+    public boolean deleteFile(String fileName, Context context) {
+        if (fileName == null || fileName.isBlank()) {
+            throw new IllegalArgumentException("파일명이 null이거나 공백일 수 없습니다");
+        }
 
+        if (!existsFile(fileName, context)) {
+            throw CustomException.badRequest(StorageErrorType.NOT_FOUND_FILES);
+        }
+
+        String bucketName = getBucketInfo(context).getBucketName();
+
+        return this.storage.delete(BlobId.of(bucketName, fileName));
     }
 
     @Override

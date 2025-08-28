@@ -7,9 +7,9 @@ public interface StorageService {
 
     String uploadFile(MultipartFile file, Context context);
 
-    void deleteFile(String fileName);
+    boolean deleteFile(String fileName, Context context);
 
-    String findFileDownloadlink(String fileName, Context context);
+    String findFileDownloadLink(String fileName, Context context);
 
     String findFileUrl(String fileName, Context context);
 
