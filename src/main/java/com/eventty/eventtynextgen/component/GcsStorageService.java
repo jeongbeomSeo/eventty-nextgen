@@ -3,6 +3,7 @@ package com.eventty.eventtynextgen.component;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.StorageErrorType;
 import com.google.cloud.WriteChannel;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -29,9 +30,7 @@ public class GcsStorageService implements StorageService {
     public String uploadFile(MultipartFile file, Purpose purpose) {
         String fileName = UUID.randomUUID().toString();
         String ext = file.getContentType();
-        String bucketName = BucketName.getBucketName(purpose.name()).orElseThrow(
-                () -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, StorageErrorType.NOT_FOUND_BUCKET_NAME, "GcsImageStorageService.uploadImage"))
-            .getBucketName();
+        String bucketName = getBucketName(purpose);
 
         BlobId blobId = BlobId.of(bucketName, fileName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
@@ -46,7 +45,7 @@ public class GcsStorageService implements StorageService {
             throw new RuntimeException(e);
         }
 
-        return fileName;
+        return blobInfo.getName();
     }
 
     @Override
@@ -60,8 +59,22 @@ public class GcsStorageService implements StorageService {
     }
 
     @Override
-    public boolean fileExists(String fileUrl) {
-        return false;
+    public boolean fileExists(String fileUrl, Purpose purpose) {
+        if (fileUrl == null || fileUrl.isBlank()) {
+            return false;
+        }
+
+        String bucketName = getBucketName(purpose);
+
+        Blob blob = storage.get(BlobId.of(bucketName, fileUrl));
+
+        return Optional.ofNullable(blob).map(Blob::exists).orElse(false);
+    }
+
+    private String getBucketName(Purpose purpose) {
+        return BucketName.getBucketName(purpose.name()).orElseThrow(
+                () -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, StorageErrorType.NOT_FOUND_BUCKET_NAME, "GcsImageStorageService.uploadImage"))
+            .getBucketName();
     }
 
     @Getter

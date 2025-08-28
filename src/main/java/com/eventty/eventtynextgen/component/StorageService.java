@@ -10,7 +10,7 @@ public interface StorageService {
 
     byte[] downloadFile(String fileUrl);
 
-    boolean fileExists(String fileUrl);
+    boolean fileExists(String fileUrl, Purpose purpose);
 
     enum Purpose {
         EVENT_IMAGE
