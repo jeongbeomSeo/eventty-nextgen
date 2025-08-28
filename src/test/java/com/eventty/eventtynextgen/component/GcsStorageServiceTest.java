@@ -515,6 +515,58 @@ class GcsStorageServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("파일 유무 확인 테스트")
+    class FileExistsTest {
+
+        @Test
+        @DisplayName("존재하는 파일인 경우 true를 반환한다")
+        void 존재하는_파일인_경우_true를_반환한다() throws Exception {
+            // given
+            String lowerSizeJpgImagePath = "src/test/resources/images/512KB_size_image.jpg";
+            String imageContextType = ImageContextType.JPG.getType();
+
+            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+
+            String fileUrl = gcsImageStorageService.uploadFile(imageFile, Purpose.EVENT_IMAGE);
+
+            System.out.println(fileUrl);
+            // when
+            boolean fileExists = gcsImageStorageService.fileExists(fileUrl, Purpose.EVENT_IMAGE);
+
+            // then
+            assertThat(fileExists).isTrue();
+
+            // TODO: Delete file
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 파일인 경우 false를 반환한다")
+        void 존재하지_않는_파일인_경우_false를_반환한다() throws Exception {
+            // given
+            String fileUrl = "not_exist_file_name";
+
+            // when
+            boolean fileExists = gcsImageStorageService.fileExists(fileUrl, Purpose.EVENT_IMAGE);
+
+            // then
+            assertThat(fileExists).isFalse();
+        }
+
+        @Test
+        @DisplayName("파일명이 빈 값인 경우 false를 반환한다")
+        void 파일명이_빈_값인_경우_false를_반환한다() throws Exception {
+            // given
+            String fileUrl = "";
+
+            // when
+            boolean fileExists = gcsImageStorageService.fileExists(fileUrl, Purpose.EVENT_IMAGE);
+
+            // then
+            assertThat(fileExists).isFalse();
+        }
+    }
+
     private MultipartFile convertMultipartFile(String filePath, String contextType) throws Exception {
 
         File file = new File(filePath);
