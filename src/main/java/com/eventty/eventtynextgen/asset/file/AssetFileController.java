@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "파일 이미지 작업 API", description = "외부 스토리지를 이용하여 파일 관련 작업을 수행하는 API 모음")
+@Tag(name = "파일 작업 API", description = "외부 스토리지를 이용하여 파일 관련 작업을 수행하는 API 모음")
 @AssetFileApiV1
 @RequiredArgsConstructor
 public class AssetFileController {
