@@ -3,8 +3,8 @@ package com.eventty.eventtynextgen.events.component;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.component.StorageService;
-import com.eventty.eventtynextgen.component.StorageService.Context;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.Context;
 import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyEventBasicResult;
 import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyResult;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
@@ -22,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class EventBasicValidatorTest {
 
     @Mock
-    private StorageService storageService;
+    private ObjectStorageClient storageService;
 
     @Nested
     @DisplayName("Event Basic Info 유효성 검증 메서드 테스트")

@@ -1,12 +1,12 @@
-package com.eventty.eventtynextgen.component;
+package com.eventty.eventtynextgen.asset.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.StorageErrorType;
-import com.eventty.eventtynextgen.component.StorageService.Context;
-import com.eventty.eventtynextgen.component.StorageService.FindFileUrlResult;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.Context;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.FindFileUrlResult;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,11 +32,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag("ExternalIntegration")
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DisplayName("GcsImageStorageService 통합 테스트")
-class GcsStorageServiceTest {
+@DisplayName("GcsObjectStorageService 통합 테스트")
+class GcsObjectStorageServiceTest {
 
     @Autowired
-    private GcsStorageService gcsImageStorageService;
+    private GcsObjectStorageClient gcsImageStorageService;
 
     @Nested
     @DisplayName("이미지 파일 업로드 테스트")
