@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.events.component;
 
-import com.eventty.eventtynextgen.component.StorageService;
-import com.eventty.eventtynextgen.component.StorageService.Context;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.Context;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EventBasicValidator {
 
-    private final StorageService storageService;
+    private final ObjectStorageClient storageService;
 
     public VerifyResult validateEventBasic(LocalDateTime eventStartAt, LocalDateTime eventEndAt, List<String> imageUrls, EventParticipantLimitPolicyType participantLimitPolicy, Integer maxParticipants) {
         if (!validateEventTime(eventStartAt, eventEndAt)) {

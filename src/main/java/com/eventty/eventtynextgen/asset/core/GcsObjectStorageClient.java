@@ -1,4 +1,4 @@
-package com.eventty.eventtynextgen.component;
+package com.eventty.eventtynextgen.asset.core;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.StorageErrorType;
@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GcsStorageService implements StorageService {
+public class GcsObjectStorageClient implements ObjectStorageClient {
 
     private final Storage storage;
 
