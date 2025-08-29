@@ -16,7 +16,7 @@ import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeExistsEmailResp
 import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeSendCodeResponseView;
 import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeValidateCodeResponseView;
 import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.fixture.UserFixture;

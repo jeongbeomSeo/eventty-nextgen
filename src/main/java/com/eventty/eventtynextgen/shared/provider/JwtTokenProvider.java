@@ -1,13 +1,7 @@
-package com.eventty.eventtynextgen.base.provider;
+package com.eventty.eventtynextgen.shared.provider;
 
-import static com.eventty.eventtynextgen.base.constant.BaseConst.ADMIN_EMAIL_KEY;
-import static com.eventty.eventtynextgen.base.constant.BaseConst.API_ALLOW_KEY;
-import static com.eventty.eventtynextgen.base.constant.BaseConst.APP_NAME_KEY;
-import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_CLAIM_USER_ID_KEY;
-import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_SECRET_KEY;
-import static com.eventty.eventtynextgen.base.constant.BaseConst.JWT_TOKEN_TYPE;
-import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
-import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.*;
+import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.FAIL_VERIFY_JWT_TOKEN;
+import static com.eventty.eventtynextgen.shared.constant.SharedConst.OBJECT_MAPPER;
 import static com.eventty.eventtynextgen.shared.utils.sequence.Assertions.notNull;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
@@ -33,6 +27,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @UtilityClass
 public class JwtTokenProvider {
+
+    public static final String JWT_SECRET_KEY = "d172e90745bcc237af59f500a4d6acded461842227719b69f493cbf29c6a7acc0cfd00ae2117f3d5be5787427ab390988b23bf0968214595e68c2b0613118af3";
+    public static final String JWT_TOKEN_TYPE = "Bearer";
+    public static final String JWT_CLAIM_USER_ID_KEY = "userId";
+    public static final String API_ALLOW_KEY = "API_Allow";
+    public static final String ADMIN_EMAIL_KEY = "AdminEmail";
+    public static final String APP_NAME_KEY = "AppName";
+
 
     public static SessionTokenInfo createSessionToken(Long userId, Long accessTokenValidityInMS, Long refreshTokenValidityInMS) {
         notNull("userId", userId);
@@ -69,6 +71,7 @@ public class JwtTokenProvider {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class AccessTokenPayload {
+
         private Long userId;
     }
 
@@ -144,7 +147,8 @@ public class JwtTokenProvider {
         String adminEmail = claims.get(ADMIN_EMAIL_KEY, String.class);
 
         Object rawApiPermission = claims.get(API_ALLOW_KEY);
-        Set<String> apiPermission = OBJECT_MAPPER.convertValue(rawApiPermission, new TypeReference<>() {});
+        Set<String> apiPermission = OBJECT_MAPPER.convertValue(rawApiPermission, new TypeReference<>() {
+        });
 
         return new CertificationTokenPayload(appName, apiPermission, adminEmail);
     }
@@ -152,6 +156,7 @@ public class JwtTokenProvider {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class CertificationTokenPayload {
+
         private String appName;
         private Set<String> apiPermission;
         private String adminEmail;
@@ -166,6 +171,7 @@ public class JwtTokenProvider {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class CertificationTokenInfo {
+
         private final String tokenType;
         private final String certificationToken;
     }
@@ -173,6 +179,7 @@ public class JwtTokenProvider {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class SessionTokenInfo {
+
         private final String tokenType;
         private final String accessToken;
         private final Date accessTokenExpiredAt;

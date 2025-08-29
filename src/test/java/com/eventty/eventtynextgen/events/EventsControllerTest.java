@@ -11,7 +11,7 @@ import com.eventty.eventtynextgen.base.exception.enums.EventsErrorType;
 import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
 import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
 import com.eventty.eventtynextgen.base.fixture.SessionTokenFixture;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
 import com.eventty.eventtynextgen.events.fixture.CreateEventRequestFixture;
 import com.eventty.eventtynextgen.events.repository.EventBasicRepository;

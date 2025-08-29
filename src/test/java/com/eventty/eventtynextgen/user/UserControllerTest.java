@@ -19,7 +19,7 @@ import com.eventty.eventtynextgen.base.exception.factory.ErrorMsgFactory;
 import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
 import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
 import com.eventty.eventtynextgen.base.fixture.SessionTokenFixture;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;

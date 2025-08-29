@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.base.utils;
 
-import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
+import static com.eventty.eventtynextgen.shared.constant.SharedConst.OBJECT_MAPPER;
 
 import com.eventty.eventtynextgen.base.exception.ErrorResponse;
 import com.eventty.eventtynextgen.base.exception.enums.ErrorType;

@@ -6,10 +6,11 @@ import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.ILLE
 import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.INVALID_SIGNATURE_JWT_TOKEN;
 import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.JWT_TOKEN_EXPIRED;
 import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.UNSUPPORTED_JWT_TOKEN;
-import static com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult.VERIFIED_TOKEN;
+import static com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.*;
+import static com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.VerifyTokenResult.VERIFIED_TOKEN;
 
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.VerifyTokenResult;
 import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.context.SessionContext;
@@ -89,7 +90,7 @@ public class SessionCheckFilter extends OncePerRequestFilter {
     }
 
     private boolean verifySessionToken(String sessionToken, HttpServletResponse response) {
-        VerifyTokenResult verifyTokenResult = JwtTokenProvider.verifyToken(sessionToken);
+        VerifyTokenResult verifyTokenResult = verifyToken(sessionToken);
         if (verifyTokenResult != VERIFIED_TOKEN) {
             CustomException customException;
             switch (verifyTokenResult) {
@@ -119,7 +120,7 @@ public class SessionCheckFilter extends OncePerRequestFilter {
         return true;
     }
     private User getUserBySessionToken(String sessionToken, HttpServletResponse response) {
-        Long userId = JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiration(sessionToken).getUserId();
+        Long userId = extractAccessTokenPayloadIgnoringExpiration(sessionToken).getUserId();
         Optional<User> userOpt = userComponent.getUserByUserId(userId);
 
         if (userOpt.isEmpty()) {

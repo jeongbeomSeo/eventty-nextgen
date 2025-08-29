@@ -4,11 +4,12 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.AccessTokenPayload;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenPayload;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.AccessTokenPayload;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenPayload;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.SessionTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.VerifyTokenResult;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

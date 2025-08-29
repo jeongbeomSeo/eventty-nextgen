@@ -1,13 +1,13 @@
 package com.eventty.eventtynextgen.base.filter;
 
-import static com.eventty.eventtynextgen.base.constant.BaseConst.PATH_MATCHER;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
+import static com.eventty.eventtynextgen.shared.constant.SharedConst.PATH_MATCHER;
 
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenPayload;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
 import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenPayload;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.VerifyTokenResult;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,6 +55,7 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
             CertificationContextHolder.clearContext();
         }
     }
+
     private boolean shouldSkip(String uri) {
         return SKIP_PATTERNS.stream()
             .anyMatch(pattern -> PATH_MATCHER.match(pattern, uri));

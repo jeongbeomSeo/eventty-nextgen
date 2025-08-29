@@ -9,7 +9,7 @@ import com.eventty.eventtynextgen.auth.response.AuthReissueSessionTokenResponseV
 import com.eventty.eventtynextgen.auth.service.AuthUserService;
 import com.eventty.eventtynextgen.auth.service.SessionTokenService;
 import com.eventty.eventtynextgen.shared.utils.CookieUtils;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.SessionTokenInfo;
 import com.eventty.eventtynextgen.user.entity.User;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

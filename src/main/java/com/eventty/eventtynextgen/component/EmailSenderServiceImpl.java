@@ -1,9 +1,9 @@
 package com.eventty.eventtynextgen.component;
 
-import com.eventty.eventtynextgen.shared.enums.MailType;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.MailErrorType;
 import jakarta.mail.internet.MimeMessage;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -47,4 +47,13 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         return this.templateEngine.process(template, context);
     }
 
+    @Getter
+    @RequiredArgsConstructor
+    private enum MailType {
+        EMAIL_VERIFICATION("email-verification", "이메일 인증"),
+        ;
+
+        private final String template;
+        private final String subject;
+    }
 }
