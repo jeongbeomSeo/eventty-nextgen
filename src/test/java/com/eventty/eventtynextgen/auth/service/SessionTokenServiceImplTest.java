@@ -8,13 +8,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.SessionTokenInfo;
 import com.eventty.eventtynextgen.auth.core.Authentication;
 import com.eventty.eventtynextgen.auth.core.userdetails.UserDetails;
 import com.eventty.eventtynextgen.auth.refreshtoken.RefreshTokenService;
 import com.eventty.eventtynextgen.auth.refreshtoken.entity.RefreshToken;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.VerifyTokenResult;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;

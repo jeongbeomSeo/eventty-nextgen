@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.shared.converter;
 
-import static com.eventty.eventtynextgen.base.constant.BaseConst.OBJECT_MAPPER;
+import static com.eventty.eventtynextgen.shared.constant.SharedConst.OBJECT_MAPPER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -30,7 +30,8 @@ public class ListToJsonConverter implements AttributeConverter<List<String>, Str
             if (string == null || string.isEmpty()) {
                 return Collections.emptyList();
             }
-            return OBJECT_MAPPER.readValue(string, new TypeReference<>() {});
+            return OBJECT_MAPPER.readValue(string, new TypeReference<>() {
+            });
         } catch (Exception e) {
             log.error("ListToJsonConverter: Error while converting json to list \nmessage: {}", e.getMessage());
             throw new RuntimeException(e);

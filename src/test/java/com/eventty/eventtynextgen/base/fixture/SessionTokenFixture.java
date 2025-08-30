@@ -1,9 +1,9 @@
 package com.eventty.eventtynextgen.base.fixture;
 
-import static com.eventty.eventtynextgen.base.constant.BaseConst.*;
+import static com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.JWT_TOKEN_TYPE;
 
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.SessionTokenInfo;
 
 public class SessionTokenFixture {
 

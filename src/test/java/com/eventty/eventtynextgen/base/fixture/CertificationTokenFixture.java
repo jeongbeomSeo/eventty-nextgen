@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.base.fixture;
 
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
 import java.util.Set;
 
 public class CertificationTokenFixture {

@@ -7,8 +7,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.VerifyTokenResult;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.VerifyTokenResult;
 import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;

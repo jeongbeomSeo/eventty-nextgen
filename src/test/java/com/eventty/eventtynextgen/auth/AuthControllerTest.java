@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.auth;
 
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
+import static com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
@@ -21,8 +22,9 @@ import com.eventty.eventtynextgen.base.exception.enums.UserErrorType;
 import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
 import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
 import com.eventty.eventtynextgen.base.fixture.SessionTokenFixture;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.SessionTokenInfo;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
 import com.eventty.eventtynextgen.user.entity.User;
 import com.eventty.eventtynextgen.user.entity.User.UserStatus;
@@ -101,7 +103,7 @@ class AuthControllerTest {
             resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(userFromDb.getId()))
                 .andExpect(jsonPath("$.email").value(userFromDb.getEmail()))
-                .andExpect(jsonPath("$.accessTokenInfo.tokenType").value(BaseConst.JWT_TOKEN_TYPE))
+                .andExpect(jsonPath("$.accessTokenInfo.tokenType").value(JWT_TOKEN_TYPE))
                 .andExpect(jsonPath("$.accessTokenInfo.accessToken").isNotEmpty())
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, Matchers.containsString("refreshToken=")));
         }

@@ -3,8 +3,8 @@ package com.eventty.eventtynextgen.certification;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_VALIDITY_IN_MS;
 
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.CertificationErrorType;

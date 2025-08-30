@@ -9,8 +9,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.SessionTokenInfo;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.SessionTokenInfo;
 import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.shared.context.SessionContext;

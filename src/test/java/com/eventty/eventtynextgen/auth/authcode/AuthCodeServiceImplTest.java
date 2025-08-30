@@ -13,8 +13,6 @@ import com.eventty.eventtynextgen.auth.authcode.entity.AuthCode;
 import com.eventty.eventtynextgen.auth.authcode.repository.AuthCodeRepository;
 import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeSendCodeResponseView;
 import com.eventty.eventtynextgen.auth.authcode.response.AuthCodeValidateCodeResponseView;
-import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
-import com.eventty.eventtynextgen.base.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.component.EmailSenderServiceImpl;
 import com.eventty.eventtynextgen.shared.component.user.UserComponent;
 import com.eventty.eventtynextgen.base.exception.CustomException;
