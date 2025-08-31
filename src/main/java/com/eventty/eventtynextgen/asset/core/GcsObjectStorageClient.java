@@ -1,14 +1,17 @@
 package com.eventty.eventtynextgen.asset.core;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
-import com.eventty.eventtynextgen.base.exception.enums.StorageErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
 import com.google.cloud.WriteChannel;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,7 +34,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
     private final Storage storage;
 
     @Override
-    public String uploadFile(MultipartFile file, Context context) {
+    public UploadFileResult uploadMultipartFile(MultipartFile file, Context context) {
         String fileName = UUID.randomUUID().toString();
         String ext = file.getContentType();
         String bucketName = getBucketInfo(context).getBucketName();
@@ -45,11 +48,34 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             byte[] imageData = file.getBytes();
             writer.write(ByteBuffer.wrap(imageData));
         } catch (IOException e) {
-            log.error("Failed to upload image caused: {}", e.getMessage());
+            log.error("Failed to upload multipart file caused: {}", e.getMessage());
             throw new RuntimeException(e);
         }
 
-        return blobInfo.getName();
+        return new UploadFileResult(fileName, blobInfo.getSize(), blobInfo.getContentType());
+    }
+
+    @Override
+    public UploadFileResult uploadStreaming(InputStream inputStream, Context context, String contentType) {
+        String fileName = UUID.randomUUID().toString();
+        String bucketName = getBucketInfo(context).getBucketName();
+
+        BlobId blobId = BlobId.of(bucketName, fileName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+            .setContentType(contentType != null ? contentType : "application/octet-stream")
+            .build();
+
+        long totalBytes = 0l;
+
+        try (WriteChannel writer = this.storage.writer(blobInfo);
+            OutputStream out = Channels.newOutputStream(writer)) {
+            totalBytes = inputStream.transferTo(out);
+        } catch (IOException e) {
+            log.error("Failed to upload streaming file caused: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        return new UploadFileResult(fileName, totalBytes, blobInfo.getContentType());
     }
 
     @Override
@@ -85,7 +111,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             .toList();
 
         if (blobs.isEmpty()) {
-            throw CustomException.badRequest(StorageErrorType.NOT_FOUND_FILES);
+            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILES);
         }
 
         Set<String> blobNameSet = blobs.stream()
@@ -114,7 +140,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
         Blob blob = this.storage.get(BlobId.of(bucketName, fileName));
 
         if (blob == null) {
-            throw CustomException.badRequest(StorageErrorType.NOT_FOUND_FILES);
+            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILES);
         }
 
         return blob.getMediaLink();
@@ -127,7 +153,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
         }
 
         if (!existsFile(fileName, context)) {
-            throw CustomException.badRequest(StorageErrorType.NOT_FOUND_FILES);
+            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILES);
         }
 
         String bucketName = getBucketInfo(context).getBucketName();
@@ -150,7 +176,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
 
     private BucketInfo getBucketInfo(Context context) {
         return BucketInfo.getBucketInfo(context).orElseThrow(
-                () -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, StorageErrorType.NOT_FOUND_BUCKET_NAME, "GcsImageStorageService.uploadImage"));
+                () -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, AssetErrorType.NOT_FOUND_BUCKET_NAME, "GcsImageStorageService.uploadImage"));
 
     }
 

@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AssetFileController {
 
+    private final AssetFileService assetFileService;
+
     @GetMapping("/{file-name}")
     public ResponseEntity<AssetGetAssetFileResponseView> getAssetFile(@PathVariable(value = "file-name") String fileName) {
         return ResponseEntity.ok().build();
@@ -33,6 +35,7 @@ public class AssetFileController {
 
     @PostMapping("/multipart-file/{context}")
     public ResponseEntity<AssetUploadAssetFile> uploadMultipartFile(@RequestPart("file") MultipartFile file, @PathVariable String context) {
+
         return ResponseEntity.ok().build();
     }
 
