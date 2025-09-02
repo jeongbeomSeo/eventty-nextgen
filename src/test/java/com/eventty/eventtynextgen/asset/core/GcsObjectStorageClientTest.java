@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileResult;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
-import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.Context;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.FindFileUrlResult;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
 import java.io.File;
@@ -53,14 +53,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -73,14 +73,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(lowerSizeGifImagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -93,14 +93,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(lowerSizePngImagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -113,14 +113,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(lowerSizeSvgImagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -133,14 +133,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(lowerSizeWebpImagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -153,14 +153,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(lowerSizeAvifImagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -173,14 +173,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(imagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -193,14 +193,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(imagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -213,14 +213,14 @@ class GcsObjectStorageClientTest {
             MultipartFile imageFile = convertMultipartFile(imagePath, imageContextType);
 
             // when
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
             assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         /**
@@ -254,7 +254,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<UploadFileResult> results = imageFiles.stream()
-                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                     .toList();
 
                 // then
@@ -264,7 +264,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 3 sec 700ms
@@ -283,7 +283,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<UploadFileResult> results = imageFiles.stream()
-                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                     .toList();
 
                 // then
@@ -293,7 +293,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 7 sec 824 ms
@@ -312,7 +312,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<UploadFileResult> results = imageFiles.stream()
-                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                     .toList();
 
                 // then
@@ -322,7 +322,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 18.173, 18.376, 18.196, 18.504, 17.968
@@ -341,7 +341,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<UploadFileResult> results = imageFiles.stream()
-                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                     .toList();
 
                 // then
@@ -351,7 +351,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
         }
 
@@ -386,7 +386,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<UploadFileResult> results = imageFiles.stream()
-                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                     .toList();
 
                 // then
@@ -396,7 +396,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 1sec 984ms
@@ -415,7 +415,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<UploadFileResult> results = imageFiles.stream()
-                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                     .toList();
 
                 // then
@@ -425,7 +425,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 8sec 334ms
@@ -444,7 +444,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<UploadFileResult> results = imageFiles.stream()
-                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                     .toList();
 
                 // then
@@ -454,7 +454,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 24.855, 23.606, 22.705, 22.557, 22.352
@@ -473,7 +473,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<UploadFileResult> results = imageFiles.stream()
-                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                    .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                     .toList();
 
                 // then
@@ -483,7 +483,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
         }
 
@@ -508,7 +508,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<CompletableFuture<UploadFileResult>> futures = imageFiles.stream()
-                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE), excutor))
+                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE), excutor))
                     .toList();
 
                 List<UploadFileResult> results = futures
@@ -522,7 +522,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 1.470, 0.688, 0.817, 0.735, 0.650
@@ -542,7 +542,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<CompletableFuture<UploadFileResult>> futures = imageFiles.stream()
-                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE), excutor))
+                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE), excutor))
                     .toList();
 
                 List<UploadFileResult> results = futures
@@ -556,7 +556,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 1.836, 0.830, 0.847, 1.150, 0.938
@@ -575,7 +575,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<CompletableFuture<UploadFileResult>> futures = imageFiles.stream()
-                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE), excutor))
+                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE), excutor))
                     .toList();
 
                 List<UploadFileResult> results = futures
@@ -589,7 +589,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // 4.218, 3.376, 3.315, 3.333, 3.870
@@ -608,7 +608,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<CompletableFuture<UploadFileResult>> futures = imageFiles.stream()
-                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE), excutor))
+                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE), excutor))
                     .toList();
 
                 List<UploadFileResult> results = futures
@@ -622,7 +622,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
             }
 
             // TODO: Java 프로파일링 툴 도입 + 모니터링 툴 도입 후 성능 분석 및 개선 시작
@@ -647,7 +647,7 @@ class GcsObjectStorageClientTest {
 
                 // when
                 List<CompletableFuture<UploadFileResult>> futures = imageFiles.stream()
-                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE), excutor))
+                    .map(file -> CompletableFuture.supplyAsync(() -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE), excutor))
                     .toList();
 
                 List<UploadFileResult> results = futures
@@ -661,7 +661,7 @@ class GcsObjectStorageClientTest {
                     assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
-                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), Context.EVENT_IMAGE));
+                results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
 
                 // then
 //                futures
@@ -707,15 +707,15 @@ class GcsObjectStorageClientTest {
 
             MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // when
-            boolean fileExists = gcsImageStorageService.existsFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            boolean fileExists = gcsImageStorageService.existsFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(fileExists).isTrue();
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -725,7 +725,7 @@ class GcsObjectStorageClientTest {
             String fileUrl = "not_exist_file_name";
 
             // when
-            boolean fileExists = gcsImageStorageService.existsFile(fileUrl, Context.EVENT_IMAGE);
+            boolean fileExists = gcsImageStorageService.existsFile(fileUrl, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(fileExists).isFalse();
@@ -738,7 +738,7 @@ class GcsObjectStorageClientTest {
             String fileUrl = "";
 
             // when
-            boolean fileExists = gcsImageStorageService.existsFile(fileUrl, Context.EVENT_IMAGE);
+            boolean fileExists = gcsImageStorageService.existsFile(fileUrl, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(fileExists).isFalse();
@@ -757,10 +757,10 @@ class GcsObjectStorageClientTest {
 
             MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
-            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE);
+            UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
             // when
-            String fileUrl = gcsImageStorageService.findFileUrl(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            String fileUrl = gcsImageStorageService.findFileUrl(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
 
             System.out.println(fileUrl);
 
@@ -768,7 +768,7 @@ class GcsObjectStorageClientTest {
             assertThat(fileUrl).isNotNull();
             assertThat(fileUrl).startsWith("https://storage.googleapis.com");
 
-            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -778,7 +778,7 @@ class GcsObjectStorageClientTest {
             String fileName = null;
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
@@ -789,7 +789,7 @@ class GcsObjectStorageClientTest {
             String fileName = "";
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
@@ -800,7 +800,7 @@ class GcsObjectStorageClientTest {
             String fileName = "not_exist_file_name";
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrl(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -826,12 +826,12 @@ class GcsObjectStorageClientTest {
             List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
             List<String> fileNames = imageFiles.stream()
-                .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                 .map(UploadFileResult::fileName)
                 .toList();
 
             // when
-            FindFileUrlResult result = gcsImageStorageService.findFileUrls(fileNames, Context.EVENT_IMAGE);
+            FindFileUrlResult result = gcsImageStorageService.findFileUrls(fileNames, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(result.fileUrls().size()).isEqualTo(5);
@@ -841,7 +841,7 @@ class GcsObjectStorageClientTest {
 
             fileNames.forEach(fileName -> {
                 try {
-                    gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE);
+                    gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
                 } catch (Exception ignored) {}
             });
         }
@@ -860,7 +860,7 @@ class GcsObjectStorageClientTest {
             List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
             List<String> fileNames = imageFiles.stream()
-                .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                 .map(UploadFileResult::fileName)
                 .toList();
 
@@ -868,12 +868,12 @@ class GcsObjectStorageClientTest {
             list.add(null);
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(list, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(list, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
 
             fileNames.forEach(fileName -> {
                 try {
-                    gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE);
+                    gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
                 } catch (Exception ignored) {}
             });
         }
@@ -892,7 +892,7 @@ class GcsObjectStorageClientTest {
             List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
             List<String> fileNames = imageFiles.stream()
-                .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                 .map(UploadFileResult::fileName)
                 .toList();
 
@@ -900,12 +900,12 @@ class GcsObjectStorageClientTest {
             list.add("");
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(list, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(list, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
 
             fileNames.forEach(fileName -> {
                 try {
-                    gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE);
+                    gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
                 } catch (Exception ignored) {}
             });
         }
@@ -924,7 +924,7 @@ class GcsObjectStorageClientTest {
             List<MultipartFile> imageFiles = IntStream.range(0, 3).mapToObj(i -> imageFile).toList();
 
             List<String> fileNames = imageFiles.stream()
-                .map(file -> gcsImageStorageService.uploadMultipartFile(file, Context.EVENT_IMAGE))
+                .map(file -> gcsImageStorageService.uploadMultipartFile(file, StorageContext.EVENT_IMAGE))
                 .map(UploadFileResult::fileName)
                 .toList();
 
@@ -933,7 +933,7 @@ class GcsObjectStorageClientTest {
             list.add("not_exist_file_name2");
 
             // when
-            FindFileUrlResult result = gcsImageStorageService.findFileUrls(list, Context.EVENT_IMAGE);
+            FindFileUrlResult result = gcsImageStorageService.findFileUrls(list, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(result.fileUrls().size()).isEqualTo(3);
@@ -944,7 +944,7 @@ class GcsObjectStorageClientTest {
 
             fileNames.forEach(fileName -> {
                 try {
-                    gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE);
+                    gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
                 } catch (Exception ignored) {}
             });
         }
@@ -956,7 +956,7 @@ class GcsObjectStorageClientTest {
             List<String> fileNames = List.of("not_exist_file_name1", "not_exist_file_name2", "not_exist_file_name2");
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(fileNames, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileUrls(fileNames, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -977,10 +977,10 @@ class GcsObjectStorageClientTest {
 
             MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
-            String fileName = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE).fileName();
+            String fileName = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE).fileName();
 
             // when
-            String downloadLink = gcsImageStorageService.findFileDownloadLink(fileName, Context.EVENT_IMAGE);
+            String downloadLink = gcsImageStorageService.findFileDownloadLink(fileName, StorageContext.EVENT_IMAGE);
 
             System.out.println(downloadLink);
 
@@ -989,7 +989,7 @@ class GcsObjectStorageClientTest {
             assertThat(downloadLink).startsWith("https://storage.googleapis.com");
             assertThat(downloadLink).contains("download");
 
-            gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE);
+            gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
         }
 
         @Test
@@ -999,7 +999,7 @@ class GcsObjectStorageClientTest {
             String fileName = "not_exist_file_name";
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileDownloadLink(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileDownloadLink(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -1014,7 +1014,7 @@ class GcsObjectStorageClientTest {
             String fileName = null;
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileDownloadLink(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileDownloadLink(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
@@ -1025,7 +1025,7 @@ class GcsObjectStorageClientTest {
             String fileName = "";
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.findFileDownloadLink(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.findFileDownloadLink(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
         }
     }
@@ -1042,10 +1042,10 @@ class GcsObjectStorageClientTest {
 
             MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
-            String fileName = gcsImageStorageService.uploadMultipartFile(imageFile, Context.EVENT_IMAGE).fileName();
+            String fileName = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE).fileName();
 
             // when
-            boolean result = gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE);
+            boolean result = gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
 
             // then
             assertThat(result).isTrue();
@@ -1058,7 +1058,7 @@ class GcsObjectStorageClientTest {
             String fileName = "not_exist_file_name";
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -1073,7 +1073,7 @@ class GcsObjectStorageClientTest {
             String fileName = null;
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
         }
 
@@ -1084,7 +1084,7 @@ class GcsObjectStorageClientTest {
             String fileName = "";
 
             // when & then
-            assertThatThrownBy(() -> gcsImageStorageService.deleteFile(fileName, Context.EVENT_IMAGE))
+            assertThatThrownBy(() -> gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
         }
     }

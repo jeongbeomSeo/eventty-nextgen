@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient;
-import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.Context;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
 import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyEventBasicResult;
 import com.eventty.eventtynextgen.events.component.EventBasicValidator.VerifyResult;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
@@ -38,8 +38,8 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.UNLIMITED;
             Integer eventParticipantLimit = null;
 
-            when(storageService.existsFile(imageUrls.get(0), Context.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.existsFile(imageUrls.get(1), Context.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(0), StorageContext.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), StorageContext.EVENT_IMAGE)).thenReturn(true);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
@@ -60,8 +60,8 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.LIMITED;
             Integer eventParticipantLimit = 100;
 
-            when(storageService.existsFile(imageUrls.get(0), Context.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.existsFile(imageUrls.get(1), Context.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(0), StorageContext.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), StorageContext.EVENT_IMAGE)).thenReturn(true);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
@@ -121,9 +121,9 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.UNLIMITED;
             Integer eventParticipantLimit = null;
 
-            when(storageService.existsFile(imageUrls.get(0), Context.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.existsFile(imageUrls.get(1), Context.EVENT_IMAGE)).thenReturn(false);
-            when(storageService.existsFile(imageUrls.get(2), Context.EVENT_IMAGE)).thenReturn(false);
+            when(storageService.existsFile(imageUrls.get(0), StorageContext.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), StorageContext.EVENT_IMAGE)).thenReturn(false);
+            when(storageService.existsFile(imageUrls.get(2), StorageContext.EVENT_IMAGE)).thenReturn(false);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
@@ -145,8 +145,8 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.LIMITED;
             Integer eventParticipantLimit = -100;
 
-            when(storageService.existsFile(imageUrls.get(0), Context.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.existsFile(imageUrls.get(1), Context.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(0), StorageContext.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), StorageContext.EVENT_IMAGE)).thenReturn(true);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 
@@ -167,8 +167,8 @@ class EventBasicValidatorTest {
             EventParticipantLimitPolicyType eventParticipantLimitPolicyType = EventParticipantLimitPolicyType.LIMITED;
             Integer eventParticipantLimit = 0;
 
-            when(storageService.existsFile(imageUrls.get(0), Context.EVENT_IMAGE)).thenReturn(true);
-            when(storageService.existsFile(imageUrls.get(1), Context.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(0), StorageContext.EVENT_IMAGE)).thenReturn(true);
+            when(storageService.existsFile(imageUrls.get(1), StorageContext.EVENT_IMAGE)).thenReturn(true);
 
             EventBasicValidator eventBasicValidator = new EventBasicValidator(storageService);
 

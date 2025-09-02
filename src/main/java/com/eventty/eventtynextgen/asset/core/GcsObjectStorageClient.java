@@ -34,7 +34,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
     private final Storage storage;
 
     @Override
-    public UploadFileResult uploadMultipartFile(MultipartFile file, Context context) {
+    public UploadFileResult uploadMultipartFile(MultipartFile file, StorageContext context) {
         String fileName = UUID.randomUUID().toString();
         String ext = file.getContentType();
         String bucketName = getBucketInfo(context).getBucketName();
@@ -52,11 +52,11 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             throw new RuntimeException(e);
         }
 
-        return new UploadFileResult(fileName, blobInfo.getSize(), blobInfo.getContentType());
+        return UploadFileResult.success(fileName, blobInfo.getSize(), blobInfo.getContentType());
     }
 
     @Override
-    public UploadFileResult uploadStreaming(InputStream inputStream, Context context, String contentType) {
+    public UploadFileResult uploadStreaming(InputStream inputStream, StorageContext context, String contentType) {
         String fileName = UUID.randomUUID().toString();
         String bucketName = getBucketInfo(context).getBucketName();
 
@@ -75,11 +75,11 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             throw new RuntimeException(e);
         }
 
-        return new UploadFileResult(fileName, totalBytes, blobInfo.getContentType());
+        return UploadFileResult.success(fileName, totalBytes, blobInfo.getContentType());
     }
 
     @Override
-    public String findFileUrl(String fileName, Context context) {
+    public String findFileUrl(String fileName, StorageContext context) {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("파일명이 null이거나 공백일 수 없습니다");
         }
@@ -93,7 +93,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
 
     // TODO: 파일 조회 실패시 구체적인 예외를 받아올 수 있도록 추후에 수정
     @Override
-    public FindFileUrlResult findFileUrls(List<String> fileNames, Context context) {
+    public FindFileUrlResult findFileUrls(List<String> fileNames, StorageContext context) {
         if (fileNames == null || fileNames.isEmpty()) {
             throw new IllegalArgumentException("파일명 리스트가 null이거나 비어있을 수 없습니다");
         }
@@ -130,7 +130,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
     }
 
     @Override
-    public String findFileDownloadLink(String fileName, Context context) {
+    public String findFileDownloadLink(String fileName, StorageContext context) {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("파일명이 null이거나 공백일 수 없습니다");
         }
@@ -147,7 +147,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
     }
 
     @Override
-    public boolean deleteFile(String fileName, Context context) {
+    public boolean deleteFile(String fileName, StorageContext context) {
         if (fileName == null || fileName.isBlank()) {
             throw new IllegalArgumentException("파일명이 null이거나 공백일 수 없습니다");
         }
@@ -162,7 +162,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
     }
 
     @Override
-    public boolean existsFile(String fileName, Context context) {
+    public boolean existsFile(String fileName, StorageContext context) {
         if (fileName == null || fileName.isBlank()) {
             return false;
         }
@@ -174,7 +174,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
         return Optional.ofNullable(blob).map(Blob::exists).orElse(false);
     }
 
-    private BucketInfo getBucketInfo(Context context) {
+    private BucketInfo getBucketInfo(StorageContext context) {
         return BucketInfo.getBucketInfo(context).orElseThrow(
                 () -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, AssetErrorType.NOT_FOUND_BUCKET_NAME, "GcsImageStorageService.uploadImage"));
 
@@ -184,13 +184,13 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum BucketInfo {
 
-        EVENTTY_EVENT_IMAGE("eventty-event-image", Context.EVENT_IMAGE, "https://storage.googleapis.com/eventty-event-image/");
+        EVENTTY_EVENT_IMAGE("eventty-event-image", StorageContext.EVENT_IMAGE, "https://storage.googleapis.com/eventty-event-image/");
 
         private final String bucketName;
-        private final Context context;
+        private final StorageContext context;
         private final String baseUrl;
 
-        public static Optional<BucketInfo> getBucketInfo(Context context) {
+        public static Optional<BucketInfo> getBucketInfo(StorageContext context) {
             for (BucketInfo bucketInfo : BucketInfo.values()) {
                 if (bucketInfo.context == context) {
                     return Optional.of(bucketInfo);

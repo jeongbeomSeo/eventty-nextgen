@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.events.component;
 
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient;
-import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.Context;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,7 +46,7 @@ public class EventBasicValidator {
     }
 
     private boolean isStorageUrl(String fileUrl) {
-        return this.storageService.existsFile(fileUrl, Context.EVENT_IMAGE);
+        return this.storageService.existsFile(fileUrl, StorageContext.EVENT_IMAGE);
     }
 
     @Getter
