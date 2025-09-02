@@ -674,24 +674,50 @@ class GcsObjectStorageClientTest {
     @Nested
     @DisplayName("Streaming 방식 파일 업로드 테스트")
     class UploadStreamingTest {
-        @Test
+        @RepeatedTest(5)
         @DisplayName("InputStream을 통해 소용량 파일을 성공적으로 업로드한다")
         void InputStream을_통해_파일을_성공적으로_업로드한다() throws Exception {
             // given
+            String lowerSizeJpgImagePath = "src/test/resources/images/512KB_size_image.jpg";
+            String imageContextType = ImageContextType.JPG.getType();
+
+            File file = new File(lowerSizeJpgImagePath);
 
             // when
+            UploadFileResult uploadFileResult;
+            try (FileInputStream inputStream = new FileInputStream(file)) {
+                uploadFileResult = gcsImageStorageService.uploadStreaming(inputStream, StorageContext.EVENT_IMAGE, imageContextType);
+            }
 
             // then
+            assertThat(uploadFileResult.fileName()).isNotNull();
+            assertThat(uploadFileResult.contentType()).isEqualTo(imageContextType);
+            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
+
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
 
-        @Test
+        @RepeatedTest(5)
         @DisplayName("InputStream을 통해 17MB 파일을 성공적으로 업로드한다")
         void InputStream을_통해_17MB_파일을_성공적으로_업로드한다() throws Exception {
             // given
+            String bigSizeJpgImagePath = "src/test/resources/images/17MB_size_image.jpg";
+            String imageContextType = ImageContextType.JPG.getType();
+
+            File file = new File(bigSizeJpgImagePath);
 
             // when
+            UploadFileResult uploadFileResult;
+            try (FileInputStream inputStream = new FileInputStream(file)) {
+                uploadFileResult = gcsImageStorageService.uploadStreaming(inputStream, StorageContext.EVENT_IMAGE, imageContextType);
+            }
 
             // then
+            assertThat(uploadFileResult.fileName()).isNotNull();
+            assertThat(uploadFileResult.contentType()).isEqualTo(imageContextType);
+            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
+
+            gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
     }
 
