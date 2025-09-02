@@ -25,13 +25,13 @@ public class AssetFileServiceImpl implements AssetFileService {
     private final ThreadPoolTaskExecutor gcsIoExecutor;
 
     @Override
-    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file, String context) {
+    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file, String fileContext) {
 
         VerifyResult verifyResult = this.fileMetaValidator.validateFile(file);
         handleVerifyResult(verifyResult);
 
-        Context contextEnum = Context.getContext(context)
-            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_CONTEXT, "context: " + context));
+        Context contextEnum = Context.getFileContext(fileContext)
+            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + fileContext));
 
         UploadFileResult uploadFileResult = this.objectStorageClient.uploadMultipartFile(file, contextEnum);
 
@@ -43,8 +43,8 @@ public class AssetFileServiceImpl implements AssetFileService {
 
         files.stream().map(this.fileMetaValidator::validateFile).forEach(this::handleVerifyResult);
 
-        Context contextEnum = Context.getContext(context)
-            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_CONTEXT, "context: " + context));
+        Context contextEnum = Context.getFileContext(context)
+            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + context));
 
         // 아래 로직과 성능 테스트 진행 + 비동기 처리가 올바르게 되는지도 확인 + 재시도 패턴 적용
 //        files.stream()

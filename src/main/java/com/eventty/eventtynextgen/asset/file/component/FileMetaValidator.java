@@ -12,7 +12,6 @@ import java.util.Set;
 @Component
 public class FileMetaValidator {
 
-    private static final long MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
     private static final Set<String> EXCLUDED_CONTENT_TYPES = new HashSet<>(Arrays.asList(
         "image/jpeg", "image/svg", "image/png", "image/gif", "image/bmp", "image/avif", "image/webp",
         "video/mp4", "video/mpeg", "video/quicktime", "video/webm", "video/x-msvideo"
@@ -33,6 +32,8 @@ public class FileMetaValidator {
     }
 
     public VerifyResult validateFile(MultipartFile file) {
+        long MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
+        
         if (file.getSize() > MAX_FILE_SIZE) {
             return new VerifyResult(VerifyFileMetaResult.INVALID_SIZE, "File name: " + file.getName() + ", File size exceeds limit. Max size: 25MB and current size: " + file.getSize());
         }

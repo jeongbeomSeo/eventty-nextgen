@@ -17,7 +17,7 @@ public enum AssetErrorType implements ErrorType {
     NOT_FOUND_FILES("NOT_FOUND_FILES", "모든 파일을 찾을 수 없습니다."),
 
     // Common
-    ILLEGAL_ARGUMENT_CONTEXT("ILLEGAL_ARGUMENT_CONTEXT", "허용하지 않은 context 인자가 들어왔습니다.");
+    ILLEGAL_ARGUMENT_FILE_CONTEXT("ILLEGAL_ARGUMENT_FILE_CONTEXT", "허용하지 않은 File Context 인자가 들어왔습니다.");
 
     private final String code;
     private final String msg;

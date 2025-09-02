@@ -4,6 +4,7 @@ import groovyjarjarantlr4.v4.runtime.misc.Nullable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.text.html.Option;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ObjectStorageClient {
@@ -28,13 +29,18 @@ public interface ObjectStorageClient {
         EVENT_IMAGE,
         EVENT_VIDEO;
 
-        public static Optional<Context> getContext(String context) {
+        public static Optional<Context> getFileContext(String context) {
             for (Context ctx : Context.values()) {
-                if (ctx.name().equalsIgnoreCase(context)) {
+                if (ctx.name().equalsIgnoreCase(context) && isFileContext(ctx)) {
                     return Optional.of(ctx);
                 }
             }
+
             return Optional.empty();
+        }
+
+        private static boolean isFileContext(Context context) {
+            return context == FILE || context == LARGE_FILE;
         }
     }
 
