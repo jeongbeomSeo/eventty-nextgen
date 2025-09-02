@@ -33,7 +33,7 @@ class FileMetaValidatorTest {
             when(file.getOriginalFilename()).thenReturn("test.json");
 
             // when
-            VerifyResult verifyResult = new FileMetaValidator().validateFile(file);
+            VerifyResult verifyResult = new FileMetaValidator().validateMultipartFile(file);
 
             // then
             assertThat(verifyResult.getVerifyFileMetaResult()).isEqualTo(VerifyFileMetaResult.VALID);
@@ -49,7 +49,7 @@ class FileMetaValidatorTest {
             when(file.getSize()).thenReturn(size);
 
             // when
-            VerifyResult verifyResult = new FileMetaValidator().validateFile(file);
+            VerifyResult verifyResult = new FileMetaValidator().validateMultipartFile(file);
 
             // then
             assertThat(verifyResult.getVerifyFileMetaResult()).isEqualTo(VerifyFileMetaResult.INVALID_SIZE);
@@ -66,7 +66,7 @@ class FileMetaValidatorTest {
             when(file.getContentType()).thenReturn("image/jpeg");
 
             // when
-            VerifyResult verifyResult = new FileMetaValidator().validateFile(file);
+            VerifyResult verifyResult = new FileMetaValidator().validateMultipartFile(file);
 
             // then
             assertThat(verifyResult.getVerifyFileMetaResult()).isEqualTo(VerifyFileMetaResult.INVALID_CONTENT_TYPE);
@@ -84,7 +84,7 @@ class FileMetaValidatorTest {
             when(file.getOriginalFilename()).thenReturn("test.jpg");
 
             // when
-            VerifyResult verifyResult = new FileMetaValidator().validateFile(file);
+            VerifyResult verifyResult = new FileMetaValidator().validateMultipartFile(file);
 
             // then
             assertThat(verifyResult.getVerifyFileMetaResult()).isEqualTo(VerifyFileMetaResult.INVALID_EXTENSION);

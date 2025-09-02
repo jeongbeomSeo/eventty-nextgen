@@ -31,7 +31,7 @@ public class FileMetaValidator {
         INVALID_EXTENSION
     }
 
-    public VerifyResult validateFile(MultipartFile file) {
+    public VerifyResult validateMultipartFile(MultipartFile file) {
         long MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
         
         if (file.getSize() > MAX_FILE_SIZE) {
@@ -44,6 +44,14 @@ public class FileMetaValidator {
 
         if (!isValidExtension(file.getOriginalFilename())) {
             return new VerifyResult(VerifyFileMetaResult.INVALID_EXTENSION, "File name: " + file.getName() + ", Invalid file extension: " + file.getOriginalFilename());
+        }
+
+        return new VerifyResult(VerifyFileMetaResult.VALID, "");
+    }
+
+    public VerifyResult validateStreamFile(String contentType) {
+        if (!isValidContentType(contentType)) {
+            return new VerifyResult(VerifyFileMetaResult.INVALID_CONTENT_TYPE, "Invalid file content type: " + contentType);
         }
 
         return new VerifyResult(VerifyFileMetaResult.VALID, "");

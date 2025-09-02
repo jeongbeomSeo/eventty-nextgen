@@ -64,7 +64,7 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateFile(file)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
             UploadFileResult uploadFileResult = mock(UploadFileResult.class);
             when(uploadFileResult.fileName()).thenReturn("test.jpg");
@@ -92,7 +92,7 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_SIZE);
-            when(fileMetaValidator.validateFile(file)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
@@ -114,7 +114,7 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_CONTENT_TYPE);
-            when(fileMetaValidator.validateFile(file)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
@@ -136,7 +136,7 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_EXTENSION);
-            when(fileMetaValidator.validateFile(file)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
@@ -158,7 +158,7 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateFile(file)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
@@ -180,7 +180,7 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateFile(file)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
             doThrow(RuntimeException.class).when(objectStorageClient).uploadMultipartFile(file, StorageContext.FILE);
 
@@ -206,8 +206,8 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateFile(file1)).thenReturn(verifyResult);
-            when(fileMetaValidator.validateFile(file2)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult);
 
             UploadFileResult uploadFileResult1 = mock(UploadFileResult.class);
             when(uploadFileResult1.fileName()).thenReturn("test1.jpg");
@@ -246,11 +246,11 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult1 = mock(VerifyResult.class);
             when(verifyResult1.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateFile(file1)).thenReturn(verifyResult1);
+            when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult1);
 
             VerifyResult verifyResult2 = mock(VerifyResult.class);
             when(verifyResult2.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_SIZE);
-            when(fileMetaValidator.validateFile(file2)).thenReturn(verifyResult2);
+            when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult2);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
@@ -273,7 +273,7 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult1 = mock(VerifyResult.class);
             when(verifyResult1.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_SIZE);
-            when(fileMetaValidator.validateFile(file1)).thenReturn(verifyResult1);
+            when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult1);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
@@ -296,8 +296,8 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateFile(file1)).thenReturn(verifyResult);
-            when(fileMetaValidator.validateFile(file2)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
@@ -321,9 +321,9 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateFile(file1)).thenReturn(verifyResult);
-            when(fileMetaValidator.validateFile(file2)).thenReturn(verifyResult);
-            when(fileMetaValidator.validateFile(file3)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file3)).thenReturn(verifyResult);
 
             UploadFileResult uploadFileResult1 = mock(UploadFileResult.class);
             when(uploadFileResult1.fileName()).thenReturn("test1.jpg");
@@ -367,9 +367,9 @@ class AssetFileServiceImplTest {
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateFile(file1)).thenReturn(verifyResult);
-            when(fileMetaValidator.validateFile(file2)).thenReturn(verifyResult);
-            when(fileMetaValidator.validateFile(file3)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult);
+            when(fileMetaValidator.validateMultipartFile(file3)).thenReturn(verifyResult);
 
             UploadFileResult uploadFileResult1 = mock(UploadFileResult.class);
             when(uploadFileResult1.fileName()).thenReturn("test1.jpg");

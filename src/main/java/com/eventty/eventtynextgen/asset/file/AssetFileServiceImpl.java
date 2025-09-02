@@ -33,13 +33,13 @@ public class AssetFileServiceImpl implements AssetFileService {
     private final ThreadPoolTaskExecutor gcsIoExecutor;
 
     @Override
-    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file, String fileContext) {
+    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file, String context) {
 
-        VerifyResult verifyResult = this.fileMetaValidator.validateFile(file);
+        VerifyResult verifyResult = this.fileMetaValidator.validateMultipartFile(file);
         handleVerifyResult(verifyResult);
 
-        StorageContext contextEnum = StorageContext.getFileContext(fileContext)
-            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + fileContext));
+        StorageContext contextEnum = StorageContext.getFileContext(context)
+            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + context));
 
         UploadFileResult uploadFileResult;
         try {
@@ -53,7 +53,7 @@ public class AssetFileServiceImpl implements AssetFileService {
 
     @Override
     public List<AssetUploadAssetFile> uploadMultipartFiles(List<MultipartFile> files, String context) {
-        files.stream().map(this.fileMetaValidator::validateFile).forEach(this::handleVerifyResult);
+        files.stream().map(this.fileMetaValidator::validateMultipartFile).forEach(this::handleVerifyResult);
 
         StorageContext contextEnum = StorageContext.getFileContext(context)
             .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + context));
@@ -109,16 +109,25 @@ public class AssetFileServiceImpl implements AssetFileService {
             .toList();
     }
 
+    @Override
+    public AssetUploadAssetFile uploadStreaming(ServletInputStream inputStream, String contentType, String context) {
+
+        VerifyResult verifyResult = this.fileMetaValidator.validateStreamFile(contentType);
+        handleVerifyResult(verifyResult);
+
+        StorageContext contextEnum = StorageContext.getFileContext(context)
+            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + context));
+
+        UploadFileResult uploadFileResult = this.objectStorageClient.uploadStreaming(inputStream, contextEnum, contentType);
+
+        return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentLength(), uploadFileResult.contentType());
+    }
+
     private void handleVerifyResult(VerifyResult verifyResult) {
         switch (verifyResult.getVerifyFileMetaResult()) {
             case INVALID_SIZE -> throw CustomException.badRequest(AssetErrorType.INVALID_FILE_SIZE, verifyResult.getDetails());
             case INVALID_CONTENT_TYPE -> throw CustomException.badRequest(AssetErrorType.INVALID_FILE_CONTENT_TYPE, verifyResult.getDetails());
             case INVALID_EXTENSION -> throw CustomException.badRequest(AssetErrorType.INVALID_FILE_EXTENSION, verifyResult.getDetails());
         }
-    }
-
-    @Override
-    public AssetUploadAssetFile uploadStreaming(ServletInputStream inputStream, String context) {
-        return null;
     }
 }
