@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileResult;
+import com.eventty.eventtynextgen.asset.utils.MultipartConvertHelper;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
@@ -50,7 +51,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeJpgImagePath = "src/test/resources/images/512KB_size_image.jpg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -58,7 +59,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -70,7 +70,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeGifImagePath = "src/test/resources/images/657KB_size_image.gif";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeGifImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeGifImagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -78,7 +78,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -90,7 +89,7 @@ class GcsObjectStorageClientTest {
             String lowerSizePngImagePath = "src/test/resources/images/2MB_size_image.png";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizePngImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizePngImagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -98,7 +97,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -110,7 +108,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeSvgImagePath = "src/test/resources/images/6KB_size_image.svg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeSvgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeSvgImagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -118,7 +116,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -130,7 +127,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeWebpImagePath = "src/test/resources/images/560KB_size_image.webp";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeWebpImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeWebpImagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -138,7 +135,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -150,7 +146,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeAvifImagePath = "src/test/resources/images/40KB_size_image.avif";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeAvifImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeAvifImagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -158,7 +154,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -170,7 +165,7 @@ class GcsObjectStorageClientTest {
             String imagePath = "src/test/resources/images/2MB_size_image.jpg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(imagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(imagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -178,7 +173,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -190,7 +184,7 @@ class GcsObjectStorageClientTest {
             String imagePath = "src/test/resources/images/6MB_size_image.jpg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(imagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(imagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -198,7 +192,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -210,7 +203,7 @@ class GcsObjectStorageClientTest {
             String imagePath = "src/test/resources/images/17MB_size_image.jpg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(imagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(imagePath, imageContextType);
 
             // when
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
@@ -218,7 +211,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isNotBlank();
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -248,7 +240,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = List.of(imageFile, imageFile, imageFile, imageFile, imageFile);
 
@@ -261,7 +253,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -277,7 +268,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 20).mapToObj(i -> imageFile).toList();
 
@@ -290,7 +281,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -306,7 +296,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "17MB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
@@ -319,7 +309,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -335,7 +324,7 @@ class GcsObjectStorageClientTest {
 
                 String bigSizeJpgImagePath = rootPath + "17MB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(bigSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(bigSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 20).mapToObj(i -> imageFile).toList();
 
@@ -348,7 +337,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -380,7 +368,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
@@ -393,7 +381,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -409,7 +396,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 20).mapToObj(i -> imageFile).toList();
 
@@ -422,7 +409,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -438,7 +424,7 @@ class GcsObjectStorageClientTest {
 
                 String bigSizeJpgImagePath = rootPath + "17MB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(bigSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(bigSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
@@ -451,7 +437,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -467,7 +452,7 @@ class GcsObjectStorageClientTest {
 
                 String bigSizeJpgImagePath = rootPath + "17MB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(bigSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(bigSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 20).mapToObj(i -> imageFile).toList();
 
@@ -480,7 +465,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -502,7 +486,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
@@ -519,7 +503,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -536,7 +519,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 20).mapToObj(i -> imageFile).toList();
 
@@ -553,7 +536,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -569,7 +551,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "17MB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 1).mapToObj(i -> imageFile).toList();
 
@@ -586,7 +568,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -602,7 +583,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "17MB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
@@ -619,7 +600,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -641,7 +621,7 @@ class GcsObjectStorageClientTest {
 
                 String lowerSizeJpgImagePath = rootPath + "17MB_size_image.jpg";
 
-                MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+                MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
                 List<MultipartFile> imageFiles = IntStream.range(0, 20).mapToObj(i -> imageFile).toList();
 
@@ -658,7 +638,6 @@ class GcsObjectStorageClientTest {
                 results.forEach(result -> {
                     assertThat(result.fileName()).isNotNull();
                     assertThat(result.contentType()).isNotBlank();
-                    assertThat(result.contentLength()).isGreaterThan(0);
                 });
 
                 results.forEach(result -> gcsImageStorageService.deleteFile(result.fileName(), StorageContext.EVENT_IMAGE));
@@ -692,7 +671,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isEqualTo(imageContextType);
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -715,7 +693,6 @@ class GcsObjectStorageClientTest {
             // then
             assertThat(uploadFileResult.fileName()).isNotNull();
             assertThat(uploadFileResult.contentType()).isEqualTo(imageContextType);
-            assertThat(uploadFileResult.contentLength()).isGreaterThan(0);
 
             gcsImageStorageService.deleteFile(uploadFileResult.fileName(), StorageContext.EVENT_IMAGE);
         }
@@ -731,7 +708,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeJpgImagePath = "src/test/resources/images/512KB_size_image.jpg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
@@ -781,7 +758,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeJpgImagePath = "src/test/resources/images/512KB_size_image.jpg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             UploadFileResult uploadFileResult = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE);
 
@@ -847,7 +824,7 @@ class GcsObjectStorageClientTest {
 
             String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
@@ -881,7 +858,7 @@ class GcsObjectStorageClientTest {
 
             String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
@@ -913,7 +890,7 @@ class GcsObjectStorageClientTest {
 
             String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             List<MultipartFile> imageFiles = IntStream.range(0, 5).mapToObj(i -> imageFile).toList();
 
@@ -945,7 +922,7 @@ class GcsObjectStorageClientTest {
 
             String lowerSizeJpgImagePath = rootPath + "512KB_size_image.jpg";
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             List<MultipartFile> imageFiles = IntStream.range(0, 3).mapToObj(i -> imageFile).toList();
 
@@ -1001,7 +978,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeJpgImagePath = "src/test/resources/images/512KB_size_image.jpg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             String fileName = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE).fileName();
 
@@ -1066,7 +1043,7 @@ class GcsObjectStorageClientTest {
             String lowerSizeJpgImagePath = "src/test/resources/images/512KB_size_image.jpg";
             String imageContextType = ImageContextType.JPG.getType();
 
-            MultipartFile imageFile = convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
+            MultipartFile imageFile = MultipartConvertHelper.convertMultipartFile(lowerSizeJpgImagePath, imageContextType);
 
             String fileName = gcsImageStorageService.uploadMultipartFile(imageFile, StorageContext.EVENT_IMAGE).fileName();
 
@@ -1113,32 +1090,6 @@ class GcsObjectStorageClientTest {
             assertThatThrownBy(() -> gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE))
                 .isInstanceOf(IllegalArgumentException.class);
         }
-    }
-
-    private MultipartFile convertMultipartFile(String filePath, String contextType) throws Exception {
-
-        File file = new File(filePath);
-
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            return new MockMultipartFile(
-                "file_name",
-                file.getName(),
-                contextType,
-                fileInputStream);
-        }
-    }
-
-    // TODO: convertMultipartFile 메서드와 무엇이 좋은지 비교
-    private MultipartFile convertMultipartFileUsingFiles(String filePath, String contextType) throws Exception {
-        Path path = java.nio.file.Paths.get(filePath);
-        byte[] fileContent = Files.readAllBytes(path);
-
-        return new MockMultipartFile(
-            "file_name",
-            path.getFileName().toString(),
-            contextType,
-            fileContent
-        );
     }
 
     private enum ImageContextType {

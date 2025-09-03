@@ -45,14 +45,14 @@ public interface ObjectStorageClient {
 
     record FindFileUrlResult(List<String> fileUrls, List<String> failedFileNames) {}
 
-    record UploadFileResult(String fileName, long contentLength, String contentType, boolean isSuccess, Exception exception) {
+    record UploadFileResult(String fileName, String contentType, boolean isSuccess, Exception exception) {
 
-        public static UploadFileResult success(String fileName, long contentLength, String contentType) {
-            return new UploadFileResult(fileName, contentLength, contentType, true, null);
+        public static UploadFileResult success(String fileName, String contentType) {
+            return new UploadFileResult(fileName, contentType, true, null);
         }
 
         public static UploadFileResult fail(Exception e) {
-            return new UploadFileResult("", 0L, "", false, e);
+            return new UploadFileResult("", "", false, e);
         }
     }
 }

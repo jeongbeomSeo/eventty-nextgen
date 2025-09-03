@@ -73,7 +73,6 @@ class AssetFileServiceImplTest {
             UploadFileResult uploadFileResult = mock(UploadFileResult.class);
             when(uploadFileResult.fileName()).thenReturn("test.jpg");
             when(uploadFileResult.contentType()).thenReturn("image/jpeg");
-            when(uploadFileResult.contentLength()).thenReturn(1024L);
             when(objectStorageClient.uploadMultipartFile(file, StorageContext.FILE)).thenReturn(uploadFileResult);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
@@ -84,7 +83,6 @@ class AssetFileServiceImplTest {
             // then
             assertThat(assetUploadAssetFile.fileName()).isEqualTo("test.jpg");
             assertThat(assetUploadAssetFile.contentType()).isEqualTo("image/jpeg");
-            assertThat(assetUploadAssetFile.contentLength()).isEqualTo(1024L);
         }
 
         @Test
@@ -216,14 +214,12 @@ class AssetFileServiceImplTest {
             UploadFileResult uploadFileResult1 = mock(UploadFileResult.class);
             when(uploadFileResult1.fileName()).thenReturn("test1.jpg");
             when(uploadFileResult1.contentType()).thenReturn("image/jpeg");
-            when(uploadFileResult1.contentLength()).thenReturn(1024L);
             when(uploadFileResult1.isSuccess()).thenReturn(true);
             when(objectStorageClient.uploadMultipartFile(file1, StorageContext.FILE)).thenReturn(uploadFileResult1);
 
             UploadFileResult uploadFileResult2 = mock(UploadFileResult.class);
             when(uploadFileResult2.fileName()).thenReturn("test2.jpg");
             when(uploadFileResult2.contentType()).thenReturn("image/png");
-            when(uploadFileResult2.contentLength()).thenReturn(512L);
             when(uploadFileResult2.isSuccess()).thenReturn(true);
             when(objectStorageClient.uploadMultipartFile(file2, StorageContext.FILE)).thenReturn(uploadFileResult2);
 
@@ -236,7 +232,6 @@ class AssetFileServiceImplTest {
             assetUploadAssetFiles.forEach(assetUploadAssetFile -> {
                 assertThat(assetUploadAssetFile.fileName()).isIn("test1.jpg", "test2.jpg");
                 assertThat(assetUploadAssetFile.contentType()).isIn("image/jpeg", "image/png");
-                assertThat(assetUploadAssetFile.contentLength()).isIn(1024L, 512L);
             });
         }
 
@@ -424,7 +419,6 @@ class AssetFileServiceImplTest {
             UploadFileResult uploadFileResult = mock(UploadFileResult.class);
             when(uploadFileResult.fileName()).thenReturn("streamed_test");
             when(uploadFileResult.contentType()).thenReturn("application/octet-stream");
-            when(uploadFileResult.contentLength()).thenReturn(2048L);
             when(objectStorageClient.uploadStreaming(inputStream, StorageContext.FILE, request.getContentType()))
                 .thenReturn(uploadFileResult);
 
@@ -436,7 +430,6 @@ class AssetFileServiceImplTest {
             // then
             assertThat(assetUploadAssetFile.fileName()).isEqualTo("streamed_test");
             assertThat(assetUploadAssetFile.contentType()).isEqualTo("application/octet-stream");
-            assertThat(assetUploadAssetFile.contentLength()).isEqualTo(2048L);
         }
 
         @Test

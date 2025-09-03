@@ -52,7 +52,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             throw new RuntimeException(e);
         }
 
-        return UploadFileResult.success(fileName, blobInfo.getSize(), blobInfo.getContentType());
+        return UploadFileResult.success(fileName, blobInfo.getContentType());
     }
 
     @Override
@@ -75,7 +75,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             throw new RuntimeException(e);
         }
 
-        return UploadFileResult.success(fileName, totalBytes, blobInfo.getContentType());
+        return UploadFileResult.success(fileName, blobInfo.getContentType());
     }
 
     @Override
@@ -177,14 +177,14 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
     private BucketInfo getBucketInfo(StorageContext context) {
         return BucketInfo.getBucketInfo(context).orElseThrow(
                 () -> CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, AssetErrorType.NOT_FOUND_BUCKET_NAME, "GcsImageStorageService.uploadImage"));
-
     }
 
     @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private enum BucketInfo {
 
-        EVENTTY_EVENT_IMAGE("eventty-event-image", StorageContext.EVENT_IMAGE, "https://storage.googleapis.com/eventty-event-image/");
+        EVENTTY_EVENT_IMAGE("eventty-event-image", StorageContext.EVENT_IMAGE, "https://storage.googleapis.com/eventty-event-image/"),
+        EVENTTY_FILE("eventty-file", StorageContext.FILE, "https://storage.googleapis.com/eventty-file/");
 
         private final String bucketName;
         private final StorageContext context;

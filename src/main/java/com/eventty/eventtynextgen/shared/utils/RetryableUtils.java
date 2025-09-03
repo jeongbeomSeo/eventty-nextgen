@@ -15,8 +15,8 @@ public class RetryableUtils {
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
                 return supplier.get();
-            } catch (Exception e) {
-                exceptions[attempt - 1] = e;
+            } catch (Exception cause) {
+                exceptions[attempt - 1] = cause;
 
                 if (attempt == maxRetries) {
                     break;
@@ -28,7 +28,7 @@ public class RetryableUtils {
                 long jitterDelay = ThreadLocalRandom.current().nextLong(cappedDelay + 1);
 
                 log.warn("Retry attempt {} failed: {}. Backing off {} ms (cap {} ms).",
-                    attempt, e.getMessage(), jitterDelay, maxDelayMs);
+                    attempt, cause.getMessage(), jitterDelay, maxDelayMs);
 
                 Thread.sleep(jitterDelay);
             }

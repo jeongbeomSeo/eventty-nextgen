@@ -47,11 +47,11 @@ public class AssetFileServiceImpl implements AssetFileService {
         UploadFileResult uploadFileResult;
         try {
             uploadFileResult = RetryableUtils.executeWithRetry(() -> this.objectStorageClient.uploadMultipartFile(file, contextEnum), 3, 100, 1000);
-        } catch (Exception e) {
-            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + e.getMessage());
+        } catch (Exception cause) {
+            throw CustomException.of(cause, HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + cause);
         }
 
-        return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentLength(), uploadFileResult.contentType());
+        return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentType());
     }
 
     @Override
@@ -108,7 +108,7 @@ public class AssetFileServiceImpl implements AssetFileService {
         }
 
         return results.stream()
-            .map(result -> new AssetUploadAssetFile(result.fileName(), result.contentLength(), result.contentType()))
+            .map(result -> new AssetUploadAssetFile(result.fileName(), result.contentType()))
             .toList();
     }
 
@@ -135,7 +135,7 @@ public class AssetFileServiceImpl implements AssetFileService {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + e.getMessage());
         }
 
-        return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentLength(), uploadFileResult.contentType());
+        return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentType());
     }
 
     private void handleVerifyResult(VerifyResult verifyResult) {
