@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import org.springframework.mock.web.MockMultipartFile;
 
 public class MultipartConvertHelper {
@@ -12,12 +13,27 @@ public class MultipartConvertHelper {
     }
 
     public static MockMultipartFile convertMultipartFile(String filePath, String contentType) throws Exception {
+        return convertMultipartFile(filePath, contentType, "file");
+    }
 
+    public static List<MockMultipartFile> convertMultipartFiles(List<MultipartFileInfo> fileInfoList) throws Exception {
+        return fileInfoList.stream()
+            .map(fileInfo -> {
+                try {
+                    return convertMultipartFile(fileInfo.filePath, fileInfo.contentType, "files");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .toList();
+    }
+
+    private static MockMultipartFile convertMultipartFile(String filePath, String contentType, String name) throws Exception{
         File file = new File(filePath);
 
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
             return new MockMultipartFile(
-                "file",
+                name,
                 file.getName(),
                 contentType,
                 fileInputStream);
@@ -36,4 +52,6 @@ public class MultipartConvertHelper {
             fileContent
         );
     }
+
+    public record MultipartFileInfo (String filePath, String contentType) {}
 }

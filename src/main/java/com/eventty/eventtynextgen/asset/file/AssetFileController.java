@@ -47,7 +47,7 @@ public class AssetFileController {
 
     @LoginRequired(requireHost = true, requireAdmin = true)
     @PostMapping("/multipart-files/{context}")
-    public ResponseEntity<List<AssetUploadAssetFile>> uploadMultipartFile(@RequestPart("files") List<MultipartFile> files, @PathVariable String context) {
+    public ResponseEntity<List<AssetUploadAssetFile>> uploadMultipartFiles(@RequestPart("files") List<MultipartFile> files, @PathVariable String context) {
 
         List<AssetUploadAssetFile> assetUploadAssetFiles = this.assetFileService.uploadMultipartFiles(files, context);
 
