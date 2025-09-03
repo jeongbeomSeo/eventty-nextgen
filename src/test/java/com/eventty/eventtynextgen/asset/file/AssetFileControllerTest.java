@@ -4,6 +4,7 @@ import static com.eventty.eventtynextgen.base.constant.BaseConst.AUTHORIZATION_H
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,12 +23,15 @@ import com.eventty.eventtynextgen.user.fixture.UserFixture;
 import com.eventty.eventtynextgen.user.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,7 +43,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
-//@Tag("ExternalIntegration")
+@Tag("ExternalIntegration")
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -81,7 +85,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512k.zip", "application/zip");
+            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
             String context = "file";
 
             // when
@@ -110,7 +114,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/15m.yml", "application/yaml");
+            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/15MB.yml", "application/yaml");
             String context = "file";
 
             // when
@@ -139,7 +143,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/26m.zip", "application/zip");
+            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/26MB.zip", "application/zip");
             String context = "file";
 
             // when
@@ -189,7 +193,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/videos/1m.mp4", "video/mp4");
+            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/videos/1MB.mp4", "video/mp4");
             String context = "file";
 
             // when
@@ -240,7 +244,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/videos/1m.mp4", "multipart/form-data");
+            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/videos/1MB.mp4", "multipart/form-data");
             String context = "file";
 
             // when
@@ -265,7 +269,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512k.zip", "application/zip");
+            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
             String context = "event_image";
 
             // when
@@ -290,7 +294,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512k.zip", "application/zip");
+            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
             String context = "event_video";
 
             // when
@@ -315,7 +319,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512k.zip", "application/zip");
+            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
             String context = "unknown_context";
 
             // when
@@ -347,7 +351,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
@@ -386,7 +390,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/15m.yml";
+            String filePath = "src/test/resources/files/15MB.yml";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
@@ -425,11 +429,11 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = new ArrayList<>(IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList());
-            fileInfoList.add(new MultipartFileInfo("src/test/resources/files/26m.zip", contentType));
+            fileInfoList.add(new MultipartFileInfo("src/test/resources/files/26MB.zip", contentType));
 
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
             String context = "file";
@@ -459,7 +463,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = new ArrayList<>(IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList());
@@ -493,11 +497,11 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = new ArrayList<>(IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList());
-            fileInfoList.add(new MultipartFileInfo("src/test/resources/videos/1m.mp4", "video/mp4"));
+            fileInfoList.add(new MultipartFileInfo("src/test/resources/videos/1MB.mp4", "video/mp4"));
 
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
             String context = "file";
@@ -527,7 +531,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = new ArrayList<>(IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList());
@@ -561,11 +565,11 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = new ArrayList<>(IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList());
-            fileInfoList.add(new MultipartFileInfo("src/test/resources/videos/1m.mp4", "multipart/form-data"));
+            fileInfoList.add(new MultipartFileInfo("src/test/resources/videos/1MB.mp4", "multipart/form-data"));
 
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
             String context = "file";
@@ -595,7 +599,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
@@ -627,7 +631,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
@@ -659,7 +663,7 @@ class AssetFileControllerTest {
             User userFromDb = userRepository.save(user);
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
-            String filePath = "src/test/resources/files/512k.zip";
+            String filePath = "src/test/resources/files/512KB.zip";
             String contentType = "application/zip";
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
@@ -680,6 +684,48 @@ class AssetFileControllerTest {
             resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT.getCode()))
                 .andExpect(jsonPath("$.msg").value(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT.getMsg()));
+        }
+    }
+
+    @Nested
+    @DisplayName("Streaming 방식의 파일 업로드 API 테스트")
+    class UploadStreamFile {
+
+        private static final String URL = BASE_URL + "/stream-file";
+
+        @Test
+        @DisplayName("용량이 15MB인 파일을 스트리밍 방식으로 업로드하는데 성공한다")
+        void 용량이_15MB인_파일을_스트리밍_방식으로_업로드하는데_성공한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledHost();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            // 테스트용 파일 경로 및 파일 읽기
+            String filePath = "src/test/resources/files/15MB.yml";
+            byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
+            String context = "file";
+
+            // 파일 이름 및 컨텐츠 타입 설정
+            String contentType = "application/yaml";
+
+            // when
+            ResultActions resultActions = mockMvc.perform(post(URL + "/" + context)
+                .content(fileContent)
+                .contentType(contentType)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken()));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.fileName").isNotEmpty())
+                .andExpect(jsonPath("$.contentType").value(contentType));
+
+            // 업로드된 파일 삭제
+            String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
+            AssetUploadAssetFile assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFile.class);
+            objectStorageClient.deleteFile(assetUploadAssetFile.fileName(), StorageContext.FILE);
         }
     }
 }
