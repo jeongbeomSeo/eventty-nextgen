@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.asset.file;
 
 import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
 import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,12 +25,11 @@ public interface AssetFileService {
      *   <li>파일 확장자: 파일명이 없어 확장자 추출 불가</li>
      * </ul>
      *
-     * @param inputStream 업로드할 파일의 입력 스트림
-     * @param contentType 헤더로부터 받아온 컨텐츠 타입
+     * @param request HTTP 요청 객체
      * @param context 업로드 컨텍스트 식별자
      * @return 업로드된 파일 정보
      * @deprecated 제약 사항으로 인해 사용이 권장되지 않습니다. 대신 {@link #uploadMultipartFile(MultipartFile, String)}을 사용하세요.
      */
     @Deprecated
-    AssetUploadAssetFile uploadStreaming(ServletInputStream inputStream, String contentType, String context);
+    AssetUploadAssetFile uploadStreaming(HttpServletRequest request, String context);
 }

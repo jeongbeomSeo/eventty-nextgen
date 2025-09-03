@@ -18,6 +18,10 @@ import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyR
 import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -394,6 +398,148 @@ class AssetFileServiceImplTest {
                     verify(objectStorageClient, times(1)).deleteFile(any(String.class), any(StorageContext.class));
                     assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.FILE_UPLOAD_FAILED);
                     assertThat((String) customException.getDetail()).isEqualTo("File upload interrupted: java.lang.RuntimeException: test exception1, java.lang.RuntimeException: test exception2");
+                });
+        }
+    }
+
+    @Nested
+    @DisplayName("스트리밍 방식 파일 업로드 테스트")
+    class UploadStreaming {
+        @Test
+        @DisplayName("Request 객체로부터 필요한 정보를 가져온 뒤 유효성 검증에 성공하고, Context를 가져와 파일 업로드를 스트리밍 방식으로 수행하여 정상적으로 AssetUploadAssetFile을 반환한다")
+        void Request_객체로부터_필요한_정보를_가져온_뒤_유효성_검증에_성공하고_Context를_가져와_파일_업로드를_스트리밍_방식으로_수행하여_정상적으로_AssetUploadAssetFile을_반환한다() throws IOException {
+            // given
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            String context = "file";
+
+            ServletInputStream inputStream = mock(ServletInputStream.class);
+            when(request.getInputStream()).thenReturn(inputStream);
+            when(request.getContentType()).thenReturn("application/octet-stream");
+
+            VerifyResult verifyResult = mock(VerifyResult.class);
+            when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
+            when(fileMetaValidator.validateStreamFile(request.getContentType()))
+                .thenReturn(verifyResult);
+
+            UploadFileResult uploadFileResult = mock(UploadFileResult.class);
+            when(uploadFileResult.fileName()).thenReturn("streamed_test");
+            when(uploadFileResult.contentType()).thenReturn("application/octet-stream");
+            when(uploadFileResult.contentLength()).thenReturn(2048L);
+            when(objectStorageClient.uploadStreaming(inputStream, StorageContext.FILE, request.getContentType()))
+                .thenReturn(uploadFileResult);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when
+            AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadStreaming(request, context);
+
+            // then
+            assertThat(assetUploadAssetFile.fileName()).isEqualTo("streamed_test");
+            assertThat(assetUploadAssetFile.contentType()).isEqualTo("application/octet-stream");
+            assertThat(assetUploadAssetFile.contentLength()).isEqualTo(2048L);
+        }
+
+        @Test
+        @DisplayName("Request 객체로부터 InputStream을 가져오는 도중 IOException이 발생하면 예외를 발생시킨다")
+        void Request_객체로부터_InputStream을_가져오는_도중_IOException이_발생하면_예외를_발생시킨다() throws IOException {
+            // given
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            String context = "file";
+
+            doThrow(IOException.class).when(request).getInputStream();
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.uploadStreaming(request, context))
+                .isInstanceOf(CustomException.class)
+                .satisfies(ex -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(CommonErrorType.OCCURRED_IO_EXCEPTION);
+                });
+        }
+
+        @Test
+        @DisplayName("스트림 파일의 메타데이터 유효성 검증에 실패하여 INVALID_CONTENT_TYPE를 반환받은 경우 예외를 발생시킨다")
+        void 스트림_파일의_메타데이터_유효성_검증에_실패하여_INVALID_CONTENT_TYPE를_반환받은_경우_예외를_발생시킨다() throws IOException {
+            // given
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            String context = "file";
+
+            ServletInputStream inputStream = mock(ServletInputStream.class);
+            when(request.getInputStream()).thenReturn(inputStream);
+            when(request.getContentType()).thenReturn("image/jpeg");
+
+            VerifyResult verifyResult = mock(VerifyResult.class);
+            when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_CONTENT_TYPE);
+            when(fileMetaValidator.validateStreamFile(request.getContentType())).thenReturn(verifyResult);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.uploadStreaming(request, context))
+                .isInstanceOf(CustomException.class)
+                .satisfies(ex -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.INVALID_FILE_CONTENT_TYPE);
+                });
+        }
+
+        @Test
+        @DisplayName("Context를 가져오지 못한 경우 예외를 발생시킨다")
+        void Context를_가져오지_못한_경우_예외를_발생시킨다() throws IOException {
+            // given
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            String context = "non_context";
+
+            ServletInputStream inputStream = mock(ServletInputStream.class);
+            when(request.getInputStream()).thenReturn(inputStream);
+            when(request.getContentType()).thenReturn("application/octet-stream");
+
+            VerifyResult verifyResult = mock(VerifyResult.class);
+            when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
+            when(fileMetaValidator.validateStreamFile(request.getContentType()))
+                .thenReturn(verifyResult);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.uploadStreaming(request, context))
+                .isInstanceOf(CustomException.class)
+                .satisfies(ex -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT);
+                });
+        }
+
+        @Test
+        @DisplayName("UploadStreaming 수행 도중 예외가 발생하면 예외를 그대로 던진다")
+        void UploadStreaming_수행_도중_예외가_발생하면_예외를_그대로_던진다() throws IOException {
+            // given
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            String context = "file";
+
+            ServletInputStream inputStream = mock(ServletInputStream.class);
+            when(request.getInputStream()).thenReturn(inputStream);
+            when(request.getContentType()).thenReturn("application/octet-stream");
+
+            VerifyResult verifyResult = mock(VerifyResult.class);
+            when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
+            when(fileMetaValidator.validateStreamFile(request.getContentType()))
+                .thenReturn(verifyResult);
+
+            RuntimeException testException = new RuntimeException("test exception");
+            when(objectStorageClient.uploadStreaming(inputStream, StorageContext.FILE, request.getContentType())).thenThrow(testException);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.uploadStreaming(request, context))
+                .isInstanceOf(CustomException.class)
+                .satisfies(ex -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.FILE_UPLOAD_FAILED);
+                    assertThat((String) customException.getDetail()).isNotBlank();
                 });
         }
     }

@@ -36,17 +36,26 @@ public class AssetFileController {
     @PostMapping("/multipart-file/{context}")
     public ResponseEntity<AssetUploadAssetFile> uploadMultipartFile(@RequestPart("file") MultipartFile file, @PathVariable String context) {
 
-        return ResponseEntity.ok().build();
+        AssetUploadAssetFile assetUploadAssetFile = this.assetFileService.uploadMultipartFile(file, context);
+
+        return ResponseEntity.ok(assetUploadAssetFile);
     }
 
     @PostMapping("/multipart-files/{context}")
-    public ResponseEntity<AssetUploadAssetFile> uploadMultipartFile(@RequestPart("files") List<MultipartFile> files, @PathVariable String context) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<AssetUploadAssetFile>> uploadMultipartFile(@RequestPart("files") List<MultipartFile> files, @PathVariable String context) {
+
+        List<AssetUploadAssetFile> assetUploadAssetFiles = this.assetFileService.uploadMultipartFiles(files, context);
+
+        return ResponseEntity.ok(assetUploadAssetFiles);
     }
 
+    @Deprecated
     @PostMapping("/stream-file/{context}")
     public ResponseEntity<AssetUploadAssetFile> uploadStreamFile(HttpServletRequest request, @PathVariable String context) {
-        return ResponseEntity.ok().build();
+
+        AssetUploadAssetFile assetUploadAssetFile = this.assetFileService.uploadStreaming(request, context);
+
+        return ResponseEntity.ok(assetUploadAssetFile);
     }
 
     @PostMapping("/large-file")

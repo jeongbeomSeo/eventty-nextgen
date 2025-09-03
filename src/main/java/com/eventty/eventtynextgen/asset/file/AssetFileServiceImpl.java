@@ -10,8 +10,11 @@ import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyR
 import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
 import com.eventty.eventtynextgen.shared.utils.RetryableUtils;
 import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +113,14 @@ public class AssetFileServiceImpl implements AssetFileService {
     }
 
     @Override
-    public AssetUploadAssetFile uploadStreaming(ServletInputStream inputStream, String contentType, String context) {
+    public AssetUploadAssetFile uploadStreaming(HttpServletRequest request, String context) {
+        String contentType = request.getContentType();
+        ServletInputStream inputStream;
+        try {
+            inputStream = request.getInputStream();
+        } catch (IOException ex) {
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, CommonErrorType.OCCURRED_IO_EXCEPTION);
+        }
 
         VerifyResult verifyResult = this.fileMetaValidator.validateStreamFile(contentType);
         handleVerifyResult(verifyResult);
@@ -118,7 +128,12 @@ public class AssetFileServiceImpl implements AssetFileService {
         StorageContext contextEnum = StorageContext.getFileContext(context)
             .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + context));
 
-        UploadFileResult uploadFileResult = this.objectStorageClient.uploadStreaming(inputStream, contextEnum, contentType);
+        UploadFileResult uploadFileResult;
+        try {
+            uploadFileResult = this.objectStorageClient.uploadStreaming(inputStream, contextEnum, contentType);
+        } catch (Exception e) {
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + e.getMessage());
+        }
 
         return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentLength(), uploadFileResult.contentType());
     }
