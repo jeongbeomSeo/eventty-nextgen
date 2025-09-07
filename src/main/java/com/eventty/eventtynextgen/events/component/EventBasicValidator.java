@@ -1,7 +1,7 @@
 package com.eventty.eventtynextgen.events.component;
 
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient;
-import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.Context;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
 import com.eventty.eventtynextgen.events.entity.enums.EventParticipantLimitPolicyType;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,35 +18,35 @@ public class EventBasicValidator {
     private final ObjectStorageClient storageService;
 
     public VerifyResult validateEventBasic(LocalDateTime eventStartAt, LocalDateTime eventEndAt, List<String> imageUrls, EventParticipantLimitPolicyType participantLimitPolicy, Integer maxParticipants) {
-        if (!validateEventTime(eventStartAt, eventEndAt)) {
+        if (!isValidEventTime(eventStartAt, eventEndAt)) {
             return new VerifyResult(VerifyEventBasicResult.ILLEGAL_EVENT_END_BEFORE_START, "eventEndAt: " + eventEndAt + " is before eventStartAt: " + eventStartAt);
         }
 
-        if (!validateStorageImage(imageUrls)) {
+        if (!isValidStorageImage(imageUrls)) {
             return new VerifyResult(VerifyEventBasicResult.ILLEGAL_EVENT_IMAGE, "imageUrls: " + imageUrls.stream().filter((url) -> !isStorageUrl(url)).toList());
         }
 
-        if (!validateParticipantLimitPolicy(participantLimitPolicy, maxParticipants)) {
+        if (!isValidParticipantLimitPolicy(participantLimitPolicy, maxParticipants)) {
             return new VerifyResult(VerifyEventBasicResult.ILLEGAL_ARGUMENT_MAX_PARTICIPANTS, "maxParticipants can not be negative number or zero: " + maxParticipants);
         }
 
         return new VerifyResult(VerifyEventBasicResult.VERIFIED, "");
     }
 
-    private boolean validateEventTime(LocalDateTime eventStartAt, LocalDateTime eventEndAt) {
+    private boolean isValidEventTime(LocalDateTime eventStartAt, LocalDateTime eventEndAt) {
         return eventStartAt.isBefore(eventEndAt);
     }
 
-    private boolean validateStorageImage(List<String> imageUrls) {
+    private boolean isValidStorageImage(List<String> imageUrls) {
         return imageUrls == null || imageUrls.stream().allMatch(this::isStorageUrl);
     }
 
-    private boolean validateParticipantLimitPolicy(EventParticipantLimitPolicyType participantLimitPolicy, Integer maxParticipants) {
+    private boolean isValidParticipantLimitPolicy(EventParticipantLimitPolicyType participantLimitPolicy, Integer maxParticipants) {
         return participantLimitPolicy == EventParticipantLimitPolicyType.UNLIMITED || (maxParticipants != null && maxParticipants > 0);
     }
 
     private boolean isStorageUrl(String fileUrl) {
-        return this.storageService.existsFile(fileUrl, Context.EVENT_IMAGE);
+        return this.storageService.existsFile(fileUrl, StorageContext.EVENT_IMAGE);
     }
 
     @Getter

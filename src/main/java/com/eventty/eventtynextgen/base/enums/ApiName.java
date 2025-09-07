@@ -13,7 +13,10 @@ public enum ApiName {
     // AUTH
     AUTH_CODE("/api/v1/auth/code"),
     AUTH_LOGIN("/api/v1/auth/login"),
-    AUTH("/api/v1/auth")
+    AUTH("/api/v1/auth"),
+
+    // ASSET
+    ASSET_FILE("/api/v1/asset/file")
     ;
 
     private final String pattern;

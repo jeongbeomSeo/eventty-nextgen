@@ -7,5 +7,6 @@ certification:
       - auth_code
       - auth_login
       - auth
+      - asset_file
     client2:
       - events

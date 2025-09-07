@@ -12,10 +12,22 @@ public class CustomException extends RuntimeException {
     private final ErrorType errorType;
     private final Object detail;
 
-    private CustomException(HttpStatus httpStatus, ErrorType errorType, Object detail) {
+    private CustomException(Throwable cause, HttpStatus httpStatus, ErrorType errorType, Object detail) {
+        super(cause);
         this.httpStatus = httpStatus;
         this.errorType = errorType;
         this.detail = detail;
+    }
+
+    private CustomException(HttpStatus httpStatus, ErrorType errorType, Object detail) {
+        super(errorType.getMsg());
+        this.httpStatus = httpStatus;
+        this.errorType = errorType;
+        this.detail = detail;
+    }
+
+    public static CustomException of(Throwable cause, HttpStatus httpStatus, ErrorType errorType, Object detail) {
+        return new CustomException(cause, httpStatus, errorType, detail);
     }
 
     public static CustomException of(HttpStatus httpStatus, ErrorType errorType, Object detail) {
@@ -32,5 +44,9 @@ public class CustomException extends RuntimeException {
 
     public static CustomException badRequest(ErrorType errorType, Object detail) {
         return new CustomException(HttpStatus.BAD_REQUEST, errorType, detail);
+    }
+
+    public static CustomException badRequest(Throwable cause, ErrorType errorType, Object detail) {
+        return new CustomException(cause, HttpStatus.BAD_REQUEST, errorType, detail);
     }
 }

@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 public class EventDetailsValidator {
 
     public VerifyResult validateEventDetails(LocalDateTime applyStartAt, LocalDateTime applyEndAt) {
-        if (!validateApplyTime(applyStartAt, applyEndAt)) {
+        if (!isValidApplyTime(applyStartAt, applyEndAt)) {
             return new VerifyResult(VerifyEventDetailsResult.ILLEGAL_ARGUMENT_APPLY_END_BEFORE_START, "Apply end time should be after apply start time applyStartAt: " + applyStartAt + " applyEndAt: " + applyEndAt);
         }
 
         return new VerifyResult(VerifyEventDetailsResult.VERIFIED, "");
     }
 
-    private boolean validateApplyTime(LocalDateTime applyStartAt, LocalDateTime applyEndAt) {
+    private boolean isValidApplyTime(LocalDateTime applyStartAt, LocalDateTime applyEndAt) {
         return applyStartAt.isBefore(applyEndAt);
     }
 
