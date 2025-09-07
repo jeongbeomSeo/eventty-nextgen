@@ -1,0 +1,41 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: "env, beans, shutdown"
+      base-path: "/actuator"
+    jmx:
+      exposure:
+        include: "*"
+        exclude: "env,beans,shutdown"
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+    configprops:
+      show-values: always    # 설정값 전체 노출 -> 민갑 정보 유출. 개발 환경에서만.
+    env:
+      show-values: never  # 보안상 민감 정보 숨김
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        step: 10s
+        descriptions: true
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+    java:
+      enabled: true
+
+# 톰캣의 최대 쓰레드, 사용 쓰레드 수를 포함한 다양한 메트릭 수집
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true

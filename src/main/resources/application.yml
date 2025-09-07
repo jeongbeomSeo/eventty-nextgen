@@ -2,18 +2,15 @@ spring:
   application:
     name: eventty-nextgen
   profiles:
-    default: local
+    default: local, properties, metrics
     group:
       dev:
-        - properties
         - certification
         - certification-secret
       local:
-        - properties
         - certification
         - certification-secret
       test:
-        - properties
         - certification-test
         - certification-secret-test
   data:
@@ -30,3 +27,13 @@ spring:
       storage:
         credentials:
           encoded-key: ${GCP_SA_IMAGE_KEY}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: "env, beans"
+    jmx:
+      exposure:
+        include:
+
