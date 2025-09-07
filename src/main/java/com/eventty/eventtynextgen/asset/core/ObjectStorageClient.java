@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.asset.core;
 
-import groovyjarjarantlr4.v4.runtime.misc.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;

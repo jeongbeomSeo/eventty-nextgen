@@ -65,7 +65,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             .setContentType(contentType != null ? contentType : "application/octet-stream")
             .build();
 
-        long totalBytes = 0l;
+        long totalBytes = 0L;
 
         try (WriteChannel writer = this.storage.writer(blobInfo);
             OutputStream out = Channels.newOutputStream(writer)) {

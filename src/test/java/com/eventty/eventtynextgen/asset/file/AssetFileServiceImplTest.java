@@ -109,7 +109,7 @@ class AssetFileServiceImplTest {
 
         @Test
         @DisplayName("메타 데이터의 유효성 검증에 실패하여 INVALID_CONTENT_TYPE를 반환받은 경우 예외를 발생시킨다")
-        void 메타_데이터의_유혀성_검증에_실패하여_INVALID_CONTENT_TYPE를_반환받은_경우_예외를_발생시킨다() {
+        void 메타_데이터의_유효성_검증에_실패하여_INVALID_CONTENT_TYPE를_반환받은_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
             String context = "file";

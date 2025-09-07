@@ -119,7 +119,7 @@ public class AssetFileServiceImpl implements AssetFileService {
         try {
             inputStream = request.getInputStream();
         } catch (IOException ex) {
-            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, CommonErrorType.OCCURRED_IO_EXCEPTION);
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, CommonErrorType.OCCURRED_IO_EXCEPTION, "Message: " + ex.getMessage());
         }
 
         VerifyResult verifyResult = this.fileMetaValidator.validateStreamFile(contentType);
