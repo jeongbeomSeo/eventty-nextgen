@@ -27,13 +27,4 @@ spring:
       storage:
         credentials:
           encoded-key: ${GCP_SA_IMAGE_KEY}
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-        exclude: "env, beans"
-    jmx:
-      exposure:
-        include:
 

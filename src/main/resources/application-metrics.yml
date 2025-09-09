@@ -8,13 +8,13 @@ management:
     jmx:
       exposure:
         include: "*"
-        exclude: "env,beans,shutdown"
+        exclude: "env, beans, shutdown"
   endpoint:
     health:
       show-details: always
       show-components: always
     configprops:
-      show-values: always    # 설정값 전체 노출 -> 민갑 정보 유출. 개발 환경에서만.
+      show-values: always    # 설정값 전체 노출 -> 민감 정보 유출. 개발 환경에서만.
     env:
       show-values: never  # 보안상 민감 정보 숨김
   prometheus:

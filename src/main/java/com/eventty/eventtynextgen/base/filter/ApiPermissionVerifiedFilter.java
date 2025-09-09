@@ -23,7 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-// TODO: 예외 발생 시 Deatils에 ReuqestURI 정보 추가하고 필요시 ApiName 등 예외 로깅을 위한 정보를 추가
+// TODO: 예외 발생 시 Details에 RequestURI 정보 추가하고 필요시 ApiName 등 예외 로깅을 위한 정보를 추가
 @Slf4j
 @Order(-2)
 @RequiredArgsConstructor
