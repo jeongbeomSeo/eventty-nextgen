@@ -23,7 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
+// TODO: 예외 발생 시 Details에 RequestURI 정보 추가하고 필요시 ApiName 등 예외 로깅을 위한 정보를 추가
 @Slf4j
 @Order(-2)
 @RequiredArgsConstructor
@@ -43,7 +43,7 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
         }
 
         // 2. Context에 토큰을 파싱한 결과가 업데이트되어 있지 않은 경우 요청을 필터링하여 예외 메시지를 전달한다
-        if (!verifyTokenParsed(context, response)) {
+        if (!verifyTokenParsed(request, context, response)) {
             return;
         }
 
@@ -66,12 +66,12 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean verifyTokenParsed(CertificationContext context, HttpServletResponse response) {
+    private boolean verifyTokenParsed(HttpServletRequest request, CertificationContext context, HttpServletResponse response) {
         if (!isTokenPayloadUpdatedInContext(context)) {
             String tokenParsingFailureReason = context.getTokenParsingFailureReason();
 
             CustomException customException = CustomException.badRequest(CertificationErrorType.FAILED_PARSING_CERTIFICATION_TOKEN,
-                "Reason: " + tokenParsingFailureReason);
+                "URI: " + request.getRequestURI() + ", Reason: " + tokenParsingFailureReason);
             writeErrorResponse(customException, response);
 
             return false;
