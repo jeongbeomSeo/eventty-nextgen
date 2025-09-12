@@ -13,11 +13,11 @@ spring:
       test:
         - certification-test
         - certification-secret-test
-  data:
-    redis:
-      client-type: lettuce
-      port: 6379
-      host: 127.0.0.1
+#  data:
+#    redis:
+#      client-type: lettuce
+#      port: 6379
+#      host: 127.0.0.1
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
   config:
