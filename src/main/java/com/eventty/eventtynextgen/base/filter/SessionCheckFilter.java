@@ -18,6 +18,7 @@ import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.UserErrorType;
+import com.eventty.eventtynextgen.shared.utils.LoggerUtils;
 import com.eventty.eventtynextgen.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -113,6 +114,7 @@ public class SessionCheckFilter extends OncePerRequestFilter {
                     customException = CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, AuthErrorType.UNKNOWN_EXCEPTION);
                 }
             }
+            LoggerUtils.info(customException);
             this.responseUtils.writeErrorResponseToResponse(response, customException);
             return false;
         }
@@ -125,6 +127,7 @@ public class SessionCheckFilter extends OncePerRequestFilter {
 
         if (userOpt.isEmpty()) {
             CustomException customException = CustomException.badRequest(UserErrorType.NOT_FOUND_USER);
+            LoggerUtils.info(customException, "Session Check Filter - 사용자 조회 실패");
             this.responseUtils.writeErrorResponseToResponse(response, customException);
             return null;
         }
@@ -134,6 +137,7 @@ public class SessionCheckFilter extends OncePerRequestFilter {
     private boolean validateUser(User user, HttpServletResponse response) {
         if (user.isDeleted()) {
             CustomException customException = CustomException.badRequest(UserErrorType.USER_ALREADY_DELETED);
+            LoggerUtils.info(customException, "Session Check Filter - 삭제된 사용자");
             this.responseUtils.writeErrorResponseToResponse(response, customException);
             return false;
         }
