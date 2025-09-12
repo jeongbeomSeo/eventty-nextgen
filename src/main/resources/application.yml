@@ -2,18 +2,24 @@ spring:
   application:
     name: eventty-nextgen
   profiles:
-    default: local, properties, metrics
+    default: local
     group:
       dev:
+        - metrics
+        - properties
         - certification
         - certification-secret
       local:
+        - metrics
+        - properties
         - certification
         - certification-secret
       test:
+        - metrics
+        - properties
         - certification-test
         - certification-secret-test
-#  data:
+  #  data:
 #    redis:
 #      client-type: lettuce
 #      port: 6379
