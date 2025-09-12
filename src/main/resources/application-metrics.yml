@@ -3,12 +3,12 @@ management:
     web:
       exposure:
         include: "*"
-        exclude: "env, beans, shutdown"
+        exclude: "env, beans, shutdown, conditions, configprops, configprops-prefix"
       base-path: "/actuator"
     jmx:
       exposure:
         include: "*"
-        exclude: "env, beans, shutdown"
+        exclude: "env, beans, shutdown, conditions, configprops, configprops-prefix"
   endpoint:
     health:
       show-details: always
