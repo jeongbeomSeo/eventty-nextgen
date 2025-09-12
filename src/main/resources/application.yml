@@ -2,22 +2,28 @@ spring:
   application:
     name: eventty-nextgen
   profiles:
-    default: local, properties, metrics
+    default: local
     group:
       dev:
+        - metrics
+        - properties
         - certification
         - certification-secret
       local:
+        - metrics
+        - properties
         - certification
         - certification-secret
       test:
+        - metrics
+        - properties
         - certification-test
         - certification-secret-test
-  data:
-    redis:
-      client-type: lettuce
-      port: 6379
-      host: 127.0.0.1
+  #  data:
+#    redis:
+#      client-type: lettuce
+#      port: 6379
+#      host: 127.0.0.1
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
   config:

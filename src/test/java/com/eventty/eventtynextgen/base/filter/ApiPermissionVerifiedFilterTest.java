@@ -19,11 +19,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -106,9 +110,10 @@ class ApiPermissionVerifiedFilterTest {
         verify(filterChain, times(0)).doFilter(request, response);
     }
 
-    @Test
+    @ParameterizedTest(name = "[{index}] URI: {0}")
+    @MethodSource("mismatchUriPatternArguments")
     @DisplayName("요청의 Path로부터 API Name을 찾지 못했을 경우 요청은 필터링된다.")
-    void 요청의_Path로부터_API_Name을_찾지_못했을_경우_요청은_필터링된다() throws ServletException, IOException {
+    void 요청의_Path로부터_API_Name을_찾지_못했을_경우_요청은_필터링된다(String fixtureName, String requestURI) throws ServletException, IOException {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -117,7 +122,7 @@ class ApiPermissionVerifiedFilterTest {
         CertificationContext context = CertificationContextHolder.getContext();
         context.updateFromTokenClaims("client", Set.of("user"), "adminEmail@gmail.com");
 
-        when(request.getRequestURI()).thenReturn("/nothing-match-url");
+        when(request.getRequestURI()).thenReturn(requestURI);
         doNothing().when(responseUtils).writeErrorResponseToResponse(any(HttpServletResponse.class), any(CustomException.class));
 
         ApiPermissionVerifiedFilter apiPermissionVerifiedFilter = new ApiPermissionVerifiedFilter(certificationManager, responseUtils);
@@ -127,6 +132,47 @@ class ApiPermissionVerifiedFilterTest {
 
         // then
         verify(filterChain, times(0)).doFilter(request, response);
+    }
+
+    private static Stream<Arguments> mismatchUriPatternArguments() {
+        return Stream.of(
+            // 완전히 다른 패턴
+            Arguments.of("완전히 다른 패턴", "/api/v2/user"),
+            Arguments.of("완전히 다른 패턴", "/different/path"),
+
+            // 추가 경로가 있지만 패턴에 맞지 않는 경우
+            Arguments.of("패턴 뒤에 슬래시가 아닌 문자열이 온 경우", "/api/v1/userses"),
+            Arguments.of("패턴 뒤에 슬래시가 아닌 문자열이 온 경우", "/api/v1/auths"),
+
+            // API 버전이 다른 경우
+            Arguments.of("API 버전 불일치", "/api/v2/events"),
+            Arguments.of("API 버전 불일치", "/api/v0/auth"),
+
+            // 오타가 있는 경우
+            Arguments.of("오타", "/api/v1/usr"),
+            Arguments.of("오타", "/api/v1/event"), // events의 단수형
+            Arguments.of("오타", "/api/v1/eventss"), // 이중 's'
+            Arguments.of("오타", "/api/v1/asset/files"), // file의 복수형
+
+            // 패스 구조가 다른 경우
+            Arguments.of("패스 구조 불일치", "/user/api/v1"),
+            Arguments.of("패스 구조 불일치", "/v1/api/user"),
+            Arguments.of("패스 구조 불일치", "/api/user/v1"),
+
+            // 빈 문자열이나 null 케이스
+            Arguments.of("빈 문자열", ""),
+            Arguments.of("루트 패스", "/"),
+
+            // 대소문자 다른 경우
+            Arguments.of("대소문자 불일치", "/API/V1/USER"),
+            Arguments.of("대소문자 불일치", "/api/V1/events"),
+            Arguments.of("대소문자 불일치", "/Api/v1/auth"),
+
+            // 슬래시 누락 케이스
+            Arguments.of("슬래시 누락", "api/v1/user"),
+            Arguments.of("슬래시 누락", "/apiv1/user"),
+            Arguments.of("슬래시 누락", "/api/v1user")
+        );
     }
 
     @Test

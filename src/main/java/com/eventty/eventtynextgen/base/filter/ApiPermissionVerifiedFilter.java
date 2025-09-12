@@ -3,6 +3,7 @@ package com.eventty.eventtynextgen.base.filter;
 import com.eventty.eventtynextgen.base.enums.ApiName;
 import com.eventty.eventtynextgen.base.utils.ResponseUtils;
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
+import com.eventty.eventtynextgen.shared.constant.SharedConst;
 import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
 import com.eventty.eventtynextgen.base.exception.CustomException;
@@ -23,7 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-// TODO: 예외 발생 시 Details에 RequestURI 정보 추가하고 필요시 ApiName 등 예외 로깅을 위한 정보를 추가
+
 @Slf4j
 @Order(-2)
 @RequiredArgsConstructor
@@ -84,10 +85,9 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
         return StringUtils.hasText(context.getAppName()) && Objects.nonNull(context.getApiPermission());
     }
 
-    // TODO: api/v1/events로 요청이 들어오고 ApiName이 api/v1/event로 되어 있는 경우에도 패턴 매칭이 된다. -> Test 케이스 추가 후 수정
     private ApiName resolveApiName(String requestURI, HttpServletResponse response) {
         Optional<ApiName> apiNameOpt = Arrays.stream(ApiName.values())
-            .filter(apiName -> requestURI.startsWith(apiName.getPattern()))
+            .filter(apiName -> SharedConst.PATH_MATCHER.match(apiName.getPattern(), requestURI))
             .findAny();
 
         if (apiNameOpt.isEmpty()) {
@@ -127,6 +127,7 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
     }
 
     private void writeErrorResponse(CustomException customException, HttpServletResponse response) {
+        // TODO: LoggerUtils
         log.error("http-status={} code={} msg={} detail={}",
             customException.getHttpStatus().value(),
             customException.getErrorType().getCode(),

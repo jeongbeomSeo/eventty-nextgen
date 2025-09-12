@@ -28,20 +28,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class CertificationTokenFilter extends OncePerRequestFilter {
 
     private static final List<String> SKIP_PATTERNS = List.of(
-        // API 문서
-        "/swagger-ui/**", "/v3/api-docs/**",
-        // 모니터링 및 헬스체크
-        "/health/**", "/actuator/**",
         // 인증 관련
-        "/api/*/certification/**",
-        // 정적 리소스
-        "/css/**", "/js/**", "/images/**", "/webjars/**", "/fonts/**", "/resources/**", "/static/**",
-        // 오류 페이지
-        "/error/**",
-        // 크롬 개발자 도구 자동 요청이나 인증 경로
-        "/.well-known/**",
-        // 기타 리소스
-        "/favicon.ico", "/robots.txt"
+        "/api/*/certification/**"
     );
 
     @Override
@@ -70,6 +58,11 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
     }
 
     private boolean shouldSkip(String uri) {
+        // "/api"로 시작하지 않는 URI는 모두 스킵 대상
+        if (!uri.startsWith("/api")) {
+            return true;
+        }
+
         return SKIP_PATTERNS.stream()
             .anyMatch(pattern -> PATH_MATCHER.match(pattern, uri));
     }
