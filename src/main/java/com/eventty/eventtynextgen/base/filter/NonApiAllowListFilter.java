@@ -55,7 +55,7 @@ public class NonApiAllowListFilter extends OncePerRequestFilter {
         }
 
         // 2. 예외 URL이 아닐 경우 404 응답
-        CustomException customException = CustomException.of(HttpStatus.FORBIDDEN, CertificationErrorType.NO_API_CALL_PERMISSION_IN_TOKEN, "URI: " + uri);
+        CustomException customException = CustomException.of(HttpStatus.FORBIDDEN, CertificationErrorType.ACCESS_DENIED, "URI: " + uri);
         writeErrorResponse(customException, response);
     }
 

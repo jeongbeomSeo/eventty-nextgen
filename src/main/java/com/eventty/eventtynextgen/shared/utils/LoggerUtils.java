@@ -25,7 +25,7 @@ public class LoggerUtils {
     }
 
     public static void info(CustomException customException) {
-        info(customException, customException.getDetail() == null ? "" : customException.getDetail().toString());
+        info(customException, String.valueOf(customException.getDetail()));
     }
 
     public static void info(CustomException customException, String detail) {
