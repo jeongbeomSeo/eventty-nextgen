@@ -84,7 +84,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}    
 
       - name: Pull latest image
-        run: sudo docker pull "${IMAGE}"
+        run: docker pull "${IMAGE}"
 
       - name: Create .env from GitHub Secrets
         shell: bash
