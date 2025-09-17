@@ -107,11 +107,11 @@ jobs:
       - name: Ensure nginx & certbot installed
         run: |
           set -e
-          sudo apt-get update -y
-          sudo apt-get install -y nginx certbot
+           apt-get update -y
+           apt-get install -y nginx certbot
           # webroot 경로
-          sudo mkdir -p /var/www/certbot
-          sudo chown www-data:www-data /var/www/certbot
+           mkdir -p /var/www/certbot
+           chown www-data:www-data /var/www/certbot
 
       - name: Render nginx HTTP-only config (first-issue path)
         # 인증서가 없으면 먼저 80만 띄워 ACME 응답 준비
@@ -120,7 +120,7 @@ jobs:
           if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
             # heredoc 시작, EOF를 종료 토큰으로 지정 & tee 명령어를 통해 표준 입력을 통해 받은 내용을 표준 출력 및 파일에 저장하도록 명령 + /dev/null 블랙홀로 리다이렉션 시켜 표준 출력은 버림
             # heredoc으로 인해 변수 치환, 명령치환, 백슬래시 이스케이프가 일절 일어나지 않으므로 ${DOMAIN}이 아닌 ${{ env.DOMAIN }} 스크립트 실행 전 GitHub Runner가 치환하도록 구성
-            sudo tee /etc/nginx/nginx.conf > /dev/null << 'EOF'
+             tee /etc/nginx/nginx.conf > /dev/null << 'EOF'
             user www-data;
             worker_processes auto;
             pid /run/nginx.pid;
@@ -160,8 +160,8 @@ jobs:
               }
             }
           EOF
-          sudo nginx -t
-          sudo systemctl reload nginx
+           nginx -t
+           systemctl reload nginx
           fi          
 
       - name: Obtain/renew certificate (webroot)
@@ -170,20 +170,20 @@ jobs:
         run: |
           set -e
           if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
-            sudo certbot certonly --webroot -w /var/www/certbot \
+             certbot certonly --webroot -w /var/www/certbot \
               -d ${DOMAIN} \
               --email "${CERTBOT_EMAIL:-admin@${DOMAIN}}" \
               --agree-tos --non-interactive
           else
             # 갱신 시도(필요 시)
-            sudo certbot renew --non-interactive --deploy-hook "systemctl reload nginx" || true
+             certbot renew --non-interactive --deploy-hook "systemctl reload nginx" || true
           fi
 
       # HTTPS 설정이 포함된 nginx.conf 파일 작성
       - name: Render nginx HTTPS reverse-proxy config
         run: |
           set -e
-          sudo tee /etc/nginx/nginx.conf > /dev/null << 'EOF'
+           tee /etc/nginx/nginx.conf > /dev/null << 'EOF'
           user www-data;
           worker_processes auto;
           pid /run/nginx.pid;
@@ -260,20 +260,20 @@ jobs:
             }
           }
           EOF
-          sudo nginx -t
-          sudo systemctl reload nginx
+           nginx -t
+           systemctl reload nginx
 
       - name: Stop & remove existing container if present
         shell: bash
         run: |
           # 스크립트에서 발생하는 오류나 에러가 발생하면 즉시 스크립트를 종료
           set -e
-          if sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+          if  docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
             echo "Stopping ${CONTAINER_NAME}…"
             # || true 구문을 통해서 실패를 무시 
-            sudo docker stop "${CONTAINER_NAME}" || true
+             docker stop "${CONTAINER_NAME}" || true
             echo "Removing ${CONTAINER_NAME}…"
-            sudo docker rm "${CONTAINER_NAME}" || true
+             docker rm "${CONTAINER_NAME}" || true
           else
             echo "No existing container named ${CONTAINER_NAME}"
           fi          
@@ -281,7 +281,7 @@ jobs:
       - name: Run new container (host network, localhost bind)
         run: |
           set -e
-          sudo docker run -d --name "${CONTAINER_NAME}" \
+           docker run -d --name "${CONTAINER_NAME}" \
             --env-file ./.env \
             -e SPRING_PROFILES_ACTIVE="${SPRING_PROFILE}" \
             -e SERVER_ADDRESS=127.0.0.1 \
@@ -294,4 +294,4 @@ jobs:
           rm -f .env || true            
 
       - name: Docker image Prune
-        run: sudo docker image prune -af
+        run:  docker image prune -af
