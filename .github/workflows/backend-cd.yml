@@ -101,7 +101,7 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           GCP_SA_IMAGE_KEY=${{ secrets.GCP_SA_IMAGE_KEY }}
           EOF
-          sudo chmod 600 .env        
+          chmod 600 .env        
 
       # Nginx & Certbot 준비
       - name: Ensure nginx & certbot installed
@@ -291,7 +291,7 @@ jobs:
       - name: Remove .env from host
         if: always()
         run: |
-          sudo rm -f .env || true            
+          rm -f .env || true            
 
       - name: Docker image Prune
         run: sudo docker image prune -af
