@@ -50,13 +50,17 @@ public class SwaggerConfig {
             .scheme("bearer")
             .in(In.HEADER)
             .bearerFormat("JWT")
-            .description("발급 받은 Access Token(로그인한 사용자 세션 토콘)");
+            .description("발급 받은 Access Token(로그인한 사용자 세션 토큰)");
     }
 
     private Info info() {
         return new Info()
             .title("Eventty_nextgen API 명세서")
-            .description("Eventty_nextgen API 명세서입니다.")
+            .description("""
+                Eventty_nextgen API 명세서입니다.\n
+                모든 API 호출에는 Certification Token(API 호출 권한 토큰)이 필요합니다.\n
+                서비스 인증 관리 API에서 토큰을 발급을 한 뒤, 헤더에 추가하세요.\n
+                appName: master, appSecret: 9f99dd5ee3e6d0148e4df90e18117d47.""")
             .version("1.0");
     }
 }

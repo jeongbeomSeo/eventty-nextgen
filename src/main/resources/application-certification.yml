@@ -1,5 +1,16 @@
 certification:
   api-permission-map:
+    master:
+      - user
+      - events
+
+      - auth_code
+      - auth_login
+      - auth
+
+      - asset_file
+      - asset_image
+      - asset_video
     client-app0:
       - user
       - events
