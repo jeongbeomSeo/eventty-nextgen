@@ -3,7 +3,8 @@ package com.eventty.eventtynextgen.config;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.AUTHORIZATION_HEADER;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
 
-import com.eventty.eventtynextgen.base.constant.BaseConst;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -15,6 +16,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@OpenAPIDefinition(servers = {
+    @Server(url = "http://localhost:8080", description = "Local server"),
+    @Server(url = "https://eventty-nextgen.site", description = "Develop server")
+})
 public class SwaggerConfig {
 
     @Bean
