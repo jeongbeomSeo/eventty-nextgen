@@ -68,7 +68,9 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
     private void handleToken(String token, CertificationContext context) {
         if (!StringUtils.hasText(token)) {
             context.updateTokenParsingFailureReason("NO_TOKEN");
+            return;
         }
+
         VerifyTokenResult result = JwtTokenProvider.verifyToken(token);
         if (result != VerifyTokenResult.VERIFIED_TOKEN) {
             context.updateTokenParsingFailureReason(result.name());
