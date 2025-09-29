@@ -3,6 +3,7 @@ package com.eventty.eventtynextgen.certification;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_VALIDITY_IN_MS;
 
+import com.eventty.eventtynextgen.certification.response.CertificationIssueTokenResponseView;
 import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider;
 import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.eventty.eventtynextgen.certification.component.CertificationManager;
@@ -23,7 +24,7 @@ public class CertificationServiceImpl implements CertificationService {
     private final CertificationManager certificationManager;
 
     @Override
-    public void issueCertificationToken(String appName, String appSecret, HttpServletResponse response) {
+    public CertificationIssueTokenResponseView issueCertificationToken(String appName, String appSecret, HttpServletResponse response) {
         // 1. app Name 존재하는지 확인
         if (!this.certificationManager.hasAppName(appName)) {
             throw CustomException.badRequest(CertificationErrorType.NOT_ALLOWED_APP_NAME);
@@ -46,5 +47,7 @@ public class CertificationServiceImpl implements CertificationService {
         // 5. 생성한 토큰 쿠키에 담기
         CookieUtils.addLaxCookie(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken(), CERTIFICATION_TOKEN_VALIDITY_IN_MS / 1000,
             response);
+
+        return new CertificationIssueTokenResponseView(certificationToken.getTokenType(), certificationToken.getCertificationToken());
     }
 }
