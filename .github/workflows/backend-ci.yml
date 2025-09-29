@@ -43,7 +43,7 @@ jobs:
         DB_DRIVER_CLASS_NAME: ${{ secrets.DB_DRIVER_CLASS_NAME }}
         DB_USER_NAME: ${{ secrets.DB_USER_NAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        GCP_SA_IMAGE_KEY: ${{ secrets.GCP_SA_IMAGE_KEY }}
+        GCP_SA_STORAGE_KEY: ${{ secrets.GCP_SA_STORAGE_KEY }}
       run: ./gradlew clean test jacocoTestReport -Dspring.profiles.active=local
 
     - name: Publish Test Results
