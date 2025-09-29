@@ -106,8 +106,8 @@ class CertificationTokenFilterTest {
     }
 
     @Test
-    @DisplayName("요청에 토큰이 존재하지 않을 경우 Context에 페이로드 정보는 null로 남고 넘어간다")
-    void 요청에_토큰이_존재하지_않을_경우_Context에_페이로드_정보는_null로_남고_넘어간다() throws ServletException, IOException {
+    @DisplayName("요청에 토큰이 존재하지 않을 경우 Context에 페이로드 정보는 null로 남기고 토큰 파싱 사유로 토큰이 존재하지 않다는 정보를 남기고 넘어간다")
+    void 요청에_토큰이_존재하지_않을_경우_Context에_페이로드_정보는_null로_남기고_토큰_파싱_사유로_토큰이_존재하지_않다는_정보를_남기고_넘어간다() throws ServletException, IOException {
         // given
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -123,7 +123,7 @@ class CertificationTokenFilterTest {
             assertThat(context.getApiPermission()).isNull();
             assertThat(context.getAdminEmail()).isNull();
             assertThat(context.isSkipCertificate()).isFalse();
-            assertThat(context.getTokenParsingFailureReason()).isNull();
+            assertThat(context.getTokenParsingFailureReason()).isEqualTo("NO_TOKEN");
 
             return null;
         }).when(filterChain).doFilter(request, response);

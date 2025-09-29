@@ -36,17 +36,14 @@ public class AssetFileServiceImpl implements AssetFileService {
     private final ThreadPoolTaskExecutor gcsIoExecutor;
 
     @Override
-    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file, String context) {
+    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file) {
 
         VerifyResult verifyResult = this.fileMetaValidator.validateMultipartFile(file);
         handleVerifyResult(verifyResult);
 
-        StorageContext contextEnum = StorageContext.getFileContext(context)
-            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + context));
-
         UploadFileResult uploadFileResult;
         try {
-            uploadFileResult = RetryableUtils.executeWithRetry(() -> this.objectStorageClient.uploadMultipartFile(file, contextEnum), 3, 100, 1000);
+            uploadFileResult = RetryableUtils.executeWithRetry(() -> this.objectStorageClient.uploadMultipartFile(file, StorageContext.FILE), 3, 100, 1000);
         } catch (Exception cause) {
             throw CustomException.of(cause, HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + cause);
         }
@@ -55,11 +52,8 @@ public class AssetFileServiceImpl implements AssetFileService {
     }
 
     @Override
-    public List<AssetUploadAssetFile> uploadMultipartFiles(List<MultipartFile> files, String context) {
+    public List<AssetUploadAssetFile> uploadMultipartFiles(List<MultipartFile> files) {
         files.stream().map(this.fileMetaValidator::validateMultipartFile).forEach(this::handleVerifyResult);
-
-        StorageContext contextEnum = StorageContext.getFileContext(context)
-            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + context));
 
         // 아래 로직과 성능 테스트 진행 + 비동기 처리가 올바르게 되는지도 확인 + 재시도 패턴 적용
 //        files.stream()
@@ -71,7 +65,7 @@ public class AssetFileServiceImpl implements AssetFileService {
         // TODO: 프로파일링을 통한 검증 이후 성능 테스트 진행 + 재시도 패턴 적용
         List<CompletableFuture<UploadFileResult>> futures = files.stream()
             .map(file -> CompletableFuture.supplyAsync(() ->
-                this.objectStorageClient.uploadMultipartFile(file, contextEnum), this.gcsIoExecutor)
+                this.objectStorageClient.uploadMultipartFile(file, StorageContext.FILE), this.gcsIoExecutor)
                 .orTimeout(1000, TimeUnit.SECONDS))
             .toList();
 
@@ -101,7 +95,7 @@ public class AssetFileServiceImpl implements AssetFileService {
 
         if (!failedUploadResults.isEmpty()) {
             // 롤백 작업: 업로드에 성공한 파일 지우기
-            successUploadResults.forEach(result -> this.objectStorageClient.deleteFile(result.fileName(), contextEnum));
+            successUploadResults.forEach(result -> this.objectStorageClient.deleteFile(result.fileName(), StorageContext.FILE));
 
             String failedMessage = failedUploadResults.stream().map(result -> result.exception().getMessage()).collect(Collectors.joining(", "));
             throw CustomException.badRequest(FILE_UPLOAD_FAILED, "File upload interrupted: " + failedMessage);
@@ -113,7 +107,7 @@ public class AssetFileServiceImpl implements AssetFileService {
     }
 
     @Override
-    public AssetUploadAssetFile uploadStreaming(HttpServletRequest request, String context) {
+    public AssetUploadAssetFile uploadStreaming(HttpServletRequest request) {
         String contentType = request.getContentType();
         ServletInputStream inputStream;
         try {
@@ -125,12 +119,9 @@ public class AssetFileServiceImpl implements AssetFileService {
         VerifyResult verifyResult = this.fileMetaValidator.validateStreamFile(contentType);
         handleVerifyResult(verifyResult);
 
-        StorageContext contextEnum = StorageContext.getFileContext(context)
-            .orElseThrow(() -> CustomException.badRequest(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT, "context: " + context));
-
         UploadFileResult uploadFileResult;
         try {
-            uploadFileResult = this.objectStorageClient.uploadStreaming(inputStream, contextEnum, contentType);
+            uploadFileResult = this.objectStorageClient.uploadStreaming(inputStream, StorageContext.FILE, contentType);
         } catch (Exception e) {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + e.getMessage());
         }

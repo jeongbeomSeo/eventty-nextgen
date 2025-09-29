@@ -32,5 +32,5 @@ spring:
     gcp:
       storage:
         credentials:
-          encoded-key: ${GCP_SA_IMAGE_KEY}
+          encoded-key: ${GCP_SA_STORAGE_KEY}
 

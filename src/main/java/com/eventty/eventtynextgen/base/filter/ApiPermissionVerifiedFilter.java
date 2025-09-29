@@ -8,6 +8,7 @@ import com.eventty.eventtynextgen.shared.context.CertificationContext;
 import com.eventty.eventtynextgen.shared.context.CertificationContextHolder;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.CertificationErrorType;
+import com.eventty.eventtynextgen.shared.utils.LoggerUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -127,12 +128,7 @@ public class ApiPermissionVerifiedFilter extends OncePerRequestFilter {
     }
 
     private void writeErrorResponse(CustomException customException, HttpServletResponse response) {
-        // TODO: LoggerUtils
-        log.error("http-status={} code={} msg={} detail={}",
-            customException.getHttpStatus().value(),
-            customException.getErrorType().getCode(),
-            customException.getErrorType().getMsg(),
-            customException.getDetail());
+        LoggerUtils.info(customException);
 
         responseUtils.writeErrorResponseToResponse(response, customException);
     }

@@ -47,9 +47,7 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
 
             // 2. 토큰이 존재할 경우 파싱
             String token = request.getHeader(CERTIFICATION_TOKEN_COOKIE_NAME);
-            if (StringUtils.hasText(token)) {
-                handleToken(token, context);
-            }
+            handleToken(token, context);
 
             filterChain.doFilter(request, response);
         } finally {
@@ -68,6 +66,11 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
     }
 
     private void handleToken(String token, CertificationContext context) {
+        if (!StringUtils.hasText(token)) {
+            context.updateTokenParsingFailureReason("NO_TOKEN");
+            return;
+        }
+
         VerifyTokenResult result = JwtTokenProvider.verifyToken(token);
         if (result != VerifyTokenResult.VERIFIED_TOKEN) {
             context.updateTokenParsingFailureReason(result.name());

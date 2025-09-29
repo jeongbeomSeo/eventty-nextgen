@@ -27,20 +27,6 @@ public interface ObjectStorageClient {
         LARGE_FILE,
         EVENT_IMAGE,
         EVENT_VIDEO;
-
-        public static Optional<StorageContext> getFileContext(String context) {
-            for (StorageContext ctx : StorageContext.values()) {
-                if (ctx.name().equalsIgnoreCase(context) && isFileContext(ctx)) {
-                    return Optional.of(ctx);
-                }
-            }
-
-            return Optional.empty();
-        }
-
-        private static boolean isFileContext(StorageContext context) {
-            return context == FILE || context == LARGE_FILE;
-        }
     }
 
     record FindFileUrlResult(List<String> fileUrls, List<String> failedFileNames) {}
