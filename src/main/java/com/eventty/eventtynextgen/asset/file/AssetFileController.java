@@ -10,10 +10,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,29 +39,29 @@ public class AssetFileController {
     }
 
     @LoginRequired(requireHost = true, requireAdmin = true)
-    @PostMapping("/multipart-file/{context}")
-    public ResponseEntity<AssetUploadAssetFile> uploadMultipartFile(@RequestPart("file") MultipartFile file, @PathVariable String context) {
+    @PostMapping(value = "/multipart-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AssetUploadAssetFile> uploadMultipartFile(@RequestPart("file") MultipartFile file) {
 
-        AssetUploadAssetFile assetUploadAssetFile = this.assetFileService.uploadMultipartFile(file, context);
+        AssetUploadAssetFile assetUploadAssetFile = this.assetFileService.uploadMultipartFile(file);
 
         return ResponseEntity.ok(assetUploadAssetFile);
     }
 
     @LoginRequired(requireHost = true, requireAdmin = true)
-    @PostMapping("/multipart-files/{context}")
-    public ResponseEntity<List<AssetUploadAssetFile>> uploadMultipartFiles(@RequestPart("files") List<MultipartFile> files, @PathVariable String context) {
+    @PostMapping(value ="/multipart-files")
+    public ResponseEntity<List<AssetUploadAssetFile>> uploadMultipartFiles(@RequestParam("files") List<MultipartFile> files) {
 
-        List<AssetUploadAssetFile> assetUploadAssetFiles = this.assetFileService.uploadMultipartFiles(files, context);
+        List<AssetUploadAssetFile> assetUploadAssetFiles = this.assetFileService.uploadMultipartFiles(files);
 
         return ResponseEntity.ok(assetUploadAssetFiles);
     }
 
     @Deprecated
     @LoginRequired(requireHost = true, requireAdmin = true)
-    @PostMapping("/stream-file/{context}")
-    public ResponseEntity<AssetUploadAssetFile> uploadStreamFile(HttpServletRequest request, @PathVariable String context) {
+    @PostMapping("/stream-file")
+    public ResponseEntity<AssetUploadAssetFile> uploadStreamFile(HttpServletRequest request) {
 
-        AssetUploadAssetFile assetUploadAssetFile = this.assetFileService.uploadStreaming(request, context);
+        AssetUploadAssetFile assetUploadAssetFile = this.assetFileService.uploadStreaming(request);
 
         return ResponseEntity.ok(assetUploadAssetFile);
     }

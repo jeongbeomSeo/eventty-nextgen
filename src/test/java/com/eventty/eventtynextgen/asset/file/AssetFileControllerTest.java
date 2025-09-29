@@ -86,10 +86,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
-            String context = "file";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -115,10 +114,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/15MB.yml", "application/yaml");
-            String context = "file";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -144,10 +142,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/26MB.zip", "application/zip");
-            String context = "file";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -169,10 +166,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/images/512KB_size_image.jpg", "image/jpeg");
-            String context = "file";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -194,10 +190,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/videos/1MB.mp4", "video/mp4");
-            String context = "file";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -220,10 +215,9 @@ class AssetFileControllerTest {
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/images/512KB_size_image.jpg",
                 "multipart/form-data");
-            String context = "file";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -245,10 +239,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/videos/1MB.mp4", "multipart/form-data");
-            String context = "file";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -270,10 +263,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
-            String context = "event_image";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -295,10 +287,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
-            String context = "event_video";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -320,10 +311,9 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
-            String context = "unknown_context";
 
             // when
-            ResultActions resultActions = mockMvc.perform(multipart(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(multipart(URL + "/")
                 .file(multipartFile)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
@@ -356,10 +346,9 @@ class AssetFileControllerTest {
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "file";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -395,10 +384,9 @@ class AssetFileControllerTest {
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "file";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -436,10 +424,9 @@ class AssetFileControllerTest {
             fileInfoList.add(new MultipartFileInfo("src/test/resources/files/26MB.zip", contentType));
 
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "file";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -470,10 +457,9 @@ class AssetFileControllerTest {
             fileInfoList.add(new MultipartFileInfo("src/test/resources/images/512KB_size_image.jpg", "image/jpeg"));
 
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "file";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -504,10 +490,9 @@ class AssetFileControllerTest {
             fileInfoList.add(new MultipartFileInfo("src/test/resources/videos/1MB.mp4", "video/mp4"));
 
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "file";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -538,10 +523,9 @@ class AssetFileControllerTest {
             fileInfoList.add(new MultipartFileInfo("src/test/resources/images/512KB_size_image.jpg", "multipart/form-data"));
 
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "file";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -572,10 +556,9 @@ class AssetFileControllerTest {
             fileInfoList.add(new MultipartFileInfo("src/test/resources/videos/1MB.mp4", "multipart/form-data"));
 
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "file";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -604,10 +587,9 @@ class AssetFileControllerTest {
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "event_image";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -636,10 +618,9 @@ class AssetFileControllerTest {
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "event_video";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -668,10 +649,9 @@ class AssetFileControllerTest {
 
             List<MultipartFileInfo> fileInfoList = IntStream.range(0, 3).mapToObj(i -> new MultipartFileInfo(filePath, contentType)).toList();
             List<MockMultipartFile> mockMultipartFiles = MultipartConvertHelper.convertMultipartFiles(fileInfoList);
-            String context = "unknown_context";
 
             // when
-            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/" + context)
+            MockMultipartHttpServletRequestBuilder requestBuilder = (MockMultipartHttpServletRequestBuilder) multipart(URL + "/")
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken());
@@ -705,13 +685,12 @@ class AssetFileControllerTest {
             // 테스트용 파일 경로 및 파일 읽기
             String filePath = "src/test/resources/files/15MB.yml";
             byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
-            String context = "file";
 
             // 파일 이름 및 컨텐츠 타입 설정
             String contentType = "application/yaml";
 
             // when
-            ResultActions resultActions = mockMvc.perform(post(URL + "/" + context)
+            ResultActions resultActions = mockMvc.perform(post(URL + "/")
                 .content(fileContent)
                 .contentType(contentType)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)

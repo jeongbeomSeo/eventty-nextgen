@@ -8,9 +8,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface AssetFileService {
 
-    AssetUploadAssetFile uploadMultipartFile(MultipartFile file, String context);
+    AssetUploadAssetFile uploadMultipartFile(MultipartFile file);
 
-    List<AssetUploadAssetFile> uploadMultipartFiles(List<MultipartFile> files, String context);
+    List<AssetUploadAssetFile> uploadMultipartFiles(List<MultipartFile> files);
 
     /**
      * ServletInputStream을 통해 원시 바이트 스트림을 업로드합니다.
@@ -26,10 +26,9 @@ public interface AssetFileService {
      * </ul>
      *
      * @param request HTTP 요청 객체
-     * @param context 업로드 컨텍스트 식별자
      * @return 업로드된 파일 정보
-     * @deprecated 제약 사항으로 인해 사용이 권장되지 않습니다. 대신 {@link #uploadMultipartFile(MultipartFile, String)}을 사용하세요.
+     * @deprecated 제약 사항으로 인해 사용이 권장되지 않습니다. 대신 {@link #uploadMultipartFile(MultipartFile)}을 사용하세요.
      */
     @Deprecated
-    AssetUploadAssetFile uploadStreaming(HttpServletRequest request, String context);
+    AssetUploadAssetFile uploadStreaming(HttpServletRequest request);
 }

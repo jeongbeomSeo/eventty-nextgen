@@ -60,11 +60,10 @@ class AssetFileServiceImplTest {
     class UploadMultipartFile {
 
         @Test
-        @DisplayName("메타 데이터의 유효성 검증에 성공하고, Context를 가져와 파일 업로드를 수행하여 정상적으로 AssetUploadAssetFile을 반환한다")
-        void 메타_데이터의_유효성_검증에_성공하고_Context를_가져와_파일_업로드를_수행하여_정상적으로_AssetUploadAssetFile을_반환한다() {
+        @DisplayName("메타 데이터의 유효성 검증에 성공하고 파일 업로드를 수행하여 정상적으로 AssetUploadAssetFile을 반환한다")
+        void 메타_데이터의_유효성_검증에_성공하고_파일_업로드를_수행하여_정상적으로_AssetUploadAssetFile을_반환한다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
@@ -78,7 +77,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when
-            AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadMultipartFile(file, context);
+            AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadMultipartFile(file);
 
             // then
             assertThat(assetUploadAssetFile.fileName()).isEqualTo("test.jpg");
@@ -90,7 +89,6 @@ class AssetFileServiceImplTest {
         void 메타_데이터의_유효성_검증에_실패하여_INVALID_SIZE를_반환받은_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_SIZE);
@@ -99,7 +97,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, context))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -112,7 +110,6 @@ class AssetFileServiceImplTest {
         void 메타_데이터의_유효성_검증에_실패하여_INVALID_CONTENT_TYPE를_반환받은_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_CONTENT_TYPE);
@@ -121,7 +118,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, context))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -134,7 +131,6 @@ class AssetFileServiceImplTest {
         void 메타_데이터의_유효성_검증에_실패하여_INVALID_EXTENSION를_반환받은_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_EXTENSION);
@@ -143,7 +139,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, context))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -152,33 +148,10 @@ class AssetFileServiceImplTest {
         }
 
         @Test
-        @DisplayName("File Context를 가져오지 못한 경우 예외를 발생시킨다")
-        void File_Context를_가져오지_못한_경우_예외를_발생시킨다() {
-            // given
-            MultipartFile file = mock(MultipartFile.class);
-            String context = "image";
-
-            VerifyResult verifyResult = mock(VerifyResult.class);
-            when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
-
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
-
-            // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, context))
-                .isInstanceOf(CustomException.class)
-                .satisfies(ex -> {
-                    CustomException customException = (CustomException) ex;
-                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT);
-                });
-        }
-
-        @Test
         @DisplayName("파일 업로드에 실패한 경우 예외를 발생시킨다")
         void 파일_업로드에_실패한_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
@@ -189,7 +162,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, context))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file))
                 .isInstanceOf(RuntimeException.class);
         }
     }
@@ -199,12 +172,11 @@ class AssetFileServiceImplTest {
     class UploadMultipartFiles {
 
         @Test
-        @DisplayName("모든 파일의 메타데이터에 대한 유효성 검증에 통과하고, Context를 가져와 모든 파일 업로드를 비동기적으로 수행하여 성공하면 AssetUploadAssetFile 리스트를 반환한다")
-        void 모든_파일의_메타데이터에_대한_유효성_검증에_통과하고_Context를_가져와_모든_파일_업로드에_성공하면_AssetUploadAssetFile_리스트를_반환한다() {
+        @DisplayName("모든 파일의 메타데이터에 대한 유효성 검증에 통과하고, 모든 파일 업로드를 비동기적으로 수행하여 성공하면 AssetUploadAssetFile 리스트를 반환한다")
+        void 모든_파일의_메타데이터에_대한_유효성_검증에_통과하고_모든_파일_업로드에_성공하면_AssetUploadAssetFile_리스트를_반환한다() {
             // given
             MultipartFile file1 = mock(MultipartFile.class);
             MultipartFile file2 = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
@@ -226,7 +198,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when
-            List<AssetUploadAssetFile> assetUploadAssetFiles = assetFileService.uploadMultipartFiles(List.of(file1, file2), context);
+            List<AssetUploadAssetFile> assetUploadAssetFiles = assetFileService.uploadMultipartFiles(List.of(file1, file2));
 
             // then
             assetUploadAssetFiles.forEach(assetUploadAssetFile -> {
@@ -241,7 +213,6 @@ class AssetFileServiceImplTest {
             // given
             MultipartFile file1 = mock(MultipartFile.class);
             MultipartFile file2 = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult1 = mock(VerifyResult.class);
             when(verifyResult1.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
@@ -254,7 +225,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2), context))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2)))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -268,7 +239,6 @@ class AssetFileServiceImplTest {
             // given
             MultipartFile file1 = mock(MultipartFile.class);
             MultipartFile file2 = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult1 = mock(VerifyResult.class);
             when(verifyResult1.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_SIZE);
@@ -277,35 +247,11 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2), context))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2)))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
                     assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.INVALID_FILE_SIZE);
-                });
-        }
-
-        @Test
-        @DisplayName("File Context를 가져오지 못한 경우 예외를 발생시킨다")
-        void File_Context를_가져오지_못한_경우_예외를_발생시킨다() {
-            // given
-            MultipartFile file1 = mock(MultipartFile.class);
-            MultipartFile file2 = mock(MultipartFile.class);
-            String context = "non_context";
-
-            VerifyResult verifyResult = mock(VerifyResult.class);
-            when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult);
-            when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult);
-
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
-
-            // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2), context))
-                .isInstanceOf(CustomException.class)
-                .satisfies(ex -> {
-                    CustomException customException = (CustomException) ex;
-                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT);
                 });
         }
 
@@ -316,7 +262,6 @@ class AssetFileServiceImplTest {
             MultipartFile file1 = mock(MultipartFile.class);
             MultipartFile file2 = mock(MultipartFile.class);
             MultipartFile file3 = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
@@ -344,7 +289,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2, file3), context))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2, file3)))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -362,7 +307,6 @@ class AssetFileServiceImplTest {
             MultipartFile file1 = mock(MultipartFile.class);
             MultipartFile file2 = mock(MultipartFile.class);
             MultipartFile file3 = mock(MultipartFile.class);
-            String context = "file";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
@@ -386,7 +330,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2, file3), context))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2, file3)))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -401,11 +345,10 @@ class AssetFileServiceImplTest {
     @DisplayName("스트리밍 방식 파일 업로드 테스트")
     class UploadStreaming {
         @Test
-        @DisplayName("Request 객체로부터 필요한 정보를 가져온 뒤 유효성 검증에 성공하고, Context를 가져와 파일 업로드를 스트리밍 방식으로 수행하여 정상적으로 AssetUploadAssetFile을 반환한다")
-        void Request_객체로부터_필요한_정보를_가져온_뒤_유효성_검증에_성공하고_Context를_가져와_파일_업로드를_스트리밍_방식으로_수행하여_정상적으로_AssetUploadAssetFile을_반환한다() throws IOException {
+        @DisplayName("Request 객체로부터 필요한 정보를 가져온 뒤 유효성 검증에 성공하고 파일 업로드를 스트리밍 방식으로 수행하여 정상적으로 AssetUploadAssetFile을 반환한다")
+        void Request_객체로부터_필요한_정보를_가져온_뒤_유효성_검증에_성공하고_파일_업로드를_스트리밍_방식으로_수행하여_정상적으로_AssetUploadAssetFile을_반환한다() throws IOException {
             // given
             HttpServletRequest request = mock(HttpServletRequest.class);
-            String context = "file";
 
             ServletInputStream inputStream = mock(ServletInputStream.class);
             when(request.getInputStream()).thenReturn(inputStream);
@@ -425,7 +368,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when
-            AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadStreaming(request, context);
+            AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadStreaming(request);
 
             // then
             assertThat(assetUploadAssetFile.fileName()).isEqualTo("streamed_test");
@@ -437,14 +380,13 @@ class AssetFileServiceImplTest {
         void Request_객체로부터_InputStream을_가져오는_도중_IOException이_발생하면_예외를_발생시킨다() throws IOException {
             // given
             HttpServletRequest request = mock(HttpServletRequest.class);
-            String context = "file";
 
             doThrow(IOException.class).when(request).getInputStream();
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadStreaming(request, context))
+            assertThatThrownBy(() -> assetFileService.uploadStreaming(request))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -457,7 +399,6 @@ class AssetFileServiceImplTest {
         void 스트림_파일의_메타데이터_유효성_검증에_실패하여_INVALID_CONTENT_TYPE를_반환받은_경우_예외를_발생시킨다() throws IOException {
             // given
             HttpServletRequest request = mock(HttpServletRequest.class);
-            String context = "file";
 
             ServletInputStream inputStream = mock(ServletInputStream.class);
             when(request.getInputStream()).thenReturn(inputStream);
@@ -470,7 +411,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadStreaming(request, context))
+            assertThatThrownBy(() -> assetFileService.uploadStreaming(request))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -479,38 +420,10 @@ class AssetFileServiceImplTest {
         }
 
         @Test
-        @DisplayName("Context를 가져오지 못한 경우 예외를 발생시킨다")
-        void Context를_가져오지_못한_경우_예외를_발생시킨다() throws IOException {
-            // given
-            HttpServletRequest request = mock(HttpServletRequest.class);
-            String context = "non_context";
-
-            ServletInputStream inputStream = mock(ServletInputStream.class);
-            when(request.getInputStream()).thenReturn(inputStream);
-            when(request.getContentType()).thenReturn("application/octet-stream");
-
-            VerifyResult verifyResult = mock(VerifyResult.class);
-            when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
-            when(fileMetaValidator.validateStreamFile(request.getContentType()))
-                .thenReturn(verifyResult);
-
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
-
-            // when & then
-            assertThatThrownBy(() -> assetFileService.uploadStreaming(request, context))
-                .isInstanceOf(CustomException.class)
-                .satisfies(ex -> {
-                    CustomException customException = (CustomException) ex;
-                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.ILLEGAL_ARGUMENT_FILE_CONTEXT);
-                });
-        }
-
-        @Test
         @DisplayName("UploadStreaming 수행 도중 예외가 발생하면 예외를 그대로 던진다")
         void UploadStreaming_수행_도중_예외가_발생하면_예외를_그대로_던진다() throws IOException {
             // given
             HttpServletRequest request = mock(HttpServletRequest.class);
-            String context = "file";
 
             ServletInputStream inputStream = mock(ServletInputStream.class);
             when(request.getInputStream()).thenReturn(inputStream);
@@ -527,7 +440,7 @@ class AssetFileServiceImplTest {
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadStreaming(request, context))
+            assertThatThrownBy(() -> assetFileService.uploadStreaming(request))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
