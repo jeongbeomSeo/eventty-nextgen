@@ -1,8 +1,9 @@
 package com.eventty.eventtynextgen.certification;
 
+import com.eventty.eventtynextgen.certification.response.CertificationIssueTokenResponseView;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface CertificationService {
 
-    void issueCertificationToken(String appName, String appSecret, HttpServletResponse response);
+    CertificationIssueTokenResponseView issueCertificationToken(String appName, String appSecret, HttpServletResponse response);
 }

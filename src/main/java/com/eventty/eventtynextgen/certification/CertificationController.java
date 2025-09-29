@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.certification;
 
 import com.eventty.eventtynextgen.certification.annotation.CertificationApiV1;
+import com.eventty.eventtynextgen.certification.response.CertificationIssueTokenResponseView;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,12 @@ public class CertificationController {
     private final CertificationService certificationService;
 
     @GetMapping("/issue/certification-token")
-    public ResponseEntity<Void> issueCertificationToken(
+    public ResponseEntity<CertificationIssueTokenResponseView> issueCertificationToken(
         @RequestParam(name = "appName") String appName,
         @RequestParam(name = "appSecret") String appSecret,
         HttpServletResponse response) {
-        this.certificationService.issueCertificationToken(appName, appSecret, response);
-        return ResponseEntity.ok().build();
+        CertificationIssueTokenResponseView certificationIssueTokenResponseView = this.certificationService.issueCertificationToken(appName, appSecret,
+            response);
+        return ResponseEntity.ok(certificationIssueTokenResponseView);
     }
 }
