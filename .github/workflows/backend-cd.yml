@@ -207,7 +207,7 @@ jobs:
             tcp_nopush on; 
             keepalive_timeout 65s;
             
-            client_max_body_size 10M;
+            client_max_body_size 25M;
             server_tokens off;
 
             # TLS 최신만
