@@ -5,25 +5,23 @@ spring:
     default: local
     group:
       dev:
+        - tomcat
         - metrics
         - properties
         - certification
         - certification-secret
       local:
+        - tomcat
         - metrics
         - properties
         - certification
         - certification-secret
       test:
+        - tomcat
         - metrics
         - properties
         - certification-test
         - certification-secret-test
-  #  data:
-#    redis:
-#      client-type: lettuce
-#      port: 6379
-#      host: 127.0.0.1
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
   config:
@@ -33,4 +31,9 @@ spring:
       storage:
         credentials:
           encoded-key: ${GCP_SA_STORAGE_KEY}
-
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+      file-size-threshold: 25MB
+      location: /tmp/uploads
