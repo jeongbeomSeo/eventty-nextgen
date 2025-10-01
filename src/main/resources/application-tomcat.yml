@@ -1,0 +1,53 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  tomcat:
+    # 파일 업로드/요청 크기 제한
+    max-swallow-size: 25MB
+    max-http-form-post-size: 25MB
+
+    # 커넥션 풀 설정
+    threads:
+      max: 200
+      min-spare: 10
+
+    # 커넥션 타임아웃 설정
+    connection-timeout: 20000
+    keep-alive-timeout: 20000
+    max-keep-alive-requests: 100
+
+    # 액세스 로그 설정 (개발환경에서는 false, 운영환경에서는 true)
+    accesslog:
+      enabled: true
+      directory: logs
+      file-date-format: .yyyy-MM-dd
+      pattern: '%t "%r" %s (%D ms) %b %{User-Agent}i'
+      prefix: access_log
+      suffix: .log
+
+    # 추가 설정
+    uri-encoding: UTF-8
+    redirect-context-root: false
+
+# 로깅 설정 (에러 추적을 위한 상세 로깅)
+logging:
+  level:
+    org.apache.catalina: INFO
+    org.apache.coyote: INFO
+    org.apache.tomcat: INFO
+    org.springframework.web: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
+  file:
+    name: logs/application.log
+  logback:
+    rollingpolicy:
+      max-file-size: 100MB
+      max-history: 30
+      total-size-cap: 3GB
