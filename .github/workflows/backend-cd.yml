@@ -188,8 +188,8 @@ jobs:
           worker_processes auto;
           pid /run/nginx.pid;
 
-          events { 
-            worker_connections 1024; 
+          events {
+            worker_connections 1024;
           }
 
           http {
@@ -197,17 +197,17 @@ jobs:
             default_type application/octet-stream;
 
             log_format main '$remote_addr - $remote_user [$time_local] "$request" '
-                            '$status $body_bytes_sent "$http_referer" '
-                            '"$http_user_agent" "$http_x_forwarded_for"';
-                            
+                           '$status $body_bytes_sent "$http_referer" '
+                           '"$http_user_agent" "$http_x_forwarded_for"';
+
             access_log /var/log/nginx/access.log main;
             error_log  /var/log/nginx/error.log;
 
-            sendfile on; 
-            tcp_nopush on; 
+            sendfile on;
+            tcp_nopush on;
             keepalive_timeout 65s;
-            
-            client_max_body_size 25M;
+
+            client_max_body_size 10M;
             server_tokens off;
 
             # TLS 최신만
@@ -223,11 +223,14 @@ jobs:
             server {
               listen 80; listen [::]:80;
               server_name ${{ env.DOMAIN }};
-              
+
               location ^~ /.well-known/acme-challenge/ {
                 root /var/www/certbot;
               }
-              return 301 https://$host$request_uri;
+          #   return 301 https://$host$request_uri;    # 실제 운영 환경에서는 redirect하여 https 요청으로 수행하도록 해야한다. (Ngrinder 성능 테스트를 위해 http 요청도 허용)
+              location / {
+                proxy_pass http://api;
+              }
             }
 
             server {
@@ -262,6 +265,8 @@ jobs:
           EOF
           sudo nginx -t
           sudo systemctl reload nginx
+  
+
 
       - name: Stop & remove existing container if present
         shell: bash
