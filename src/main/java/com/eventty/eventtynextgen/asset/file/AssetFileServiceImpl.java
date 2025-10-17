@@ -51,8 +51,7 @@ public class AssetFileServiceImpl implements AssetFileService {
         UploadFileMetaData uploadFileMetaData = this.objectStorageClient.uploadMultipartFile(file, fileFullName, StorageContext.FILE);
 
         FileMetadata fileMetadataFromDb = fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(),
-            uploadFileMetaData.fileSize(),
-            uploadFileMetaData.fileUrl());
+            uploadFileMetaData.fileSize(), uploadFileMetaData.fileUrl());
 
         return new AssetUploadAssetFile(fileMetadataFromDb.getId(), fileMetadataFromDb.getFileName(), fileMetadataFromDb.getContentType(),
             fileMetadataFromDb.getFileSize(), fileMetadataFromDb.getFileUrl());
@@ -72,7 +71,7 @@ public class AssetFileServiceImpl implements AssetFileService {
                 UploadFileMetaData uploadFileMetaData = this.objectStorageClient.uploadMultipartFile(file, UUID.randomUUID().toString(), StorageContext.FILE);
                 return UploadFileResult.success(uploadFileMetaData.fileName(), uploadFileMetaData.contentType());
             }, this.gcsIoExecutor).orTimeout(1000, TimeUnit.SECONDS))
-                .toList();
+            .toList();
 
         List<UploadFileResult> results = futures.stream().map(future -> {
                 try {
@@ -124,7 +123,7 @@ public class AssetFileServiceImpl implements AssetFileService {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + e.getMessage());
         }
 
-        return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentType());
+        return new AssetUploadAssetFile(null, null, null, null, null);
     }
 
     private void handleVerifyResult(VerifyResult verifyResult) {

@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "file-metadata", indexes = {
+@Table(name = "file_metadata", indexes = {
     @Index(name = "idx_file_metadata_user_id_file_name", columnList = "user_id, file_name", unique = true)
 })
 @Getter
@@ -48,8 +48,9 @@ public class FileMetadata {
         this.fileUrl = fileUrl;
     }
 
-    public static FileMetadata of(String fileName, String contentType, Long fileSize, String fileUrl) {
+    public static FileMetadata of(Long userId, String fileName, String contentType, Long fileSize, String fileUrl) {
         return FileMetadata.builder()
+            .userId(userId)
             .fileName(fileName)
             .contentType(contentType)
             .fileSize(fileSize)

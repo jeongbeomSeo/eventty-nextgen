@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="251007-create-schema-01-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="file_metadata"/>
+      </not>
+    </preConditions>
+    <createTable tableName="file_metadata">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="user_id" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="file_name" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="content_type" type="varchar(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="file_size" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+      <column name="file_url" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex tableName="file_metadata" indexName="idx_file_metadata_user_id_file_name" unique="true">
+      <column name="user_id"/>
+      <column name="file_name"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>
