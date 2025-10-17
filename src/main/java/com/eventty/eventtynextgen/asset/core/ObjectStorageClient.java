@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ObjectStorageClient {
 
-    UploadFileResult uploadMultipartFile(MultipartFile file, StorageContext context);
+    UploadFileMetaData uploadMultipartFile(MultipartFile file, String fileName, StorageContext context);
 
     UploadFileResult uploadStreaming(InputStream inputStream, StorageContext context, @Nullable String contentType);
 
@@ -29,8 +29,12 @@ public interface ObjectStorageClient {
         EVENT_VIDEO;
     }
 
+    record UploadFileMetaData(String fileName, String contentType, Long fileSize, String fileUrl) {}
+
+    @Deprecated
     record FindFileUrlResult(List<String> fileUrls, List<String> failedFileNames) {}
 
+    @Deprecated
     record UploadFileResult(String fileName, String contentType, boolean isSuccess, Exception exception) {
 
         public static UploadFileResult success(String fileName, String contentType) {
