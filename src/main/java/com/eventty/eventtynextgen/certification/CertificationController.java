@@ -1,13 +1,15 @@
 package com.eventty.eventtynextgen.certification;
 
 import com.eventty.eventtynextgen.certification.annotation.CertificationApiV1;
+import com.eventty.eventtynextgen.certification.request.CertificationIssueTokenRequestCommand;
 import com.eventty.eventtynextgen.certification.response.CertificationIssueTokenResponseView;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @CertificationApiV1
 @RequiredArgsConstructor
@@ -16,12 +18,13 @@ public class CertificationController {
 
     private final CertificationService certificationService;
 
-    @GetMapping("/issue/certification-token")
+    @PostMapping("/issue/certification-token")
     public ResponseEntity<CertificationIssueTokenResponseView> issueCertificationToken(
-        @RequestParam(name = "appName") String appName,
-        @RequestParam(name = "appSecret") String appSecret,
+        @RequestBody @Valid CertificationIssueTokenRequestCommand certificationIssueTokenRequestCommand,
         HttpServletResponse response) {
-        CertificationIssueTokenResponseView certificationIssueTokenResponseView = this.certificationService.issueCertificationToken(appName, appSecret,
+        CertificationIssueTokenResponseView certificationIssueTokenResponseView = this.certificationService.issueCertificationToken(
+            certificationIssueTokenRequestCommand.appName(),
+            certificationIssueTokenRequestCommand.appSecret(),
             response);
         return ResponseEntity.ok(certificationIssueTokenResponseView);
     }

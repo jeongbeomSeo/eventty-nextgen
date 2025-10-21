@@ -103,6 +103,7 @@ public class AssetFileServiceImpl implements AssetFileService {
             .toList();
     }
 
+    @Deprecated
     @Override
     public AssetUploadAssetFile uploadStreaming(HttpServletRequest request) {
         String contentType = request.getContentType();

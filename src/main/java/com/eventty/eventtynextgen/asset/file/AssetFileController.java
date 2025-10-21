@@ -54,7 +54,7 @@ public class AssetFileController {
     }
 
     /**
-     * 여러 파일 동시 업로드 API입니다.
+     * 복합 파일 동시 업로드 API입니다.
      *
      * @deprecated {@link #uploadMultipartFile(MultipartFile, AssetFileUploadMultipartFileRequestCommand)}를 사용하세요.
      *
