@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.user;
 
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
+import com.eventty.eventtynextgen.user.annotation.UserApiV1;
 import com.eventty.eventtynextgen.user.request.UserChangePasswordRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserSignUpRequestCommand;
 import com.eventty.eventtynextgen.user.request.UserUpdateRequestCommand;
@@ -11,7 +12,6 @@ import com.eventty.eventtynextgen.user.response.UserDeleteResponseView;
 import com.eventty.eventtynextgen.user.response.UserFindEmailResponseView;
 import com.eventty.eventtynextgen.user.response.UserSignupResponseView;
 import com.eventty.eventtynextgen.user.response.UserUpdateResponseView;
-import com.eventty.eventtynextgen.user.annotation.UserApiV1;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

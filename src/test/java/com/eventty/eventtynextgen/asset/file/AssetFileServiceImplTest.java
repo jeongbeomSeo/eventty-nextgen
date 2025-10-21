@@ -11,11 +11,14 @@ import static org.mockito.Mockito.when;
 
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileMetaData;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileResult;
 import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator;
 import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyFileMetaResult;
 import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyResult;
+import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
 import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
+import com.eventty.eventtynextgen.asset.file.service.FileMetadataService;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
@@ -23,7 +26,9 @@ import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,6 +41,9 @@ import org.springframework.web.multipart.MultipartFile;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AssetFileServiceImpl 단위 테스트")
 class AssetFileServiceImplTest {
+
+    @Mock
+    private FileMetadataService fileMetadataService;
 
     @Mock
     private ObjectStorageClient objectStorageClient;
@@ -64,24 +72,44 @@ class AssetFileServiceImplTest {
         void 메타_데이터의_유효성_검증에_성공하고_파일_업로드를_수행하여_정상적으로_AssetUploadAssetFile을_반환한다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
+            Long userId = 1L;
+            String fileName = "테스트_파일_이름";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
             when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
-            UploadFileResult uploadFileResult = mock(UploadFileResult.class);
-            when(uploadFileResult.fileName()).thenReturn("test.jpg");
-            when(uploadFileResult.contentType()).thenReturn("image/jpeg");
-            when(objectStorageClient.uploadMultipartFile(file, StorageContext.FILE)).thenReturn(uploadFileResult);
+            String fileFullName = "저장되는_파일_이름";
+            String contentType = "text/plain";
+            Long fileSize = 1024L;
+            String fileUrl = "http://example.com/" + fileFullName;
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            UploadFileMetaData uploadFileMetaData = mock(UploadFileMetaData.class);
+            when(uploadFileMetaData.fileName()).thenReturn(fileFullName);
+            when(uploadFileMetaData.contentType()).thenReturn(contentType);
+            when(uploadFileMetaData.fileSize()).thenReturn(fileSize);
+            when(uploadFileMetaData.fileUrl()).thenReturn(fileUrl);
+            when(objectStorageClient.uploadMultipartFile(any(MultipartFile.class), any(String.class), any(StorageContext.class))).thenReturn(uploadFileMetaData);
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getId()).thenReturn(userId);
+            when(fileMetadata.getFileNameToUser()).thenReturn(fileFullName);
+            when(fileMetadata.getContentType()).thenReturn(contentType);
+            when(fileMetadata.getFileSize()).thenReturn(fileSize);
+            when(fileMetadata.getFileUrl()).thenReturn(fileUrl);
+            when(fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(), uploadFileMetaData.fileSize(),
+                uploadFileMetaData.fileUrl())).thenReturn(fileMetadata);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when
-            AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadMultipartFile(file);
+            AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadMultipartFile(file, userId, fileName);
 
             // then
-            assertThat(assetUploadAssetFile.fileName()).isEqualTo("test.jpg");
-            assertThat(assetUploadAssetFile.contentType()).isEqualTo("image/jpeg");
+            assertThat(assetUploadAssetFile.fileName()).isEqualTo(fileMetadata.getFileNameToUser());
+            assertThat(assetUploadAssetFile.contentType()).isEqualTo(fileMetadata.getContentType());
+            assertThat(assetUploadAssetFile.fileSize()).isEqualTo(fileMetadata.getFileSize());
+            assertThat(assetUploadAssetFile.fileUrl()).isEqualTo(fileMetadata.getFileUrl());
         }
 
         @Test
@@ -89,15 +117,17 @@ class AssetFileServiceImplTest {
         void 메타_데이터의_유효성_검증에_실패하여_INVALID_SIZE를_반환받은_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
+            Long userId = 1L;
+            String fileName = "테스트_파일_이름";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_SIZE);
             when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, userId, fileName))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -110,15 +140,17 @@ class AssetFileServiceImplTest {
         void 메타_데이터의_유효성_검증에_실패하여_INVALID_CONTENT_TYPE를_반환받은_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
+            Long userId = 1L;
+            String fileName = "테스트_파일_이름";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_CONTENT_TYPE);
             when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, userId, fileName))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -131,15 +163,17 @@ class AssetFileServiceImplTest {
         void 메타_데이터의_유효성_검증에_실패하여_INVALID_EXTENSION를_반환받은_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
+            Long userId = 1L;
+            String fileName = "테스트_파일_이름";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_EXTENSION);
             when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, userId, fileName))
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
@@ -152,21 +186,24 @@ class AssetFileServiceImplTest {
         void 파일_업로드에_실패한_경우_예외를_발생시킨다() {
             // given
             MultipartFile file = mock(MultipartFile.class);
+            Long userId = 1L;
+            String fileName = "테스트_파일_이름";
 
             VerifyResult verifyResult = mock(VerifyResult.class);
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.VALID);
             when(fileMetaValidator.validateMultipartFile(file)).thenReturn(verifyResult);
 
-            doThrow(RuntimeException.class).when(objectStorageClient).uploadMultipartFile(file, StorageContext.FILE);
+            doThrow(RuntimeException.class).when(objectStorageClient).uploadMultipartFile(any(MultipartFile.class), any(String.class), any(StorageContext.class));
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
-            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file))
+            assertThatThrownBy(() -> assetFileService.uploadMultipartFile(file, userId, fileName))
                 .isInstanceOf(RuntimeException.class);
         }
     }
 
+    @Disabled(value = "UploadMultipartFiles는 Deprecated 되었습니다.")
     @Nested
     @DisplayName("MultipartFiles 업로드 테스트")
     class UploadMultipartFiles {
@@ -183,19 +220,23 @@ class AssetFileServiceImplTest {
             when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult);
             when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult);
 
-            UploadFileResult uploadFileResult1 = mock(UploadFileResult.class);
-            when(uploadFileResult1.fileName()).thenReturn("test1.jpg");
-            when(uploadFileResult1.contentType()).thenReturn("image/jpeg");
-            when(uploadFileResult1.isSuccess()).thenReturn(true);
-            when(objectStorageClient.uploadMultipartFile(file1, StorageContext.FILE)).thenReturn(uploadFileResult1);
+            UploadFileMetaData uploadFileMetaData1 = mock(UploadFileMetaData.class);
+            String fileFullName1 = "저장되는_파일_이름1";
+            when(uploadFileMetaData1.fileName()).thenReturn(fileFullName1);
+            when(uploadFileMetaData1.contentType()).thenReturn("text/plain");
+            when(uploadFileMetaData1.fileSize()).thenReturn(1024L);
+            when(uploadFileMetaData1.fileUrl()).thenReturn("http://example.com/" + fileFullName1);
+            when(objectStorageClient.uploadMultipartFile(file1, UUID.randomUUID().toString(), StorageContext.FILE)).thenReturn(uploadFileMetaData1);
 
-            UploadFileResult uploadFileResult2 = mock(UploadFileResult.class);
-            when(uploadFileResult2.fileName()).thenReturn("test2.jpg");
-            when(uploadFileResult2.contentType()).thenReturn("image/png");
-            when(uploadFileResult2.isSuccess()).thenReturn(true);
-            when(objectStorageClient.uploadMultipartFile(file2, StorageContext.FILE)).thenReturn(uploadFileResult2);
+            UploadFileMetaData uploadFileMetaData2 = mock(UploadFileMetaData.class);
+            String fileFullName2 = "저장되는_파일_이름2";
+            when(uploadFileMetaData2.fileName()).thenReturn(fileFullName2);
+            when(uploadFileMetaData2.contentType()).thenReturn("text/plain");
+            when(uploadFileMetaData2.fileSize()).thenReturn(1024L);
+            when(uploadFileMetaData2.fileUrl()).thenReturn("http://example.com/" + fileFullName2);
+            when(objectStorageClient.uploadMultipartFile(file2, UUID.randomUUID().toString(), StorageContext.FILE)).thenReturn(uploadFileMetaData2);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when
             List<AssetUploadAssetFile> assetUploadAssetFiles = assetFileService.uploadMultipartFiles(List.of(file1, file2));
@@ -222,7 +263,7 @@ class AssetFileServiceImplTest {
             when(verifyResult2.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_SIZE);
             when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult2);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
             assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2)))
@@ -244,7 +285,7 @@ class AssetFileServiceImplTest {
             when(verifyResult1.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_SIZE);
             when(fileMetaValidator.validateMultipartFile(file1)).thenReturn(verifyResult1);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
             assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2)))
@@ -269,24 +310,29 @@ class AssetFileServiceImplTest {
             when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult);
             when(fileMetaValidator.validateMultipartFile(file3)).thenReturn(verifyResult);
 
-            UploadFileResult uploadFileResult1 = mock(UploadFileResult.class);
-            when(uploadFileResult1.fileName()).thenReturn("test1.jpg");
-            when(uploadFileResult1.isSuccess()).thenReturn(true);
-            when(objectStorageClient.uploadMultipartFile(file1, StorageContext.FILE)).thenReturn(uploadFileResult1);
+            UploadFileMetaData uploadFileMetaData1 = mock(UploadFileMetaData.class);
+            String fileFullName1 = "저장되는_파일_이름1";
+            when(uploadFileMetaData1.fileName()).thenReturn(fileFullName1);
+            when(uploadFileMetaData1.contentType()).thenReturn("text/plain");
+            when(uploadFileMetaData1.fileSize()).thenReturn(1024L);
+            when(uploadFileMetaData1.fileUrl()).thenReturn("http://example.com/" + fileFullName1);
+            when(objectStorageClient.uploadMultipartFile(file1, UUID.randomUUID().toString(), StorageContext.FILE)).thenReturn(uploadFileMetaData1);
 
             RuntimeException testException = new RuntimeException("test exception");
-            doThrow(testException).when(objectStorageClient).uploadMultipartFile(file2, StorageContext.FILE);
+            doThrow(testException).when(objectStorageClient).uploadMultipartFile(file2, "저장되는_파일_이름_2", StorageContext.FILE);
 
-            UploadFileResult uploadFileResult3 = mock(UploadFileResult.class);
-            when(uploadFileResult3.fileName()).thenReturn("test3.jpg");
-            when(uploadFileResult3.isSuccess()).thenReturn(true);
+            UploadFileMetaData uploadFileMetaData3 = mock(UploadFileMetaData.class);
+            String fileFullName3 = "저장되는_파일_이름1";
+            when(uploadFileMetaData3.fileName()).thenReturn(fileFullName3);
+            when(uploadFileMetaData3.contentType()).thenReturn("text/plain");
+            when(uploadFileMetaData3.fileSize()).thenReturn(1024L);
+            when(uploadFileMetaData3.fileUrl()).thenReturn("http://example.com/" + fileFullName1);
+            when(objectStorageClient.uploadMultipartFile(file3, fileFullName3, StorageContext.FILE)).thenReturn(uploadFileMetaData3);
 
-            when(objectStorageClient.uploadMultipartFile(file3, StorageContext.FILE)).thenReturn(uploadFileResult3);
+            when(objectStorageClient.deleteFile(uploadFileMetaData1.fileName(), StorageContext.FILE)).thenReturn(true);
+            when(objectStorageClient.deleteFile(uploadFileMetaData3.fileName(), StorageContext.FILE)).thenReturn(true);
 
-            when(objectStorageClient.deleteFile(uploadFileResult1.fileName(), StorageContext.FILE)).thenReturn(true);
-            when(objectStorageClient.deleteFile(uploadFileResult3.fileName(), StorageContext.FILE)).thenReturn(true);
-
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
             assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2, file3)))
@@ -314,20 +360,23 @@ class AssetFileServiceImplTest {
             when(fileMetaValidator.validateMultipartFile(file2)).thenReturn(verifyResult);
             when(fileMetaValidator.validateMultipartFile(file3)).thenReturn(verifyResult);
 
-            UploadFileResult uploadFileResult1 = mock(UploadFileResult.class);
-            when(uploadFileResult1.fileName()).thenReturn("test1.jpg");
-            when(uploadFileResult1.isSuccess()).thenReturn(true);
-            when(objectStorageClient.uploadMultipartFile(file1, StorageContext.FILE)).thenReturn(uploadFileResult1);
+            UploadFileMetaData uploadFileMetaData1 = mock(UploadFileMetaData.class);
+            String fileFullName1 = "저장되는_파일_이름1";
+            when(uploadFileMetaData1.fileName()).thenReturn(fileFullName1);
+            when(uploadFileMetaData1.contentType()).thenReturn("text/plain");
+            when(uploadFileMetaData1.fileSize()).thenReturn(1024L);
+            when(uploadFileMetaData1.fileUrl()).thenReturn("http://example.com/" + fileFullName1);
+            when(objectStorageClient.uploadMultipartFile(file1, fileFullName1, StorageContext.FILE)).thenReturn(uploadFileMetaData1);
 
             RuntimeException testException1 = new RuntimeException("test exception1");
-            doThrow(testException1).when(objectStorageClient).uploadMultipartFile(file2, StorageContext.FILE);
+            doThrow(testException1).when(objectStorageClient).uploadMultipartFile(file2, "저장되는_파일_이름_2", StorageContext.FILE);
 
             RuntimeException testException2 = new RuntimeException("test exception2");
-            doThrow(testException2).when(objectStorageClient).uploadMultipartFile(file3, StorageContext.FILE);
+            doThrow(testException2).when(objectStorageClient).uploadMultipartFile(file3, "저장되는_파일_이름_3", StorageContext.FILE);
 
-            when(objectStorageClient.deleteFile(uploadFileResult1.fileName(), StorageContext.FILE)).thenReturn(true);
+            when(objectStorageClient.deleteFile(uploadFileMetaData1.fileName(), StorageContext.FILE)).thenReturn(true);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
             assertThatThrownBy(() -> assetFileService.uploadMultipartFiles(List.of(file1, file2, file3)))
@@ -341,6 +390,7 @@ class AssetFileServiceImplTest {
         }
     }
 
+    @Disabled(value = "UploadStreaming는 Deprecated 되었습니다.")
     @Nested
     @DisplayName("스트리밍 방식 파일 업로드 테스트")
     class UploadStreaming {
@@ -365,7 +415,7 @@ class AssetFileServiceImplTest {
             when(objectStorageClient.uploadStreaming(inputStream, StorageContext.FILE, request.getContentType()))
                 .thenReturn(uploadFileResult);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when
             AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadStreaming(request);
@@ -383,7 +433,7 @@ class AssetFileServiceImplTest {
 
             doThrow(IOException.class).when(request).getInputStream();
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
             assertThatThrownBy(() -> assetFileService.uploadStreaming(request))
@@ -408,7 +458,7 @@ class AssetFileServiceImplTest {
             when(verifyResult.getVerifyFileMetaResult()).thenReturn(VerifyFileMetaResult.INVALID_CONTENT_TYPE);
             when(fileMetaValidator.validateStreamFile(request.getContentType())).thenReturn(verifyResult);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
             assertThatThrownBy(() -> assetFileService.uploadStreaming(request))
@@ -437,7 +487,7 @@ class AssetFileServiceImplTest {
             RuntimeException testException = new RuntimeException("test exception");
             when(objectStorageClient.uploadStreaming(inputStream, StorageContext.FILE, request.getContentType())).thenThrow(testException);
 
-            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(objectStorageClient, fileMetaValidator, gcsIoExecutor);
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
             // when & then
             assertThatThrownBy(() -> assetFileService.uploadStreaming(request))

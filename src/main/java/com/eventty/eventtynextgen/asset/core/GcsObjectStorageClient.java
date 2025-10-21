@@ -7,6 +7,7 @@ import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,8 +35,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
     private final Storage storage;
 
     @Override
-    public UploadFileResult uploadMultipartFile(MultipartFile file, StorageContext context) {
-        String fileName = UUID.randomUUID().toString();
+    public UploadFileMetaData uploadMultipartFile(MultipartFile file, String fileName, StorageContext context) {
         String ext = file.getContentType();
         String bucketName = getBucketInfo(context).getBucketName();
 
@@ -45,16 +45,28 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             .build();
 
         try (WriteChannel writer = this.storage.writer(blobInfo)) {
-            byte[] imageData = file.getBytes();
-            writer.write(ByteBuffer.wrap(imageData));
+            byte[] data = file.getBytes();
+            writer.write(ByteBuffer.wrap(data));
         } catch (IOException e) {
-            log.error("Failed to upload multipart file caused: {}", e.getMessage());
+            log.error("멀티파트 파일 업로드에 실패했습니다: {}", e.getMessage());
             throw new RuntimeException(e);
+        } catch (StorageException e) {
+            log.error("GCS 스토리지에 파일 업로드 중 오류가 발생했습니다: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("멀티파트 파일 업로드 중 예기치 못한 예외가 발생했습니다: {}", e.getMessage());
+            throw e;
         }
 
-        return UploadFileResult.success(fileName, blobInfo.getContentType());
+        return new UploadFileMetaData(fileName, blobInfo.getContentType(), blobInfo.getSize(), getFileUrl(getBucketInfo(context), fileName));
     }
 
+    /**
+     * 스트리밍 방식으로 파일을 업로드합니다.
+     *
+     * @deprecated 성능 및 안정성 문제로 인해 스트리밍 업로드 방식은 권장되지 않습니다. 대신 {@link #uploadMultipartFile(MultipartFile, String, StorageContext)} 멀티파트 파일 업로드 방식을 사용하세요.
+     */
+    @Deprecated
     @Override
     public UploadFileResult uploadStreaming(InputStream inputStream, StorageContext context, String contentType) {
         String fileName = UUID.randomUUID().toString();
@@ -78,6 +90,13 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
         return UploadFileResult.success(fileName, blobInfo.getContentType());
     }
 
+    /**
+     * 파일명 리스트에 해당하는 파일 URL들을 조회합니다.
+     *
+     * @deprecated 파일 메타데이터를 DB에 저장하므로 fileName을 통해 GCS로부터 Url을 조회하는 방식은 비효율적입니다.
+     *             대신 DB에서 메타데이터를 조회하는 방식을 권장합니다.
+     */
+    @Deprecated
     @Override
     public String findFileUrl(String fileName, StorageContext context) {
         if (fileName == null || fileName.isEmpty()) {
@@ -91,7 +110,13 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
         return result.fileUrls().get(0);
     }
 
-    // TODO: 파일 조회 실패시 구체적인 예외를 받아올 수 있도록 추후에 수정
+    /**
+     * 파일명 리스트에 해당하는 파일 URL들을 조회합니다.
+     *
+     * @deprecated 파일 메타데이터를 DB에 저장하므로 fileName을 통해 GCS로부터 Url을 조회하는 방식은 비효율적입니다.
+     *             대신 DB에서 메타데이터를 조회하는 방식을 권장합니다.
+     */
+    @Deprecated
     @Override
     public FindFileUrlResult findFileUrls(List<String> fileNames, StorageContext context) {
         if (fileNames == null || fileNames.isEmpty()) {
@@ -172,6 +197,10 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
         Blob blob = this.storage.get(BlobId.of(bucketName, fileName));
 
         return Optional.ofNullable(blob).map(Blob::exists).orElse(false);
+    }
+
+    private String getFileUrl(BucketInfo bucketInfo, String fileName) {
+        return bucketInfo.getBaseUrl() + fileName;
     }
 
     private BucketInfo getBucketInfo(StorageContext context) {

@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.certification;
 
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,7 +11,11 @@ import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.ErrorResponse;
 import com.eventty.eventtynextgen.base.exception.enums.CertificationErrorType;
 import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
+import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
+import com.eventty.eventtynextgen.certification.fixture.CertificationIssueTokenRequestCommandFixture;
+import com.eventty.eventtynextgen.certification.request.CertificationIssueTokenRequestCommand;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
+import com.eventty.eventtynextgen.shared.provider.JwtTokenProvider.CertificationTokenInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +26,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,14 +60,19 @@ class CertificationControllerTest {
             String appName = "client1";
             String appSecret = "426825ada56b04d2cbca1333c38fe5f5";
 
+            CertificationIssueTokenRequestCommand certificationIssueTokenRequestCommand = CertificationIssueTokenRequestCommandFixture.create(appName,
+                appSecret);
+
             // when
-            ResultActions resultActions = mockMvc.perform(get(URL)
-                .param("appName", appName)
-                .param("appSecret", appSecret));
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(certificationIssueTokenRequestCommand)));
 
             // then
             resultActions.andExpect(status().isOk())
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, Matchers.containsString(CERTIFICATION_TOKEN_COOKIE_NAME)));
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, Matchers.containsString(CERTIFICATION_TOKEN_COOKIE_NAME)))
+                .andExpect(content().string(Matchers.containsString("tokenType")))
+                .andExpect(content().string(Matchers.containsString("tokenValue")));
         }
 
         @Test
@@ -71,13 +82,16 @@ class CertificationControllerTest {
             String appName = "client99";
             String appSecret = "426825ada56b04d2cbca1333c38fe5f5";
 
+            CertificationIssueTokenRequestCommand certificationIssueTokenRequestCommand = CertificationIssueTokenRequestCommandFixture.create(appName,
+                appSecret);
+
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(CertificationErrorType.NOT_ALLOWED_APP_NAME));
 
             // when
-            ResultActions resultActions = mockMvc.perform(get(URL)
-                .param("appName", appName)
-                .param("appSecret", appSecret));
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(certificationIssueTokenRequestCommand)));
 
             // then
             resultActions.andExpect(status().isBadRequest())
@@ -91,13 +105,16 @@ class CertificationControllerTest {
             String appName = "client1";
             String appSecret = "wrongSecretKey";
 
+            CertificationIssueTokenRequestCommand certificationIssueTokenRequestCommand = CertificationIssueTokenRequestCommandFixture.create(appName,
+                appSecret);
+
             ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
                 CustomException.badRequest(CertificationErrorType.MISMATCH_SECRET_KEY));
 
             // when
-            ResultActions resultActions = mockMvc.perform(get(URL)
-                .param("appName", appName)
-                .param("appSecret", appSecret));
+            ResultActions resultActions = mockMvc.perform(post(URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(certificationIssueTokenRequestCommand)));
 
             // then
             resultActions.andExpect(status().isBadRequest())

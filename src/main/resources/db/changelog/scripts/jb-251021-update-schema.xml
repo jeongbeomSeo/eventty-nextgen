@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="251021-update-schema-02-02" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="NO">
+        SELECT is_Nullable
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_name = 'file_metadata' AND column_name = 'file_size'
+      </sqlCheck>
+    </preConditions>
+    <dropColumn tableName="file_metadata" columnName="file_size"/>
+    <addColumn tableName="file_metadata">
+      <column name="file_size" type="bigint"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="251021-update-schema-03-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="file_metadata" columnName="content_type"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="file_metadata">
+      <column name="content_type" type="varchar(50)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="251021-update-schema-04-02" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <sqlCheck expectedResult="NO">
+        SELECT is_Nullable
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE table_name = 'file_metadata' AND column_name = 'content_type'
+      </sqlCheck>
+    </preConditions>
+    <dropColumn tableName="file_metadata" columnName="content_type"/>
+    <addColumn tableName="file_metadata">
+      <column name="content_type" type="varchar(50)"/>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

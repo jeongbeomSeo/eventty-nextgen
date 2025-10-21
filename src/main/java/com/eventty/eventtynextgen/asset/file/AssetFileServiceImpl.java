@@ -4,18 +4,21 @@ import static com.eventty.eventtynextgen.base.exception.enums.AssetErrorType.FIL
 
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileMetaData;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileResult;
 import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator;
 import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyResult;
+import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
 import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
+import com.eventty.eventtynextgen.asset.file.service.FileMetadataService;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
-import com.eventty.eventtynextgen.shared.utils.RetryableUtils;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -31,50 +34,44 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class AssetFileServiceImpl implements AssetFileService {
 
+    private final FileMetadataService fileMetadataService;
     private final ObjectStorageClient objectStorageClient;
     private final FileMetaValidator fileMetaValidator;
     private final ThreadPoolTaskExecutor gcsIoExecutor;
 
     @Override
-    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file) {
+    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file, Long userId, String fileName) {
 
         VerifyResult verifyResult = this.fileMetaValidator.validateMultipartFile(file);
         handleVerifyResult(verifyResult);
 
-        UploadFileResult uploadFileResult;
-        try {
-            uploadFileResult = RetryableUtils.executeWithRetry(() -> this.objectStorageClient.uploadMultipartFile(file, StorageContext.FILE), 3, 100, 1000);
-        } catch (Exception cause) {
-            throw CustomException.of(cause, HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + cause);
-        }
+        String fileFullName = createFileFullName(userId, fileName);
 
-        return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentType());
+        // TODO: Retry 패턴 유틸리티 객체 수정 후 적용
+        UploadFileMetaData uploadFileMetaData = this.objectStorageClient.uploadMultipartFile(file, fileFullName, StorageContext.FILE);
+
+        FileMetadata fileMetadataFromDb = fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(),
+            uploadFileMetaData.fileSize(), uploadFileMetaData.fileUrl());
+
+        return new AssetUploadAssetFile(fileMetadataFromDb.getId(), fileMetadataFromDb.getFileNameToUser(), fileMetadataFromDb.getContentType(),
+            fileMetadataFromDb.getFileSize(), fileMetadataFromDb.getFileUrl());
     }
 
+    private String createFileFullName(Long userId, String fileName) {
+        return userId + "/" + fileName;
+    }
+
+    @Deprecated
     @Override
     public List<AssetUploadAssetFile> uploadMultipartFiles(List<MultipartFile> files) {
         files.stream().map(this.fileMetaValidator::validateMultipartFile).forEach(this::handleVerifyResult);
 
-        // 아래 로직과 성능 테스트 진행 + 비동기 처리가 올바르게 되는지도 확인 + 재시도 패턴 적용
-//        files.stream()
-//            .map(file -> CompletableFuture.supplyAsync(() ->
-//                this.objectStorageClient.uploadMultipartFile(file, contextEnum), this.gcsIoExecutor))
-//            .map(CompletableFuture::join)
-//            .toList();
-
-        // TODO: 프로파일링을 통한 검증 이후 성능 테스트 진행 + 재시도 패턴 적용
         List<CompletableFuture<UploadFileResult>> futures = files.stream()
-            .map(file -> CompletableFuture.supplyAsync(() ->
-                this.objectStorageClient.uploadMultipartFile(file, StorageContext.FILE), this.gcsIoExecutor)
-                .orTimeout(1000, TimeUnit.SECONDS))
+            .map(file -> CompletableFuture.supplyAsync(() -> {
+                UploadFileMetaData uploadFileMetaData = this.objectStorageClient.uploadMultipartFile(file, UUID.randomUUID().toString(), StorageContext.FILE);
+                return UploadFileResult.success(uploadFileMetaData.fileName(), uploadFileMetaData.contentType());
+            }, this.gcsIoExecutor).orTimeout(1000, TimeUnit.SECONDS))
             .toList();
-
-
-        // TODO: 1. 실패시 전체 롤백, 2. 1개 실패시와 2개 이상 실패시 다른 예외 처리
-//        futures.stream()
-//            .map(CompletableFuture::join)
-//            .map(uploadFileResult -> new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentLength(), uploadFileResult.contentType()))
-//            .toList();
 
         List<UploadFileResult> results = futures.stream().map(future -> {
                 try {
@@ -102,10 +99,11 @@ public class AssetFileServiceImpl implements AssetFileService {
         }
 
         return results.stream()
-            .map(result -> new AssetUploadAssetFile(result.fileName(), result.contentType()))
+            .map(result -> new AssetUploadAssetFile(null, result.fileName(), result.contentType(), null, null))
             .toList();
     }
 
+    @Deprecated
     @Override
     public AssetUploadAssetFile uploadStreaming(HttpServletRequest request) {
         String contentType = request.getContentType();
@@ -126,7 +124,7 @@ public class AssetFileServiceImpl implements AssetFileService {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + e.getMessage());
         }
 
-        return new AssetUploadAssetFile(uploadFileResult.fileName(), uploadFileResult.contentType());
+        return new AssetUploadAssetFile(null, null, null, null, null);
     }
 
     private void handleVerifyResult(VerifyResult verifyResult) {
