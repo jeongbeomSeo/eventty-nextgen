@@ -9,9 +9,9 @@ services:
       - "13306:3306"
     volumes:
       # 로컬저장경로:도커저장경로 / 컨테이너 종료 후에도 데이터를 로컬에 저장하여 유지 (로컬 경로변경it  가능)
-      - ./db/mysql/data:/var/lib/mysql
+      - ./database/mysql/data:/var/lib/mysql
       # 로컬저장경로:도커저장경로 / 해당 경로에 작성된 DDL을 컨테이너 생성 시 자동실행 (.sql .sh 파일 실행) (로컬 경로변경 가능)
-      - ./db/mysql/init:/docker-entrypoint-initdb.d
+      - ./database/mysql/init:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: eventty_nextgen
