@@ -93,7 +93,7 @@ class AssetFileServiceImplTest {
 
             FileMetadata fileMetadata = mock(FileMetadata.class);
             when(fileMetadata.getId()).thenReturn(userId);
-            when(fileMetadata.getFileName()).thenReturn(fileFullName);
+            when(fileMetadata.getFileNameToUser()).thenReturn(fileFullName);
             when(fileMetadata.getContentType()).thenReturn(contentType);
             when(fileMetadata.getFileSize()).thenReturn(fileSize);
             when(fileMetadata.getFileUrl()).thenReturn(fileUrl);
@@ -106,7 +106,7 @@ class AssetFileServiceImplTest {
             AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadMultipartFile(file, userId, fileName);
 
             // then
-            assertThat(assetUploadAssetFile.fileName()).isEqualTo(fileMetadata.getFileName());
+            assertThat(assetUploadAssetFile.fileName()).isEqualTo(fileMetadata.getFileNameToUser());
             assertThat(assetUploadAssetFile.contentType()).isEqualTo(fileMetadata.getContentType());
             assertThat(assetUploadAssetFile.fileSize()).isEqualTo(fileMetadata.getFileSize());
             assertThat(assetUploadAssetFile.fileUrl()).isEqualTo(fileMetadata.getFileUrl());

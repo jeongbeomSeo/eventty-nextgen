@@ -8,12 +8,12 @@ import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFact
 import com.eventty.eventtynextgen.base.exception.ErrorResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -30,12 +30,7 @@ public class GlobalExceptionAdvice {
 
         CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
 
-        // TODO: 반복되는 Error logging 작업을 분리 고려중
-        log.error("http-status={} code={} msg={} detail={}",
-            customException.getHttpStatus().value(),
-            CommonErrorType.INVALID_INPUT_DATA.getCode(),
-            CommonErrorType.INVALID_INPUT_DATA.getMsg(),
-            errorMsg);
+        loggingError(customException, errorMsg);
 
         return ErrorResponseEntityFactory.toResponseEntity(customException);
     }
@@ -50,23 +45,33 @@ public class GlobalExceptionAdvice {
 
         CustomException customException = CustomException.badRequest(CommonErrorType.INVALID_INPUT_DATA, errorMsg);
 
-        log.error("http-status={} code={} msg={} detail={}",
-            customException.getHttpStatus().value(),
-            CommonErrorType.INVALID_INPUT_DATA.getCode(),
-            CommonErrorType.INVALID_INPUT_DATA.getMsg(),
-            errorMsg
-        );
+        loggingError(customException, errorMsg);
+
+        return ErrorResponseEntityFactory.toResponseEntity(customException);
+    }
+
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    protected ResponseEntity<ErrorResponse> handleSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException ex) {
+        String errorMsg = ex.getMessage();
+        CustomException customException = CustomException.badRequest(CommonErrorType.SQL_CONSTRAINT_VIOLATION, errorMsg);
+
+        loggingError(customException, errorMsg);
 
         return ErrorResponseEntityFactory.toResponseEntity(customException);
     }
 
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
-        ErrorType errorType = ex.getErrorType();
-        log.error("http-status={} code={} msg={} detail={}",
-            ex.getHttpStatus().value(), errorType.getCode(), errorType.getClass(), ex.getDetail());
+        loggingError(ex, null);
 
         return ErrorResponseEntityFactory.toResponseEntity(ex);
     }
 
+    private void loggingError(CustomException customException, Object errorMsg) {
+        log.error("http-status={} code={} msg={} detail={}",
+            customException.getHttpStatus().value(),
+            customException.getErrorType().getCode(),
+            customException.getErrorType().getMsg(),
+            customException.getDetail() != null ? customException.getDetail() : errorMsg);
+    }
 }

@@ -7,6 +7,5 @@
   <include file="/db/changelog/scripts/jb-250805-create-schema.xml"/>
   <include file="/db/changelog/scripts/jb-250823-update-schema.xml"/>
   <include file="/db/changelog/scripts/jb-251007-create-schema.xml"/>
-
-
+  <include file="/db/changelog/scripts/jb-251021-update-schema.xml"/>
 </databaseChangeLog>

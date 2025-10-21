@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 public record CertificationIssueTokenRequestCommand(
-    @Schema(name = "애플리케이션(서비스) 이름")
+    @Schema(description = "애플리케이션(서비스) 이름")
     @NotBlank
     String appName,
-    @Schema(name = "API 호출 비밀 키")
+    @Schema(description = "API 호출 비밀 키")
     @NotBlank
     String appSecret
 ) {

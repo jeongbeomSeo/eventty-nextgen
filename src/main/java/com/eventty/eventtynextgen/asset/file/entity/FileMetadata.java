@@ -30,10 +30,10 @@ public class FileMetadata {
     @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(name = "content_type", nullable = false)
+    @Column(name = "content_type")
     private String contentType;
 
-    @Column(name = "file_size", nullable = false)
+    @Column(name = "file_size")
     private Long fileSize;
 
     @Column(name = "file_url", nullable = false)
@@ -56,5 +56,9 @@ public class FileMetadata {
             .fileSize(fileSize)
             .fileUrl(fileUrl)
             .build();
+    }
+
+    public String getFileNameToUser() {
+        return this.getFileName().split("/")[1];
     }
 }

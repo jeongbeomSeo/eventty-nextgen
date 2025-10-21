@@ -43,8 +43,8 @@ public class AssetFileController {
     @LoginRequired(requireHost = true, requireAdmin = true)
     @PostMapping(value = "/multipart-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AssetUploadAssetFile> uploadMultipartFile(
-        @RequestPart("file") MultipartFile file,
-        @Valid @RequestPart("requestCommand") AssetFileUploadMultipartFileRequestCommand requestCommand) {
+        @RequestPart(value = "file") MultipartFile file,
+        @RequestPart(value = "requestCommand") @Valid AssetFileUploadMultipartFileRequestCommand requestCommand) {
 
         Long userId = SessionContextHolder.getContext().getUserId();
 
@@ -71,7 +71,7 @@ public class AssetFileController {
      */
     @Deprecated
     @LoginRequired(requireHost = true, requireAdmin = true)
-    @PostMapping(value = "/multipart-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+        @PostMapping(value = "/multipart-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AssetUploadAssetFile>> uploadMultipartFiles(@RequestPart("files") List<MultipartFile> files) {
 
         List<AssetUploadAssetFile> assetUploadAssetFiles = this.assetFileService.uploadMultipartFiles(files);

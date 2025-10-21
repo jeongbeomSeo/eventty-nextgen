@@ -53,7 +53,7 @@ public class AssetFileServiceImpl implements AssetFileService {
         FileMetadata fileMetadataFromDb = fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(),
             uploadFileMetaData.fileSize(), uploadFileMetaData.fileUrl());
 
-        return new AssetUploadAssetFile(fileMetadataFromDb.getId(), fileMetadataFromDb.getFileName(), fileMetadataFromDb.getContentType(),
+        return new AssetUploadAssetFile(fileMetadataFromDb.getId(), fileMetadataFromDb.getFileNameToUser(), fileMetadataFromDb.getContentType(),
             fileMetadataFromDb.getFileSize(), fileMetadataFromDb.getFileUrl());
     }
 
