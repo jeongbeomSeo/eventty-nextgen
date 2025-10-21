@@ -29,7 +29,7 @@
     </addColumn>
   </changeSet>
 
-  <changeSet id="251021-update-schema-04-01" author="jeongbeomSeo">
+  <changeSet id="251021-update-schema-04-02" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <sqlCheck expectedResult="NO">
         SELECT is_Nullable
@@ -39,7 +39,7 @@
     </preConditions>
     <dropColumn tableName="file_metadata" columnName="content_type"/>
     <addColumn tableName="file_metadata">
-      <column name="content_type" type="bigint"/>
+      <column name="content_type" type="varchar(50)"/>
     </addColumn>
   </changeSet>
 
