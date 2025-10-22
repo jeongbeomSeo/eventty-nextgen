@@ -1,6 +1,6 @@
 package com.eventty.eventtynextgen.shared.provider;
 
-import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.FAIL_VERIFY_JWT_TOKEN;
+import static com.eventty.eventtynextgen.base.exception.enums.AuthErrorType.FAIL_PARSING_JWT_TOKEN;
 import static com.eventty.eventtynextgen.shared.constant.SharedConst.OBJECT_MAPPER;
 import static com.eventty.eventtynextgen.shared.utils.sequence.Assertions.notNull;
 
@@ -23,6 +23,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 
 @Slf4j
 @UtilityClass
@@ -57,10 +58,11 @@ public class JwtTokenProvider {
         return new SessionTokenInfo(JWT_TOKEN_TYPE, accessToken, accessTokenExpiredAt, refreshToken, refreshTokenExpiredAt);
     }
 
-    public static AccessTokenPayload extractAccessTokenPayloadIgnoringExpiration(String accessToken) {
+    public static AccessTokenPayload extractAccessTokenPayloadIgnoringExpiredExpiration(String accessToken) {
         Claims claims = parseClaims(accessToken);
         if (claims == null) {
-            throw CustomException.badRequest(FAIL_VERIFY_JWT_TOKEN);
+            log.error("토큰 파싱에 실패했습니다. 토큰을 파싱하기 앞서 Access Token에 대한 검증을 우선시 해주세요. access Token: {}", accessToken);
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FAIL_PARSING_JWT_TOKEN);
         }
 
         Long userId = claims.get(JWT_CLAIM_USER_ID_KEY, Long.class);
@@ -136,11 +138,12 @@ public class JwtTokenProvider {
         return new CertificationTokenInfo(JWT_TOKEN_TYPE, certificationToken);
     }
 
-    public static CertificationTokenPayload extractCertificationTokenPayloadIgnoringExpiration(String certificationToken) {
+    public static CertificationTokenPayload extractCertificationTokenPayloadIgnoringExpiredExpiration(String certificationToken) {
         Claims claims = parseClaims(certificationToken);
 
         if (claims == null) {
-            throw CustomException.badRequest(FAIL_VERIFY_JWT_TOKEN);
+            log.error("토큰 파싱에 실패했습니다. 토큰을 파싱하기 앞서 Certification Token에 대한 검증을 우선시 해주세요. certification Token: {}", certificationToken);
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FAIL_PARSING_JWT_TOKEN);
         }
 
         String appName = claims.get(APP_NAME_KEY, String.class);

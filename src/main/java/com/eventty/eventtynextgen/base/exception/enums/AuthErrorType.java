@@ -17,7 +17,7 @@ public enum AuthErrorType implements ErrorType {
     AUTH_USER_NOT_ACTIVE("AUTH_USER_NOT_ACTIVE", "해당 유저는 활성화 상태가 아닙니다."),
 
     // JWT
-    FAIL_VERIFY_JWT_TOKEN("FAIL_VERIFY_JWT_TOKEN", "토큰 검증에 실패했습니다"),
+    FAIL_PARSING_JWT_TOKEN("FAIL_PARSING_JWT_TOKEN", "토큰 파싱에 실패했습니다"),
     JWT_TOKEN_EXPIRED("JWT_TOKEN_EXPIRED", "토큰 인증 기간이 지났습니다. 재발급을 시도하세요"),
     UNSUPPORTED_JWT_TOKEN("UNSUPPORTED_JWT_TOKEN", "지원하지 않는 JWT 토큰 유형입니다."),
     FAILED_TOKEN_VERIFIED("FAILED_TOKEN_VERIFIED", "토큰 검증에 실패했습니다."),

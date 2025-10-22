@@ -1,6 +1,7 @@
 package com.eventty.eventtynextgen.base.provider;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
@@ -21,6 +22,7 @@ class JwtTokenProviderTest {
     @Nested
     @DisplayName("Session Token 생성 테스트")
     class CreateSessionToken {
+
         @Test
         @DisplayName("사용자 ID와 액세스 토큰과 리프래시 토큰에 대한 만료 정보를 인자로 받아 Session Token을 생성한다")
         void 사용자_ID와_액세스_토큰과_리프래시_토큰에_대한_만료_정보를_인자로_받아_Session_Token을_생성한다() {
@@ -55,6 +57,7 @@ class JwtTokenProviderTest {
     @Nested
     @DisplayName("Access Token의 페이로드를 추출 테스트")
     class ExtractAccessTokenPayloadIgnoringExpiration {
+
         @Test
         @DisplayName("인자로 들어온 Access Token을 파싱하는데 성공하면 페이로드를 받는다")
         void 인자로_들어온_Access_Token을_파싱하는데_성공하면_페이로드를_받는다() {
@@ -65,7 +68,7 @@ class JwtTokenProviderTest {
             SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(userId, accessTokenExpiresIn, refreshTokenExpiresIn);
 
             // when
-            AccessTokenPayload accessTokenPayload = JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiration(sessionToken.getAccessToken());
+            AccessTokenPayload accessTokenPayload = JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiredExpiration(sessionToken.getAccessToken());
 
             // then
             assertThat(accessTokenPayload.getUserId()).isEqualTo(userId);
@@ -81,24 +84,24 @@ class JwtTokenProviderTest {
             SessionTokenInfo sessionToken = JwtTokenProvider.createSessionToken(userId, accessTokenExpiresIn, refreshTokenExpiresIn);
 
             // when
-            AccessTokenPayload accessTokenPayload = JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiration(sessionToken.getAccessToken());
+            AccessTokenPayload accessTokenPayload = JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiredExpiration(sessionToken.getAccessToken());
 
             // then
             assertThat(accessTokenPayload.getUserId()).isEqualTo(userId);
         }
 
         @Test
-        @DisplayName("인자로 들어온 Access Token이 유효하지 않은 문자열일 경우 예외가 발생한다")
-        void 인자로_들어온_Access_Token이_유효하지_않은_문자열일_경우_예외가_발생한다() {
+        @DisplayName("만료된 토큰을 제외한 유효하지 않은 토큰에 대한 파싱은 400 예외가 발생한다")
+        void 만료된_토큰을_제외한_유효하지_않은_토큰에_대한_파싱은_400_예외가_발생한다() {
             // given
             String accessToken = "invalid_access_token";
 
             // when & then
-            assertThatThrownBy(() -> JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiration(accessToken))
+            assertThatThrownBy(() -> JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiredExpiration(accessToken))
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
-                    assertThat(customException.getHttpStatus().value()).isEqualTo(400);
-                    assertThat(customException.getErrorType()).isEqualTo(AuthErrorType.FAIL_VERIFY_JWT_TOKEN);
+                    assertThat(customException.getHttpStatus().value()).isEqualTo(500);
+                    assertThat(customException.getErrorType()).isEqualTo(AuthErrorType.FAIL_PARSING_JWT_TOKEN);
                 });
         }
     }
@@ -107,6 +110,7 @@ class JwtTokenProviderTest {
     @Nested
     @DisplayName("토큰 검증 테스트")
     class VerifyToken {
+
         @Test
         @DisplayName("토큰 검증에 성공할 경우 VerifyTokenResult.VERIFIED_TOKEN을 반환한다")
         void 토큰_검증에_성공할_경우_VERIFIED_TOKEN을_반환한다() {
@@ -169,6 +173,7 @@ class JwtTokenProviderTest {
     @Nested
     @DisplayName("Certification Token 생성 테스트")
     class CreateCertificationToken {
+
         @Test
         @DisplayName("앱 네임, 호출 권환과 만료 정보를 받아 Certification Token을 생성한다")
         void 앱_네임_호출_권한_만료_정보를_받아_Certification_Token을_생성한다() {
@@ -189,6 +194,7 @@ class JwtTokenProviderTest {
     @Nested
     @DisplayName("Certification Token의 페이로드를 추출 테스트")
     class ExtractCertificationTokenPayloadIgnoringExpiration {
+
         @Test
         @DisplayName("인자로 들어온 certification token을 파싱하는데 성공하면 페이로드를 받는다")
         void 인자로_들어온_certification_token을_파싱하는데_성공하면_페이로드를_받는다() {
@@ -199,7 +205,7 @@ class JwtTokenProviderTest {
             CertificationTokenInfo certificationToken = JwtTokenProvider.createCertificationToken(appName, apiPermissions, certificationTokenValidityInMS);
 
             // when
-            CertificationTokenPayload certificationTokenPayload = JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiration(
+            CertificationTokenPayload certificationTokenPayload = JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiredExpiration(
                 certificationToken.getCertificationToken());
 
             // then
@@ -218,7 +224,7 @@ class JwtTokenProviderTest {
             CertificationTokenInfo certificationToken = JwtTokenProvider.createCertificationToken(appName, apiPermissions, certificationTokenValidityInMS);
 
             // when
-            CertificationTokenPayload certificationTokenPayload = JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiration(
+            CertificationTokenPayload certificationTokenPayload = JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiredExpiration(
                 certificationToken.getCertificationToken());
 
             // then
@@ -228,17 +234,17 @@ class JwtTokenProviderTest {
         }
 
         @Test
-        @DisplayName("유효하지 않은 certification token이 들어올 경우 예외가 발생한다")
-        void 유효하지_않은_certification_token이_들어올_경우_예외가_발생한다() {
+        @DisplayName("만료된 토큰을 제외한 유효하지 않은 토큰에 대한 파싱은 500 예외가 발생한다")
+        void 만료된_토큰을_제외한_유효하지_않은_토큰에_대한_파싱은_500_예외가_발생한다() {
             // given
             String certificationToken = "invalid_certification_token";
 
             // when & then
-            assertThatThrownBy(() -> JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiration(certificationToken))
+            assertThatThrownBy(() -> JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiredExpiration(certificationToken))
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
-                    assertThat(customException.getHttpStatus().value()).isEqualTo(400);
-                    assertThat(customException.getErrorType()).isEqualTo(AuthErrorType.FAIL_VERIFY_JWT_TOKEN);
+                    assertThat(customException.getHttpStatus().value()).isEqualTo(500);
+                    assertThat(customException.getErrorType()).isEqualTo(AuthErrorType.FAIL_PARSING_JWT_TOKEN);
                 });
         }
     }

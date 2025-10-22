@@ -77,7 +77,7 @@ public class CertificationTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        CertificationTokenPayload payload = JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiration(token);
+        CertificationTokenPayload payload = JwtTokenProvider.extractCertificationTokenPayloadIgnoringExpiredExpiration(token);
         context.updateFromTokenClaims(
             payload.getAppName(),
             payload.getApiPermission(),
