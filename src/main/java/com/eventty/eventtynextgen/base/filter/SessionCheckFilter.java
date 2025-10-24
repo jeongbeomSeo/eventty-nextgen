@@ -29,13 +29,13 @@ public class SessionCheckFilter extends OncePerRequestFilter {
         // 1. 요청 헤더로부터 Session Token 가져오기
         String sessionToken = parseBearerToken(request);
 
-        if (sessionToken == null) {
-            log.debug("헤더로부터 SessionToken을 추출하는데 실패했습니다. URI: {}, Header value: {}", request.getRequestURI(), request.getHeader(AUTHORIZATION_HEADER));
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
+            if (sessionToken == null) {
+                log.debug("헤더로부터 SessionToken을 추출하는데 실패했습니다. URI: {}, Header value: {}", request.getRequestURI(), request.getHeader(AUTHORIZATION_HEADER));
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             // 2. Session Token 파싱
             VerifyTokenResult verifyTokenResult = verifyToken(sessionToken);
             if (verifyTokenResult != VERIFIED_TOKEN) {
