@@ -235,7 +235,7 @@ class AuthControllerTest {
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken()));
 
             // then
-            resultActions.andExpect(status().isForbidden());
+            resultActions.andExpect(status().isUnauthorized());
         }
     }
 

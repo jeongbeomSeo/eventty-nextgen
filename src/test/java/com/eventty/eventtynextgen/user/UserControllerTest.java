@@ -427,9 +427,8 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
             // then
-            resultActions.andExpect(status().isForbidden())
-                .andExpect(
-                    content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+            resultActions.andExpect(status().isUnauthorized())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
         @Test
@@ -454,7 +453,7 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
             // then
-            resultActions.andExpect(status().isBadRequest())
+            resultActions.andExpect(status().isUnauthorized())
                 .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
     }
@@ -497,7 +496,7 @@ public class UserControllerTest {
                 .param("user-id", String.valueOf(1L)));
 
             // then
-            resultActions.andExpect(status().isForbidden())
+            resultActions.andExpect(status().isUnauthorized())
                 .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
 
@@ -521,7 +520,7 @@ public class UserControllerTest {
                 .param("user-id", String.valueOf(userFromDb.getId())));
 
             // then
-            resultActions.andExpect(status().isBadRequest())
+            resultActions.andExpect(status().isUnauthorized())
                 .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
         }
     }

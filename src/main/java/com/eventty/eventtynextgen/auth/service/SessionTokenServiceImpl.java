@@ -92,7 +92,7 @@ public class SessionTokenServiceImpl implements SessionTokenService {
 
     @Override
     public Long getUserIdFromExpiredAccess(String sessionToken) {
-        AccessTokenPayload accessTokenPayload = JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiration(sessionToken);
+        AccessTokenPayload accessTokenPayload = JwtTokenProvider.extractAccessTokenPayloadIgnoringExpiredExpiration(sessionToken);
 
         return accessTokenPayload.getUserId();
     }
