@@ -103,3 +103,8 @@ gradle-app.setting
 .embedded
 
 src/main/resources/.env
+
+database
+logs
+
+.DS_Store

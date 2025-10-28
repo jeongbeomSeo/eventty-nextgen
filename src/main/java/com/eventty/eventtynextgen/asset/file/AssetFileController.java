@@ -10,6 +10,7 @@ import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataRespon
 import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ public class AssetFileController {
 
     private final AssetFileService assetFileService;
 
+    @Operation(summary = "파일 업로드 API", description = "Multipart-File 형식의 단일 파일 업로드를 처리합니다.")
     @LoginRequired(requireHost = true, requireAdmin = true)
     @PostMapping(value = "/multipart-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AssetUploadAssetFile> uploadMultipartFile(
@@ -92,15 +94,21 @@ public class AssetFileController {
         return ResponseEntity.ok(assetUploadAssetFile);
     }
 
+    @Operation(summary = "사용자별 모든 파일 메타데이터 조회 API", description = "특정 사용자가 업로드한 모든 파일 메타데이터를 조회합니다.")
     @LoginRequired(requireAdmin = true, requireHost = true)
-    @GetMapping("/metadata/{userId}")
-    public ResponseEntity<AssetFindFileMetadataResponseView> findFileMetadata(@PathVariable("userId") Long userId) {
+    @GetMapping("/metadata")
+    public ResponseEntity<AssetFindFileMetadataResponseView> findFileMetadata() {
+        Long userId = SessionContextHolder.getContext().getUserId();
+
         return ResponseEntity.ok(this.assetFileService.findFileMetadata(userId));
     }
 
+    @Operation(summary = "단일 파일 메타데이터 조회 API", description = "특정 사용자가 업로드한 특정 파일 메타데이터를 조회합니다.")
     @LoginRequired(requireHost = true, requireAdmin = true)
-    @GetMapping("/metadata/{userId}/{fileMetadataId}")
-    public ResponseEntity<AssetGetFileMetadataResponseView> getFileMetadata(@PathVariable("userId") Long userId, @PathVariable("fileMetadataId") Long fileMetadataId) {
+    @GetMapping("/metadata/{fileMetadataId}")
+    public ResponseEntity<AssetGetFileMetadataResponseView> getFileMetadata(@PathVariable("fileMetadataId") Long fileMetadataId) {
+        Long userId = SessionContextHolder.getContext().getUserId();
+
         return ResponseEntity.ok(this.assetFileService.getFileMetadata(userId, fileMetadataId));
     }
 }
