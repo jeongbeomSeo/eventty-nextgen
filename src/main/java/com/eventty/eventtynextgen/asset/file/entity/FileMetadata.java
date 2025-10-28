@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "file_metadata", indexes = {
@@ -41,6 +42,7 @@ public class FileMetadata {
     private String fileUrl;
 
     @Column(name = "is_deleted", nullable = false)
+    @ColumnDefault("false")
     private boolean isDeleted;
 
     @Column(name = "deleted_at")
@@ -78,5 +80,20 @@ public class FileMetadata {
         } else {
             return fileName.substring(idx + 1);
         }
+    }
+
+    public void updateDeleteStatus(FileMetadataStatus status) {
+        if (status == FileMetadataStatus.ACTIVE) {
+            this.isDeleted = false;
+            this.deletedAt = null;
+        } else if (status == FileMetadataStatus.DELETED) {
+            this.isDeleted = true;
+            this.deletedAt = LocalDateTime.now();
+        }
+    }
+
+    public enum FileMetadataStatus {
+        ACTIVE,
+        DELETED
     }
 }
