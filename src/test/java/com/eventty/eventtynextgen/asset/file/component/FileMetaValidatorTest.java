@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyFileMetaResult;
-import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyResult;
+import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator.VerifyFileMetaResult;
+import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator.VerifyResult;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ class FileMetaValidatorTest {
             when(file.getOriginalFilename()).thenReturn("test.json");
 
             // when
-            VerifyResult verifyResult = new FileMetaValidator().validateMultipartFile(file);
+            VerifyResult verifyResult = new FileMetadataValidator().validateMultipartFile(file);
 
             // then
             assertThat(verifyResult.getVerifyFileMetaResult()).isEqualTo(VerifyFileMetaResult.VALID);
@@ -49,7 +49,7 @@ class FileMetaValidatorTest {
             when(file.getSize()).thenReturn(size);
 
             // when
-            VerifyResult verifyResult = new FileMetaValidator().validateMultipartFile(file);
+            VerifyResult verifyResult = new FileMetadataValidator().validateMultipartFile(file);
 
             // then
             assertThat(verifyResult.getVerifyFileMetaResult()).isEqualTo(VerifyFileMetaResult.INVALID_SIZE);
@@ -66,7 +66,7 @@ class FileMetaValidatorTest {
             when(file.getContentType()).thenReturn("image/jpeg");
 
             // when
-            VerifyResult verifyResult = new FileMetaValidator().validateMultipartFile(file);
+            VerifyResult verifyResult = new FileMetadataValidator().validateMultipartFile(file);
 
             // then
             assertThat(verifyResult.getVerifyFileMetaResult()).isEqualTo(VerifyFileMetaResult.INVALID_CONTENT_TYPE);
@@ -84,7 +84,7 @@ class FileMetaValidatorTest {
             when(file.getOriginalFilename()).thenReturn("test.jpg");
 
             // when
-            VerifyResult verifyResult = new FileMetaValidator().validateMultipartFile(file);
+            VerifyResult verifyResult = new FileMetadataValidator().validateMultipartFile(file);
 
             // then
             assertThat(verifyResult.getVerifyFileMetaResult()).isEqualTo(VerifyFileMetaResult.INVALID_EXTENSION);

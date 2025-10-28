@@ -1,5 +1,7 @@
 package com.eventty.eventtynextgen.asset.file;
 
+import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
+import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,4 +41,8 @@ public interface AssetFileService {
      */
     @Deprecated
     AssetUploadAssetFile uploadStreaming(HttpServletRequest request);
+
+    AssetGetFileMetadataResponseView getFileMetadata(Long userId, Long fileMetadataId);
+
+    AssetFindFileMetadataResponseView findFileMetadata(Long userId);
 }

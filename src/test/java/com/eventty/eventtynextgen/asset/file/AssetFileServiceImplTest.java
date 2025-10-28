@@ -13,10 +13,12 @@ import com.eventty.eventtynextgen.asset.core.ObjectStorageClient;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileMetaData;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileResult;
-import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator;
-import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyFileMetaResult;
-import com.eventty.eventtynextgen.asset.file.component.FileMetaValidator.VerifyResult;
+import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator;
+import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator.VerifyFileMetaResult;
+import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator.VerifyResult;
 import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
+import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
+import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
 import com.eventty.eventtynextgen.asset.file.service.FileMetadataService;
 import com.eventty.eventtynextgen.base.exception.CustomException;
@@ -25,6 +27,7 @@ import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,7 +53,7 @@ class AssetFileServiceImplTest {
     private ObjectStorageClient objectStorageClient;
 
     @Mock
-    private FileMetaValidator fileMetaValidator;
+    private FileMetadataValidator fileMetaValidator;
 
     private ThreadPoolTaskExecutor gcsIoExecutor;
 
@@ -93,7 +97,7 @@ class AssetFileServiceImplTest {
 
             FileMetadata fileMetadata = mock(FileMetadata.class);
             when(fileMetadata.getId()).thenReturn(userId);
-            when(fileMetadata.getFileNameToUser()).thenReturn(fileFullName);
+            when(fileMetadata.getFileName()).thenReturn(fileFullName);
             when(fileMetadata.getContentType()).thenReturn(contentType);
             when(fileMetadata.getFileSize()).thenReturn(fileSize);
             when(fileMetadata.getFileUrl()).thenReturn(fileUrl);
@@ -106,7 +110,7 @@ class AssetFileServiceImplTest {
             AssetUploadAssetFile assetUploadAssetFile = assetFileService.uploadMultipartFile(file, userId, fileName);
 
             // then
-            assertThat(assetUploadAssetFile.fileName()).isEqualTo(fileMetadata.getFileNameToUser());
+            assertThat(assetUploadAssetFile.fileName()).isEqualTo(fileMetadata.getFileName());
             assertThat(assetUploadAssetFile.contentType()).isEqualTo(fileMetadata.getContentType());
             assertThat(assetUploadAssetFile.fileSize()).isEqualTo(fileMetadata.getFileSize());
             assertThat(assetUploadAssetFile.fileUrl()).isEqualTo(fileMetadata.getFileUrl());
@@ -497,6 +501,188 @@ class AssetFileServiceImplTest {
                     assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.FILE_UPLOAD_FAILED);
                     assertThat((String) customException.getDetail()).isNotBlank();
                 });
+        }
+    }
+
+    @Nested
+    @DisplayName("ID를 통한 파일 메타데이터 조회 테스트")
+    class GetFileMetadata {
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 엔티티 조회에 성공하고 접근 권한 검증에 성공할 경우 파일 메타데이터 정보를 반환한다")
+        void 파일_메타데이터_ID를_통해_엔티티_조회에_성공하고_접근_권한_검증에_성공할_경우_파일_메타데이터_정보를_반환한다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getId()).thenReturn(fileMetadataId);
+            when(fileMetadata.getUserId()).thenReturn(userId);
+            when(fileMetadata.getFileName()).thenReturn("테스트용이미지");
+            when(fileMetadata.getContentType()).thenReturn("image/jpeg");
+            when(fileMetadata.getFileSize()).thenReturn(1024L);
+            when(fileMetadata.getFileUrl()).thenReturn("http://example.com/test.jpg");
+            when(fileMetadata.isDeleted()).thenReturn(false);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when
+            AssetGetFileMetadataResponseView result = assetFileService.getFileMetadata(userId, fileMetadataId);
+
+            // then
+            assertThat(result.fileMetadataId()).isEqualTo(fileMetadataId);
+            assertThat(result.fileName()).isEqualTo("테스트용이미지");
+            assertThat(result.contentType()).isEqualTo("image/jpeg");
+            assertThat(result.fileSize()).isEqualTo(1024L);
+            assertThat(result.fileUrl()).isEqualTo("http://example.com/test.jpg");
+        }
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 엔티티를 찾지 못했을 경우 예외를 그대로 던진다")
+        void 파일_메타데이터_ID를_통해_엔티티를_찾지_못했을_경우_예외를_그대로_던진다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            CustomException customException = mock(CustomException.class);
+            doThrow(customException).when(fileMetadataService).findById(fileMetadataId);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.getFileMetadata(userId, fileMetadataId))
+                .isEqualTo(customException);
+        }
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 엔티티 조회에 성공하고 접근 권한 검증에 실패할 경우 예외를 발생시킨다")
+        void 파일_메타데이터_ID를_통해_엔티티_조회에_성공하고_접근_권한_검증에_실패할_경우_예외를_발생시킨다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getUserId()).thenReturn(3L);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.getFileMetadata(userId, fileMetadataId))
+                .isInstanceOf(CustomException.class)
+                .satisfies((ex) -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.UNAUTHORIZED_FILE_ACCESS);
+                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+                });
+        }
+
+        @Test
+        @DisplayName("조회한 파일 메타데이터가 삭제되어 있는 상태라면 예외를 발생시킨다")
+        void 조회한_파일_메타데이터가_삭제되어_있는_상태라면_예외를_발생시킨다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getUserId()).thenReturn(userId);
+            when(fileMetadata.isDeleted()).thenReturn(true);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.getFileMetadata(userId, fileMetadataId))
+                .isInstanceOf(CustomException.class)
+                .satisfies((ex) -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_ALLOW_ACCESS_DELETED_FILE);
+                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+                });
+        }
+    }
+
+    @Nested
+    @DisplayName("USER ID를 통해 파일 메타데이터 조회 테스트")
+    class FindFileMetadata {
+
+        @Test
+        @DisplayName("사용자 ID를 통해 모든 파일 메타데이터의 조회에 성공했다면 삭제된 파일을 필터링한 뒤 파일 메타데이터 정보 리스트를 반환한다")
+        void 사용자_ID를_통해_모든_파일_메타데이터의_조회에_성공했다면_삭제된_파일을_필터링한_뒤_파일_메타데이터_정보_리스트를_반환한다() {
+            // given
+            Long userId = 1L;
+
+            FileMetadata fileMetadata1 = createMockFileMetadata(1L, userId, "파일1", "image/jpeg", 2048L, "http://example.com/file1.jpg", false);
+            FileMetadata fileMetadata2 = createMockFileMetadata(2L, userId, "파일2", "image/png", 4096L, "http://example.com/file2.png", false);
+            FileMetadata deletedFileMetadata = mock(FileMetadata.class);
+            when(deletedFileMetadata.isDeleted()).thenReturn(true);
+
+            when(fileMetadataService.findAllByUserId(userId)).thenReturn(List.of(fileMetadata1, fileMetadata2, deletedFileMetadata));
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when
+            AssetFindFileMetadataResponseView fileMetadata = assetFileService.findFileMetadata(userId);
+
+            // then
+            assertThat(fileMetadata.fileMetadataList()).hasSize(2);
+            assertThat(fileMetadata.fileMetadataList()).extracting("fileMetadataId")
+                .containsExactlyInAnyOrder(1L, 2L);
+        }
+
+        @Test
+        @DisplayName("사용자 ID를 통해 파일 메타데이터의 조회 결과가 1개도 존재하지 않다면 빈 리스트를 반환한다")
+        void 사용자_ID를_통해_파일_메타데이터의_조회_결과가_1개도_존재하지_않다면_빈_리스트를_반환한다() {
+            // given
+            Long userId = 1L;
+
+            when(fileMetadataService.findAllByUserId(userId)).thenReturn(Collections.emptyList());
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when
+            AssetFindFileMetadataResponseView fileMetadata = assetFileService.findFileMetadata(userId);
+
+            // then
+            assertThat(fileMetadata.fileMetadataList()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("사용자 ID를 통해 파일 메타데이터의 조회 결과가 모두 삭제된 파일이라면 빈 리스트를 반환한다")
+        void 사용자_ID를_통해_파일_메타데이터의_조회_결과가_모두_삭제된_파일이라면_빈_리스트를_반환한다() {
+            // given
+            Long userId = 1L;
+
+            FileMetadata fileMetadata1 = mock(FileMetadata.class);
+            when(fileMetadata1.isDeleted()).thenReturn(true);
+            FileMetadata fileMetadata2 = mock(FileMetadata.class);
+            when(fileMetadata2.isDeleted()).thenReturn(true);
+
+            when(fileMetadataService.findAllByUserId(userId)).thenReturn(List.of(fileMetadata1, fileMetadata2));
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when
+            AssetFindFileMetadataResponseView fileMetadata = assetFileService.findFileMetadata(userId);
+
+            // then
+            assertThat(fileMetadata.fileMetadataList()).isEmpty();
+        }
+
+        private FileMetadata createMockFileMetadata(Long fileMetadataId, Long userId, String fileName, String contentType, long fileSize, String fileUrl,
+            boolean isDeleted) {
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getId()).thenReturn(fileMetadataId);
+            when(fileMetadata.getFileName()).thenReturn(fileName);
+            when(fileMetadata.getContentType()).thenReturn(contentType);
+            when(fileMetadata.getFileSize()).thenReturn(fileSize);
+            when(fileMetadata.getFileUrl()).thenReturn(fileUrl);
+            when(fileMetadata.isDeleted()).thenReturn(isDeleted);
+            return fileMetadata;
         }
     }
 
