@@ -7,10 +7,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "file_metadata", indexes = {
@@ -39,6 +41,13 @@ public class FileMetadata {
     @Column(name = "file_url", nullable = false)
     private String fileUrl;
 
+    @Column(name = "is_deleted", nullable = false)
+    @ColumnDefault("false")
+    private boolean isDeleted;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @Builder
     private FileMetadata(Long userId, String fileName, String contentType, Long fileSize, String fileUrl) {
         this.userId = userId;
@@ -46,6 +55,7 @@ public class FileMetadata {
         this.contentType = contentType;
         this.fileSize = fileSize;
         this.fileUrl = fileUrl;
+        this.isDeleted = false;
     }
 
     public static FileMetadata of(Long userId, String fileName, String contentType, Long fileSize, String fileUrl) {
@@ -58,7 +68,32 @@ public class FileMetadata {
             .build();
     }
 
-    public String getFileNameToUser() {
-        return this.getFileName().split("/")[1];
+    public String getFileName() {
+        if (fileName == null) {
+            return null;
+        }
+
+        int idx = fileName.indexOf("/");
+
+        if (idx == -1) {
+            return fileName;
+        } else {
+            return fileName.substring(idx + 1);
+        }
+    }
+
+    public void updateDeleteStatus(FileMetadataStatus status) {
+        if (status == FileMetadataStatus.ACTIVE) {
+            this.isDeleted = false;
+            this.deletedAt = null;
+        } else if (status == FileMetadataStatus.DELETED) {
+            this.isDeleted = true;
+            this.deletedAt = LocalDateTime.now();
+        }
+    }
+
+    public enum FileMetadataStatus {
+        ACTIVE,
+        DELETED
     }
 }

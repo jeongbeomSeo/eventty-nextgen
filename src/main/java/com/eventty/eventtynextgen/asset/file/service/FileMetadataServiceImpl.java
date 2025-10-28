@@ -1,8 +1,13 @@
 package com.eventty.eventtynextgen.asset.file.service;
 
+import static com.eventty.eventtynextgen.base.exception.enums.AssetErrorType.*;
+
 import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
 import com.eventty.eventtynextgen.asset.file.repository.FileMetadataRepository;
+import com.eventty.eventtynextgen.base.exception.CustomException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,5 +24,16 @@ public class FileMetadataServiceImpl implements FileMetadataService {
         FileMetadata fileMetadata = FileMetadata.of(userId, fileName, contentType, fileSize, fileUrl);
 
         return fileMetadataRepository.save(fileMetadata);
+    }
+
+    @Override
+    public FileMetadata findById(Long fileMetadataId) {
+        return fileMetadataRepository.findById(fileMetadataId)
+            .orElseThrow(() -> CustomException.of(HttpStatus.NOT_FOUND, NOT_FOUND_FILE_METADATA));
+    }
+
+    @Override
+    public List<FileMetadata> findAllByUserId(Long userId) {
+        return fileMetadataRepository.findByUserId(userId);
     }
 }

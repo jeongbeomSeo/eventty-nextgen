@@ -13,6 +13,9 @@ public enum AssetErrorType implements ErrorType {
     INVALID_FILE_EXTENSION("INVALID_FILE_EXTENSION", "파일의 확장자가 허용되지 않습니다."),
     FILE_UPLOAD_FAILED("FILE_UPLOAD_FAILED", "파일 업로드에 실패하였습니다"),
     FILE_ALREADY_EXISTS("FILE_ALREADY_EXISTS", "동일한 파일명이 이미 존재합니다."),
+    NOT_FOUND_FILE_METADATA("NOT_FOUND_FILE_METADATA", "파일 메타데이터를 찾을 수 없습니다."),
+    UNAUTHORIZED_FILE_ACCESS("UNAUTHORIZED_FILE_ACCESS", "파일 메타데이터에 접근할 수 있는 권한이 없습니다."),
+    NOT_ALLOW_ACCESS_DELETED_FILE("NOT_ALLOW_ACCESS_DELETED_FILE", "삭제된 파일에 접근을 허용하지 않습니다"),
 
     // Storage
     NOT_FOUND_BUCKET_NAME("NOT_FOUND_BUCKET_NAME", "Bucket Name을 찾을 수 없습니다. 파일 업로드 목적과 매칭되는 버킷이 존재하는지 다시 한번 확인해주세요."),

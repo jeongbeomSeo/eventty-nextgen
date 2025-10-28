@@ -43,4 +43,54 @@
     </addColumn>
   </changeSet>
 
+  <changeSet id="251021-update-schema-05-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="file_metadata" columnName="is_deleted"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="file_metadata">
+      <column name="is_deleted" type="boolean" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="251021-update-schema-06-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="file_metadata" columnName="deleted_at"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="file_metadata">
+      <column name="deleted_at" type="timestamp"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="251021-update-schema-07-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+        <not>
+          <sqlCheck expectedResult="bit">
+            SELECT data_type
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE table_name = 'file_metadata' AND column_name = 'is_deleted'
+          </sqlCheck>
+        </not>
+    </preConditions>
+    <dropColumn tableName="file_metadata" columnName="is_deleted"/>
+  </changeSet>
+
+  <changeSet id="251021-update-schema-08-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="file_metadata" columnName="is_deleted"/>
+      </not>
+    </preConditions>
+    <addColumn tableName="file_metadata">
+      <column name="is_deleted" type="bit" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

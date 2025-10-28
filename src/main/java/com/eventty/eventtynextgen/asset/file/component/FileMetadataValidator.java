@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Component
-public class FileMetaValidator {
+public class FileMetadataValidator {
 
     private static final Set<String> EXCLUDED_CONTENT_TYPES = new HashSet<>(Arrays.asList(
         "image/jpeg", "image/svg", "image/png", "image/gif", "image/bmp", "image/avif", "image/webp",
