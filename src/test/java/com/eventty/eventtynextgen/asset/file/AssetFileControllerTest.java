@@ -106,7 +106,11 @@ class AssetFileControllerTest {
             String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
 
             AssetFileUploadMultipartFileRequestCommand requestCommand = new AssetFileUploadMultipartFileRequestCommand("테스트용파일1");
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/512KB.zip", "application/zip");
+
+            long sizeInBytes = 512 * 1024;
+            byte[] content = new byte[(int) sizeInBytes];
+            MockMultipartFile multipartFile = new MockMultipartFile("file", "file_name.zip", "application/zip", content);
+
             MockMultipartFile requestCommandJson = new MockMultipartFile("requestCommand", "", "application/json",
                 objectMapper.writeValueAsString(requestCommand).getBytes());
 
@@ -142,7 +146,10 @@ class AssetFileControllerTest {
             AssetFileUploadMultipartFileRequestCommand requestCommand = new AssetFileUploadMultipartFileRequestCommand("테스트용파일1");
             MockMultipartFile requestCommandJson = new MockMultipartFile("requestCommand", "", "application/json",
                 objectMapper.writeValueAsString(requestCommand).getBytes());
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/15MB.yml", "application/yaml");
+
+            long sizeInBytes = 15 * 1024 * 1024;
+            byte[] content = new byte[(int) sizeInBytes];
+            MockMultipartFile multipartFile = new MockMultipartFile("file", "file_name.yml", "application/yaml", content);
 
             // when
             ResultActions resultActions = mockMvc.perform(multipart(URL)
@@ -175,7 +182,10 @@ class AssetFileControllerTest {
             AssetFileUploadMultipartFileRequestCommand requestCommand = new AssetFileUploadMultipartFileRequestCommand("테스트용파일1");
             MockMultipartFile requestCommandJson = new MockMultipartFile("requestCommand", "", "application/json",
                 objectMapper.writeValueAsString(requestCommand).getBytes());
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/files/26MB.zip", "application/zip");
+
+            long sizeInBytes = 26 * 1024 * 1024L;
+            byte[] content = new byte[(int) sizeInBytes];
+            MockMultipartFile multipartFile = new MockMultipartFile("file", "file_name.zip", "application/zip", content);
 
             // when
             ResultActions resultActions = mockMvc.perform(multipart(URL)
@@ -203,7 +213,10 @@ class AssetFileControllerTest {
             AssetFileUploadMultipartFileRequestCommand requestCommand = new AssetFileUploadMultipartFileRequestCommand("테스트용파일1");
             MockMultipartFile requestCommandJson = new MockMultipartFile("requestCommand", "", "application/json",
                 objectMapper.writeValueAsString(requestCommand).getBytes());
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/images/512KB_size_image.jpg", "image/jpeg");
+
+            long sizeInBytes = 512 * 1024;
+            byte[] content = new byte[(int) sizeInBytes];
+            MockMultipartFile multipartFile = new MockMultipartFile("file", "file_name.jpg", "image/jpeg", content);
 
             // when
             ResultActions resultActions = mockMvc.perform(multipart(URL)
@@ -231,7 +244,10 @@ class AssetFileControllerTest {
             AssetFileUploadMultipartFileRequestCommand requestCommand = new AssetFileUploadMultipartFileRequestCommand("테스트용파일1");
             MockMultipartFile requestCommandJson = new MockMultipartFile("requestCommand", "", "application/json",
                 objectMapper.writeValueAsString(requestCommand).getBytes());
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/videos/1MB.mp4", "video/mp4");
+
+            long sizeInBytes = 1 * 1024 * 1024;
+            byte[] content = new byte[(int) sizeInBytes];
+            MockMultipartFile multipartFile = new MockMultipartFile("file", "file_name.mp4", "video/mp4", content);
 
             // when
             ResultActions resultActions = mockMvc.perform(multipart(URL)
@@ -259,8 +275,10 @@ class AssetFileControllerTest {
             AssetFileUploadMultipartFileRequestCommand requestCommand = new AssetFileUploadMultipartFileRequestCommand("테스트용파일1");
             MockMultipartFile requestCommandJson = new MockMultipartFile("requestCommand", "", "application/json",
                 objectMapper.writeValueAsString(requestCommand).getBytes());
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/images/512KB_size_image.jpg",
-                "multipart/form-data");
+
+            long sizeInBytes = 1 * 1024 * 1024;
+            byte[] content = new byte[(int) sizeInBytes];
+            MockMultipartFile multipartFile = new MockMultipartFile("file", "file_name.jpg", "multipart/form-data", content);
 
             // when
             ResultActions resultActions = mockMvc.perform(multipart(URL)
@@ -288,7 +306,10 @@ class AssetFileControllerTest {
             AssetFileUploadMultipartFileRequestCommand requestCommand = new AssetFileUploadMultipartFileRequestCommand("테스트용파일1");
             MockMultipartFile requestCommandJson = new MockMultipartFile("requestCommand", "", "application/json",
                 objectMapper.writeValueAsString(requestCommand).getBytes());
-            MockMultipartFile multipartFile = MultipartConvertHelper.convertMultipartFile("src/test/resources/videos/1MB.mp4", "multipart/form-data");
+
+            long sizeInBytes = 1 * 1024 * 1024;
+            byte[] content = new byte[(int) sizeInBytes];
+            MockMultipartFile multipartFile = new MockMultipartFile("file", "file_name.mp4", "multipart/form-data", content);
 
             // when
             ResultActions resultActions = mockMvc.perform(multipart(URL)
