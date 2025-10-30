@@ -9,6 +9,7 @@ import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileResul
 import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator;
 import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator.VerifyResult;
 import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
+import com.eventty.eventtynextgen.asset.file.response.AssetDeleteFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetDownloadFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
@@ -17,6 +18,7 @@ import com.eventty.eventtynextgen.asset.file.service.FileMetadataService;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
+import com.eventty.eventtynextgen.shared.utils.LoggerUtils;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -183,5 +185,29 @@ public class AssetFileServiceImpl implements AssetFileService {
         String downloadLink = objectStorageClient.findFileDownloadLink(fileMetadata.getOriginFileName(), StorageContext.FILE);
 
         return new AssetDownloadFileResponseView(fileMetadata.getId(), fileMetadata.getFileName(), fileMetadata.getContentType(), downloadLink);
+    }
+
+    @Override
+    public AssetDeleteFileResponseView deleteFile(Long userId, Long fileMetadataId) {
+
+        FileMetadata fileMetadata = fileMetadataService.findById(fileMetadataId);
+
+        if (!Objects.equals(userId, fileMetadata.getUserId())) {
+            throw CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.UNAUTHORIZED_FILE_ACCESS);
+        }
+
+        if (fileMetadata.isDeleted()) {
+            throw CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.ALREADY_FILE_DELETED);
+        }
+
+        boolean deleted = this.objectStorageClient.deleteFile(fileMetadata.getOriginFileName(), StorageContext.FILE);
+
+        if (!deleted) {
+            throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, AssetErrorType.FAIL_GCS_FILE_DELETE, "userId: " + userId + ", fileMetadataId: " + fileMetadataId);
+        }
+
+        this.fileMetadataService.deleteById(fileMetadata.getId());
+
+        return new AssetDeleteFileResponseView(fileMetadata.getId());
     }
 }

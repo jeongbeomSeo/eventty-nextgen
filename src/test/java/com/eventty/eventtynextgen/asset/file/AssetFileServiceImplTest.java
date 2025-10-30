@@ -3,6 +3,8 @@ package com.eventty.eventtynextgen.asset.file;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -17,6 +19,7 @@ import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator;
 import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator.VerifyFileMetaResult;
 import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator.VerifyResult;
 import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
+import com.eventty.eventtynextgen.asset.file.response.AssetDeleteFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetDownloadFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
@@ -689,8 +692,8 @@ class AssetFileServiceImplTest {
             when(fileMetadata.getId()).thenReturn(fileMetadataId);
             when(fileMetadata.getUserId()).thenReturn(userId);
             when(fileMetadata.getContentType()).thenReturn("application/multipart-data");
-            when(fileMetadata.getFileName()).thenReturn("테스트_파일_이름");
             when(fileMetadata.isDeleted()).thenReturn(false);
+            when(fileMetadata.getFileName()).thenReturn("테스트용이미지");
             when(fileMetadata.getOriginFileName()).thenReturn("1/테스트용이미지");
 
             when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
@@ -772,4 +775,173 @@ class AssetFileServiceImplTest {
                 });
         }
     }
+
+    @Nested
+    @DisplayName("파일 삭제하기 API")
+    class DeleteFile {
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 유효한 엔티티 조회에 성공하고 접근 권한 검증에 성공할 경우 파일을 삭제 처리한다")
+        void 파일_메타데이터_ID를_통해_엔티티_조회에_성공하고_접근_권한_검증에_성공할_경우_파일을_삭제_처리한다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getId()).thenReturn(fileMetadataId);
+            when(fileMetadata.getUserId()).thenReturn(userId);
+            when(fileMetadata.isDeleted()).thenReturn(false);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+            when(objectStorageClient.deleteFile(fileMetadata.getOriginFileName(), StorageContext.FILE)).thenReturn(true);
+            doNothing().when(fileMetadataService).deleteById(fileMetadataId);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator,
+                gcsIoExecutor);
+
+            // when
+            AssetDeleteFileResponseView result = assetFileService.deleteFile(userId, fileMetadataId);
+
+            // then
+            verify(objectStorageClient, times(1)).deleteFile(fileMetadata.getOriginFileName(), StorageContext.FILE);
+            verify(fileMetadataService, times(1)).deleteById(fileMetadataId);
+            assertThat(result.fileMetadataId()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 엔티티 조회에 실패할 경우 예외를 그대로 던진다")
+        void 파일_메타데이터_ID를_통해_엔티티_조회에_실패할_경우_예외를_그대로_던진다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            doThrow(CustomException.class).when(fileMetadataService).findById(fileMetadataId);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.deleteFile(userId, fileMetadataId))
+                .isInstanceOf(CustomException.class);
+        }
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 유효한 엔티티 조회에 성공하지만 접근 권한 검증에 실패할 경우 예외를 발생시킨다")
+        void 파일_메타데이터_ID를_통해_유효한_엔티티_조회에_성공하지만_접근_권한_검증에_실패할_경우_예외를_발생시킨다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getUserId()).thenReturn(3L);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.deleteFile(userId, fileMetadataId))
+                .isInstanceOf(CustomException.class)
+                .satisfies((ex) -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.UNAUTHORIZED_FILE_ACCESS);
+                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+                });
+        }
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 삭제되어 있는 엔티티를 조회하고 접근 권한 검증에 통과할 경우 예외를 발생시킨다")
+        void 파일_메타데이터_ID를_통해_삭제되어_있는_엔티티를_조회하고_접근_권한_검증에_통과할_경우_예외를_발생시킨다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getUserId()).thenReturn(userId);
+            when(fileMetadata.isDeleted()).thenReturn(true);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.deleteFile(userId, fileMetadataId))
+                .isInstanceOf(CustomException.class)
+                .satisfies((ex) -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.ALREADY_FILE_DELETED);
+                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+                });
+        }
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 유효한 엔티티 조회에 성공하고 접근 권한 검증에 성공했지만 GCS 파일 삭제에 실패할 경우 예외를 그대로 던진다")
+        void 파일_메타데이터_ID를_통해_유효한_엔티티_조회에_성공하고_접근_권한_검증에_성공했지만_GCS_파일_삭제에_실패할_경우_예외를_그대로_던진다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getUserId()).thenReturn(userId);
+            when(fileMetadata.isDeleted()).thenReturn(false);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+            when(objectStorageClient.deleteFile(fileMetadata.getOriginFileName(), StorageContext.FILE)).thenThrow(CustomException.class);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator,
+                gcsIoExecutor);
+            // when & then
+            assertThatThrownBy(() -> assetFileService.deleteFile(userId, fileMetadataId))
+                .isInstanceOf(CustomException.class);
+        }
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 유효한 엔티티 조회에 성공하고 접근 권한 검증에 성공했지만 GCS 파일 삭제 요청 결과값이 false일 경우 INTERNAL_SERVER_ERROR 예외를 발생시킨다")
+        void 파일_메타데이터_ID를_통해_유효한_엔티티_조회에_성공하고_접근_권한_검증에_성공했지만_GCS_파일_삭제_요청_결과값이_false일_경우_INTERNAL_SERVER_ERROR_예외를_발생시킨다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getUserId()).thenReturn(userId);
+            when(fileMetadata.isDeleted()).thenReturn(false);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+            when(objectStorageClient.deleteFile(fileMetadata.getOriginFileName(), StorageContext.FILE)).thenReturn(false);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.deleteFile(userId, fileMetadataId))
+                .isInstanceOf(CustomException.class)
+                .satisfies((ex) -> {
+                    CustomException customException = (CustomException) ex;
+                    assertThat(customException.getHttpStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.FAIL_GCS_FILE_DELETE);
+                });
+        }
+
+        @Test
+        @DisplayName("파일 메타데이터 ID를 통해 유효한 엔티티 조회에 성공하고 접근 권한 검증에 성공했으며 GCS 파일 삭제에 성공했지만 파일 메타데이터 삭제에 실패했다면 예외를 그대로 던진다")
+        void 파일_메타데이터_ID를_통해_유효한_엔티티_조회에_성공하고_접근_권한_검증에_성공했으며_GCS_파일_삭제에_성공했지만_파일_메타데이터_삭제에_실패했다면_예외를_그대로_던진다() {
+            // given
+            Long userId = 1L;
+            Long fileMetadataId = 2L;
+
+            FileMetadata fileMetadata = mock(FileMetadata.class);
+            when(fileMetadata.getId()).thenReturn(fileMetadataId);
+            when(fileMetadata.getUserId()).thenReturn(userId);
+            when(fileMetadata.isDeleted()).thenReturn(false);
+
+            when(fileMetadataService.findById(fileMetadataId)).thenReturn(fileMetadata);
+            when(objectStorageClient.deleteFile(fileMetadata.getOriginFileName(), StorageContext.FILE)).thenReturn(true);
+            doThrow(CustomException.class).when(fileMetadataService).deleteById(fileMetadataId);
+
+            AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator,
+                gcsIoExecutor);
+
+            // when & then
+            assertThatThrownBy(() -> assetFileService.deleteFile(userId, fileMetadataId))
+                .isInstanceOf(CustomException.class);
+        }
+   }
 }

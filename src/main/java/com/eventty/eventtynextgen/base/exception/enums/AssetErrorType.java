@@ -16,10 +16,12 @@ public enum AssetErrorType implements ErrorType {
     NOT_FOUND_FILE_METADATA("NOT_FOUND_FILE_METADATA", "파일 메타데이터를 찾을 수 없습니다."),
     UNAUTHORIZED_FILE_ACCESS("UNAUTHORIZED_FILE_ACCESS", "파일 메타데이터에 접근할 수 있는 권한이 없습니다."),
     NOT_ALLOW_ACCESS_DELETED_FILE("NOT_ALLOW_ACCESS_DELETED_FILE", "삭제된 파일에 접근을 허용하지 않습니다"),
+    ALREADY_FILE_DELETED("ALREADY_FILE_DELETED", "해당 파일은 이미 삭제되어 있습니다"),
 
     // Storage
     NOT_FOUND_BUCKET_NAME("NOT_FOUND_BUCKET_NAME", "Bucket Name을 찾을 수 없습니다. 파일 업로드 목적과 매칭되는 버킷이 존재하는지 다시 한번 확인해주세요."),
     NOT_FOUND_FILES("NOT_FOUND_FILES", "모든 파일을 찾을 수 없습니다."),
+    FAIL_GCS_FILE_DELETE("FAIL_FILE_DELETE", "GCS 서버에서 파일 삭제에 실패했습니다. 문제의 원인을 찾아서 해결한 후 다시 시도해주세요."),
 
     // Common
     ILLEGAL_ARGUMENT_FILE_CONTEXT("ILLEGAL_ARGUMENT_FILE_CONTEXT", "허용하지 않은 File Context 인자가 들어왔습니다.");

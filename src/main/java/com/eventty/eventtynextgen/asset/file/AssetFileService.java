@@ -1,5 +1,6 @@
 package com.eventty.eventtynextgen.asset.file;
 
+import com.eventty.eventtynextgen.asset.file.response.AssetDeleteFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetDownloadFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
@@ -47,4 +48,6 @@ public interface AssetFileService {
     AssetFindFileMetadataResponseView findFileMetadata(Long userId);
 
     AssetDownloadFileResponseView downloadFile(Long userId, Long fileMetadataId);
+
+    AssetDeleteFileResponseView deleteFile(Long userId, Long fileMetadataId);
 }
