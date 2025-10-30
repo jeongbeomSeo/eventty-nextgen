@@ -605,8 +605,8 @@ class AssetFileServiceImplTest {
             // given
             Long userId = 1L;
 
-            FileMetadata fileMetadata1 = createMockFileMetadata(1L, userId, "파일1", "image/jpeg", "http://example.com/file1.jpg", false);
-            FileMetadata fileMetadata2 = createMockFileMetadata(2L, userId, "파일2", "image/png", "http://example.com/file2.png", false);
+            FileMetadata fileMetadata1 = createMockFileMetadata(1L, "파일1", "image/jpeg", "http://example.com/file1.jpg", false);
+            FileMetadata fileMetadata2 = createMockFileMetadata(2L, "파일2", "image/png", "http://example.com/file2.png", false);
             FileMetadata deletedFileMetadata = mock(FileMetadata.class);
             when(deletedFileMetadata.isDeleted()).thenReturn(true);
 
