@@ -182,6 +182,6 @@ public class AssetFileServiceImpl implements AssetFileService {
 
         String downloadLink = objectStorageClient.findFileDownloadLink(fileMetadata.getOriginFileName(), StorageContext.FILE);
 
-        return new AssetDownloadFileResponseView(fileMetadata.getId(), downloadLink);
+        return new AssetDownloadFileResponseView(fileMetadata.getId(), fileMetadata.getFileName(), fileMetadata.getContentType(), downloadLink);
     }
 }

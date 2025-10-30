@@ -688,6 +688,8 @@ class AssetFileServiceImplTest {
             FileMetadata fileMetadata = mock(FileMetadata.class);
             when(fileMetadata.getId()).thenReturn(fileMetadataId);
             when(fileMetadata.getUserId()).thenReturn(userId);
+            when(fileMetadata.getContentType()).thenReturn("application/multipart-data");
+            when(fileMetadata.getFileName()).thenReturn("테스트_파일_이름");
             when(fileMetadata.isDeleted()).thenReturn(false);
             when(fileMetadata.getOriginFileName()).thenReturn("1/테스트용이미지");
 
