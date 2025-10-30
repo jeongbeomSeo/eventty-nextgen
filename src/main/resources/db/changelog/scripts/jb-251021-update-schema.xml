@@ -93,4 +93,11 @@
     </addColumn>
   </changeSet>
 
+  <changeSet id="251021-update-schema-09-01" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+        <columnExists tableName="file_metadata" columnName="file_size"/>
+    </preConditions>
+    <dropColumn tableName="file_metadata" columnName="file_size"/>
+  </changeSet>
+
 </databaseChangeLog>

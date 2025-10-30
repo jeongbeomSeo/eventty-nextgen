@@ -9,8 +9,6 @@ public record AssetUploadAssetFile(
     String fileName,
     @Schema(name = "파일 타입")
     String contentType,
-    @Schema(name = "파일 크기")
-    Long fileSize,
     @Schema(name = "파일 URL")
     String fileUrl
 ) {

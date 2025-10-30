@@ -52,11 +52,9 @@ public class AssetFileServiceImpl implements AssetFileService {
         // TODO: Retry 패턴 유틸리티 객체 수정 후 적용
         UploadFileMetaData uploadFileMetaData = this.objectStorageClient.uploadMultipartFile(file, fileFullName, StorageContext.FILE);
 
-        FileMetadata fileMetadataFromDb = fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(),
-            uploadFileMetaData.fileSize(), uploadFileMetaData.fileUrl());
+        FileMetadata fileMetadataFromDb = fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(), uploadFileMetaData.fileUrl());
 
-        return new AssetUploadAssetFile(fileMetadataFromDb.getId(), fileMetadataFromDb.getFileName(), fileMetadataFromDb.getContentType(),
-            fileMetadataFromDb.getFileSize(), fileMetadataFromDb.getFileUrl());
+        return new AssetUploadAssetFile(fileMetadataFromDb.getId(), fileMetadataFromDb.getFileName(), fileMetadataFromDb.getContentType(), fileMetadataFromDb.getFileUrl());
     }
 
     private String createFileFullName(Long userId, String fileName) {
@@ -101,7 +99,7 @@ public class AssetFileServiceImpl implements AssetFileService {
         }
 
         return results.stream()
-            .map(result -> new AssetUploadAssetFile(null, result.fileName(), result.contentType(), null, null))
+            .map(result -> new AssetUploadAssetFile(null, result.fileName(), result.contentType(), null))
             .toList();
     }
 
@@ -126,7 +124,7 @@ public class AssetFileServiceImpl implements AssetFileService {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + e.getMessage());
         }
 
-        return new AssetUploadAssetFile(null, null, null, null, null);
+        return new AssetUploadAssetFile(null, null, null, null);
     }
 
     private void handleVerifyResult(VerifyResult verifyResult) {
@@ -149,8 +147,7 @@ public class AssetFileServiceImpl implements AssetFileService {
             throw CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.NOT_ALLOW_ACCESS_DELETED_FILE);
         }
 
-        return new AssetGetFileMetadataResponseView(fileMetadata.getId(), fileMetadata.getFileName(), fileMetadata.getContentType(),
-            fileMetadata.getFileSize(), fileMetadata.getFileUrl());
+        return new AssetGetFileMetadataResponseView(fileMetadata.getId(), fileMetadata.getFileName(), fileMetadata.getContentType(), fileMetadata.getFileUrl());
     }
 
     @Override
@@ -162,7 +159,6 @@ public class AssetFileServiceImpl implements AssetFileService {
                 fileMetadata.getId(),
                 fileMetadata.getFileName(),
                 fileMetadata.getContentType(),
-                fileMetadata.getFileSize(),
                 fileMetadata.getFileUrl())
         ).toList();
 

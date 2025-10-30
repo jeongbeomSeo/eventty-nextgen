@@ -91,7 +91,6 @@ class AssetFileServiceImplTest {
             UploadFileMetaData uploadFileMetaData = mock(UploadFileMetaData.class);
             when(uploadFileMetaData.fileName()).thenReturn(fileFullName);
             when(uploadFileMetaData.contentType()).thenReturn(contentType);
-            when(uploadFileMetaData.fileSize()).thenReturn(fileSize);
             when(uploadFileMetaData.fileUrl()).thenReturn(fileUrl);
             when(objectStorageClient.uploadMultipartFile(any(MultipartFile.class), any(String.class), any(StorageContext.class))).thenReturn(uploadFileMetaData);
 
@@ -99,10 +98,8 @@ class AssetFileServiceImplTest {
             when(fileMetadata.getId()).thenReturn(userId);
             when(fileMetadata.getFileName()).thenReturn(fileFullName);
             when(fileMetadata.getContentType()).thenReturn(contentType);
-            when(fileMetadata.getFileSize()).thenReturn(fileSize);
             when(fileMetadata.getFileUrl()).thenReturn(fileUrl);
-            when(fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(), uploadFileMetaData.fileSize(),
-                uploadFileMetaData.fileUrl())).thenReturn(fileMetadata);
+            when(fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(), uploadFileMetaData.fileUrl())).thenReturn(fileMetadata);
 
             AssetFileServiceImpl assetFileService = new AssetFileServiceImpl(fileMetadataService, objectStorageClient, fileMetaValidator, gcsIoExecutor);
 
@@ -112,7 +109,6 @@ class AssetFileServiceImplTest {
             // then
             assertThat(assetUploadAssetFile.fileName()).isEqualTo(fileMetadata.getFileName());
             assertThat(assetUploadAssetFile.contentType()).isEqualTo(fileMetadata.getContentType());
-            assertThat(assetUploadAssetFile.fileSize()).isEqualTo(fileMetadata.getFileSize());
             assertThat(assetUploadAssetFile.fileUrl()).isEqualTo(fileMetadata.getFileUrl());
         }
 
@@ -228,7 +224,6 @@ class AssetFileServiceImplTest {
             String fileFullName1 = "저장되는_파일_이름1";
             when(uploadFileMetaData1.fileName()).thenReturn(fileFullName1);
             when(uploadFileMetaData1.contentType()).thenReturn("text/plain");
-            when(uploadFileMetaData1.fileSize()).thenReturn(1024L);
             when(uploadFileMetaData1.fileUrl()).thenReturn("http://example.com/" + fileFullName1);
             when(objectStorageClient.uploadMultipartFile(file1, UUID.randomUUID().toString(), StorageContext.FILE)).thenReturn(uploadFileMetaData1);
 
@@ -236,7 +231,6 @@ class AssetFileServiceImplTest {
             String fileFullName2 = "저장되는_파일_이름2";
             when(uploadFileMetaData2.fileName()).thenReturn(fileFullName2);
             when(uploadFileMetaData2.contentType()).thenReturn("text/plain");
-            when(uploadFileMetaData2.fileSize()).thenReturn(1024L);
             when(uploadFileMetaData2.fileUrl()).thenReturn("http://example.com/" + fileFullName2);
             when(objectStorageClient.uploadMultipartFile(file2, UUID.randomUUID().toString(), StorageContext.FILE)).thenReturn(uploadFileMetaData2);
 
@@ -318,7 +312,6 @@ class AssetFileServiceImplTest {
             String fileFullName1 = "저장되는_파일_이름1";
             when(uploadFileMetaData1.fileName()).thenReturn(fileFullName1);
             when(uploadFileMetaData1.contentType()).thenReturn("text/plain");
-            when(uploadFileMetaData1.fileSize()).thenReturn(1024L);
             when(uploadFileMetaData1.fileUrl()).thenReturn("http://example.com/" + fileFullName1);
             when(objectStorageClient.uploadMultipartFile(file1, UUID.randomUUID().toString(), StorageContext.FILE)).thenReturn(uploadFileMetaData1);
 
@@ -329,7 +322,6 @@ class AssetFileServiceImplTest {
             String fileFullName3 = "저장되는_파일_이름1";
             when(uploadFileMetaData3.fileName()).thenReturn(fileFullName3);
             when(uploadFileMetaData3.contentType()).thenReturn("text/plain");
-            when(uploadFileMetaData3.fileSize()).thenReturn(1024L);
             when(uploadFileMetaData3.fileUrl()).thenReturn("http://example.com/" + fileFullName1);
             when(objectStorageClient.uploadMultipartFile(file3, fileFullName3, StorageContext.FILE)).thenReturn(uploadFileMetaData3);
 
@@ -368,7 +360,6 @@ class AssetFileServiceImplTest {
             String fileFullName1 = "저장되는_파일_이름1";
             when(uploadFileMetaData1.fileName()).thenReturn(fileFullName1);
             when(uploadFileMetaData1.contentType()).thenReturn("text/plain");
-            when(uploadFileMetaData1.fileSize()).thenReturn(1024L);
             when(uploadFileMetaData1.fileUrl()).thenReturn("http://example.com/" + fileFullName1);
             when(objectStorageClient.uploadMultipartFile(file1, fileFullName1, StorageContext.FILE)).thenReturn(uploadFileMetaData1);
 
@@ -520,7 +511,6 @@ class AssetFileServiceImplTest {
             when(fileMetadata.getUserId()).thenReturn(userId);
             when(fileMetadata.getFileName()).thenReturn("테스트용이미지");
             when(fileMetadata.getContentType()).thenReturn("image/jpeg");
-            when(fileMetadata.getFileSize()).thenReturn(1024L);
             when(fileMetadata.getFileUrl()).thenReturn("http://example.com/test.jpg");
             when(fileMetadata.isDeleted()).thenReturn(false);
 
@@ -535,7 +525,6 @@ class AssetFileServiceImplTest {
             assertThat(result.fileMetadataId()).isEqualTo(fileMetadataId);
             assertThat(result.fileName()).isEqualTo("테스트용이미지");
             assertThat(result.contentType()).isEqualTo("image/jpeg");
-            assertThat(result.fileSize()).isEqualTo(1024L);
             assertThat(result.fileUrl()).isEqualTo("http://example.com/test.jpg");
         }
 
@@ -616,8 +605,8 @@ class AssetFileServiceImplTest {
             // given
             Long userId = 1L;
 
-            FileMetadata fileMetadata1 = createMockFileMetadata(1L, userId, "파일1", "image/jpeg", 2048L, "http://example.com/file1.jpg", false);
-            FileMetadata fileMetadata2 = createMockFileMetadata(2L, userId, "파일2", "image/png", 4096L, "http://example.com/file2.png", false);
+            FileMetadata fileMetadata1 = createMockFileMetadata(1L, "파일1", "image/jpeg", "http://example.com/file1.jpg", false);
+            FileMetadata fileMetadata2 = createMockFileMetadata(2L, "파일2", "image/png", "http://example.com/file2.png", false);
             FileMetadata deletedFileMetadata = mock(FileMetadata.class);
             when(deletedFileMetadata.isDeleted()).thenReturn(true);
 
@@ -673,13 +662,11 @@ class AssetFileServiceImplTest {
             assertThat(fileMetadata.fileMetadataList()).isEmpty();
         }
 
-        private FileMetadata createMockFileMetadata(Long fileMetadataId, Long userId, String fileName, String contentType, long fileSize, String fileUrl,
-            boolean isDeleted) {
+        private FileMetadata createMockFileMetadata(Long fileMetadataId, String fileName, String contentType, String fileUrl, boolean isDeleted) {
             FileMetadata fileMetadata = mock(FileMetadata.class);
             when(fileMetadata.getId()).thenReturn(fileMetadataId);
             when(fileMetadata.getFileName()).thenReturn(fileName);
             when(fileMetadata.getContentType()).thenReturn(contentType);
-            when(fileMetadata.getFileSize()).thenReturn(fileSize);
             when(fileMetadata.getFileUrl()).thenReturn(fileUrl);
             when(fileMetadata.isDeleted()).thenReturn(isDeleted);
             return fileMetadata;

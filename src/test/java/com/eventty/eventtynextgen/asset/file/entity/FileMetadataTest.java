@@ -19,7 +19,7 @@ class FileMetadataTest {
             // given
             String fileName = "테스트파일이름0";
 
-            FileMetadata fileMetadata = FileMetadata.of(1L, fileName, "image/png", 1024L, "http://example.com/file");
+            FileMetadata fileMetadata = FileMetadata.of(1L, fileName, "image/png", "http://example.com/file");
 
             // when
             String fileNameFromEntity = fileMetadata.getFileName();
@@ -34,7 +34,7 @@ class FileMetadataTest {
             // given
             String fileName = "1/테스트파일이름0";
 
-            FileMetadata fileMetadata = FileMetadata.of(1L, fileName, "image/png", 1024L, "http://example.com/file");
+            FileMetadata fileMetadata = FileMetadata.of(1L, fileName, "image/png", "http://example.com/file");
 
             // when
             String fileNameFromEntity = fileMetadata.getFileName();
@@ -49,7 +49,7 @@ class FileMetadataTest {
             // given
             String fileName = "1/테스트파일이름/0";
 
-            FileMetadata fileMetadata = FileMetadata.of(1L, fileName, "image/png", 1024L, "http://example.com/file");
+            FileMetadata fileMetadata = FileMetadata.of(1L, fileName, "image/png", "http://example.com/file");
 
             // when
             String fileNameFromEntity = fileMetadata.getFileName();

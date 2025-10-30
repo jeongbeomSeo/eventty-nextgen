@@ -829,7 +829,6 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$.fileMetadataId").value(fileMetadataFromDb.getId()))
                 .andExpect(jsonPath("$.fileName").value(fileMetadataFromDb.getFileName()))
                 .andExpect(jsonPath("$.contentType").value(fileMetadataFromDb.getContentType()))
-                .andExpect(jsonPath("$.fileSize").value(fileMetadataFromDb.getFileSize()))
                 .andExpect(jsonPath("$.fileUrl").value(fileMetadataFromDb.getFileUrl()));
         }
 
