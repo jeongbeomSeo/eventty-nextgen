@@ -662,7 +662,7 @@ class AssetFileServiceImplTest {
             assertThat(fileMetadata.fileMetadataList()).isEmpty();
         }
 
-        private FileMetadata createMockFileMetadata(Long fileMetadataId, Long userId, String fileName, String contentType, String fileUrl, boolean isDeleted) {
+        private FileMetadata createMockFileMetadata(Long fileMetadataId, String fileName, String contentType, String fileUrl, boolean isDeleted) {
             FileMetadata fileMetadata = mock(FileMetadata.class);
             when(fileMetadata.getId()).thenReturn(fileMetadataId);
             when(fileMetadata.getFileName()).thenReturn(fileName);

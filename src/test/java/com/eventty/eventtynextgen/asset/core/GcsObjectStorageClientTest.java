@@ -462,7 +462,7 @@ class GcsObjectStorageClientTest {
             @DisplayName("용량이 작은 5개의 이미지를 비동기 방식으로 업로드할 경우 모두 성공적으로 업로드 된다.")
             void 용량이_작은_5개의_이미지를_비동기_방식으로_업로드_할_경우_모두_성공적으로_업로드_된다() throws Exception {
                 // given
-                ExecutorService excutor = Executors.newFixedThreadPool(10);
+                ExecutorService executor = Executors.newFixedThreadPool(10);
                 long sizeInBytes = 512 * 1024L;
                 byte[] content = new byte[(int) sizeInBytes];
                 List<MockMultipartFile> imageFiles = new ArrayList<>();
@@ -473,7 +473,7 @@ class GcsObjectStorageClientTest {
                 // when
                 List<CompletableFuture<UploadFileMetaData>> futures = imageFiles.stream()
                     .map(file -> CompletableFuture.supplyAsync(
-                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), excutor))
+                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), executor))
                     .toList();
 
                 List<UploadFileMetaData> results = futures
@@ -494,7 +494,7 @@ class GcsObjectStorageClientTest {
             @DisplayName("용량이 작은 20개의 이미지를 비동기 방식으로 업로드할 경우 모두 성공적으로 업로드 된다.")
             void 용량이_작은_20개의_이미지를_비동기_방식으로_업로드_할_경우_모두_성공적으로_업로드_된다() throws Exception {
                 // given
-                ExecutorService excutor = Executors.newFixedThreadPool(10);
+                ExecutorService executor = Executors.newFixedThreadPool(10);
                 long sizeInBytes = 512 * 1024L;
                 byte[] content = new byte[(int) sizeInBytes];
                 List<MockMultipartFile> imageFiles = new ArrayList<>();
@@ -505,7 +505,7 @@ class GcsObjectStorageClientTest {
                 // when
                 List<CompletableFuture<UploadFileMetaData>> futures = imageFiles.stream()
                     .map(file -> CompletableFuture.supplyAsync(
-                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), excutor))
+                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), executor))
                     .toList();
 
                 List<UploadFileMetaData> results = futures
@@ -525,18 +525,18 @@ class GcsObjectStorageClientTest {
             @RepeatedTest(5)
             @DisplayName("용량이 큰 1개의 이미지를 비동기 방식으로 업로드할 경우 모두 성공적으로 업로드 된다.")
             void 용량이_큰_1개의_이미지를_비동기_방식으로_업로드할_경우_모두_성공적으로_업로드_된다() throws Exception {
-                ExecutorService excutor = Executors.newFixedThreadPool(10);
+                ExecutorService executor = Executors.newFixedThreadPool(10);
                 long sizeInBytes = 17 * 1024 * 1024L;
                 byte[] content = new byte[(int) sizeInBytes];
                 List<MockMultipartFile> imageFiles = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 1; i++) {
                     imageFiles.add(new MockMultipartFile("테스트_파일_이름" + i, "image.jpg", "image/jpeg", content));
                 }
 
                 // when
                 List<CompletableFuture<UploadFileMetaData>> futures = imageFiles.stream()
                     .map(file -> CompletableFuture.supplyAsync(
-                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), excutor))
+                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), executor))
                     .toList();
 
                 List<UploadFileMetaData> results = futures
@@ -556,7 +556,7 @@ class GcsObjectStorageClientTest {
             @RepeatedTest(5)
             @DisplayName("용량이 큰 5개의 이미지를 비동기 방식으로 업로드할 경우 모두 성공적으로 업로드 된다.")
             void 용량이_큰_5개의_이미지를_비동기_방식으로_업로드할_경우_모두_성공적으로_업로드_된다() throws Exception {
-                ExecutorService excutor = Executors.newFixedThreadPool(10);
+                ExecutorService executor = Executors.newFixedThreadPool(10);
                 long sizeInBytes = 17 * 1024 * 1024L;
                 byte[] content = new byte[(int) sizeInBytes];
                 List<MockMultipartFile> imageFiles = new ArrayList<>();
@@ -567,7 +567,7 @@ class GcsObjectStorageClientTest {
                 // when
                 List<CompletableFuture<UploadFileMetaData>> futures = imageFiles.stream()
                     .map(file -> CompletableFuture.supplyAsync(
-                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), excutor))
+                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), executor))
                     .toList();
 
                 List<UploadFileMetaData> results = futures
@@ -587,18 +587,18 @@ class GcsObjectStorageClientTest {
             @RepeatedTest(5)
             @DisplayName("용량이 큰 20개의 이미지를 비동기 방식으로 업로드할 경우 모두 성공적으로 업로드 된다.")
             void 용량이_큰_20개의_이미지를_비동기_방식으로_업로드할_경우_모두_성공적으로_업로드_된다() throws Exception {
-                ExecutorService excutor = Executors.newFixedThreadPool(10);
+                ExecutorService executor = Executors.newFixedThreadPool(10);
                 long sizeInBytes = 17 * 1024 * 1024L;
                 byte[] content = new byte[(int) sizeInBytes];
                 List<MockMultipartFile> imageFiles = new ArrayList<>();
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 20; i++) {
                     imageFiles.add(new MockMultipartFile("테스트_파일_이름" + i, "image.jpg", "image/jpeg", content));
                 }
 
                 // when
                 List<CompletableFuture<UploadFileMetaData>> futures = imageFiles.stream()
                     .map(file -> CompletableFuture.supplyAsync(
-                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), excutor))
+                        () -> gcsImageStorageService.uploadMultipartFile(file, file.getName(), StorageContext.EVENT_IMAGE), executor))
                     .toList();
 
                 List<UploadFileMetaData> results = futures
