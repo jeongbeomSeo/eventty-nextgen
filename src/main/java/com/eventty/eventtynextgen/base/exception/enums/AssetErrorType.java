@@ -20,7 +20,7 @@ public enum AssetErrorType implements ErrorType {
 
     // Storage
     NOT_FOUND_BUCKET_NAME("NOT_FOUND_BUCKET_NAME", "Bucket Name을 찾을 수 없습니다. 파일 업로드 목적과 매칭되는 버킷이 존재하는지 다시 한번 확인해주세요."),
-    NOT_FOUND_FILES("NOT_FOUND_FILES", "모든 파일을 찾을 수 없습니다."),
+    NOT_FOUND_FILE("NOT_FOUND_FILES", "파일을 찾을 수 없습니다."),
     FAIL_GCS_FILE_DELETE("FAIL_FILE_DELETE", "GCS 서버에서 파일 삭제에 실패했습니다. 문제의 원인을 찾아서 해결한 후 다시 시도해주세요."),
 
     // Common

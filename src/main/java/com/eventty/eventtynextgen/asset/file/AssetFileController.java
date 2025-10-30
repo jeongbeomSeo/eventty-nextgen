@@ -2,6 +2,7 @@ package com.eventty.eventtynextgen.asset.file;
 
 import com.eventty.eventtynextgen.asset.file.annotation.AssetFileApiV1;
 import com.eventty.eventtynextgen.asset.file.request.AssetFileUploadMultipartFileRequestCommand;
+import com.eventty.eventtynextgen.asset.file.response.AssetDeleteFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetDownloadFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -121,5 +123,16 @@ public class AssetFileController {
         return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + assetDownloadFileResponseView.fileName() + "\"")
             .body(assetDownloadFileResponseView);
+    }
+
+    @Operation(summary = "파일 삭제 API", description = "업로드된 파일을 삭제하고 파일의 메타데이터도 함께 삭제합니다.")
+    @LoginRequired(requireAdmin = true, requireHost = true)
+    @DeleteMapping
+    public ResponseEntity<AssetDeleteFileResponseView> deleteFile(@RequestParam("fileMetadataId") Long fileMetadataId) {
+        Long userId = SessionContextHolder.getContext().getUserId();
+
+        AssetDeleteFileResponseView assetDeleteFileResponseView = this.assetFileService.deleteFile(userId, fileMetadataId);
+
+        return ResponseEntity.ok(assetDeleteFileResponseView);
     }
 }

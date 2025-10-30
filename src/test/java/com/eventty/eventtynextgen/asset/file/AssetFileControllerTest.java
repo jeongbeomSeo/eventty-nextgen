@@ -3,6 +3,7 @@ package com.eventty.eventtynextgen.asset.file;
 import static com.eventty.eventtynextgen.base.constant.BaseConst.AUTHORIZATION_HEADER;
 import static com.eventty.eventtynextgen.certification.constant.CertificationConst.CERTIFICATION_TOKEN_COOKIE_NAME;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -1049,6 +1050,122 @@ class AssetFileControllerTest {
 
             // when
             ResultActions resultActions = mockMvc.perform(get(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", fileMetadataFromDb.getId().toString()));
+
+            // then
+            resultActions.andExpect(status().isForbidden())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+    }
+
+    @Nested
+    @DisplayName("파일 삭제 API")
+    class DeleteFile {
+
+        @BeforeEach
+        public void setup() {
+            fileMetadataRepository.deleteAllInBatch();
+        }
+
+        private static final String URL = BASE_URL;
+
+        @Tag("ExternalIntegration")
+        @Test
+        @DisplayName("파일 삭제 API 호출 권한 검증에 성공하고 유효한 파일 메타데이터 ID를 파라미터로 전달하여 파일 삭제에 성공한다")
+        void 파일_삭제_API_호출_권한_검증에_성공하고_유효한_파일_메타데이터_ID를_파라미터로_전달하여_파일_삭제에_성공한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledHost();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            String fileName = userFromDb.getId() + "/" + "file";
+            FileMetadata fileMetadata = FileMetadataFixture.createFileMetadata(userFromDb.getId(), fileName);
+            FileMetadata fileMetadataFromDb = fileMetadataRepository.save(fileMetadata);
+            MockMultipartFile file = new MockMultipartFile(fileName, fileName + ".json", fileMetadata.getContentType(), "content_type: json".getBytes());
+            objectStorageClient.uploadMultipartFile(file, fileName, StorageContext.FILE);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(delete(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", fileMetadataFromDb.getId().toString()));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.fileMetadataId").value(fileMetadataFromDb.getId()));
+        }
+
+        @Test
+        @DisplayName("파일 삭제 API 호출 권한 검증에 실패하면 예외 메시지를 전달한다")
+        void 파일_삭제_API_호출_권한_검증에_실패하면_예외_메시지를_전달한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledUser();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.of(HttpStatus.FORBIDDEN, AuthErrorType.AUTH_USER_NOT_AUTHORIZED));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(delete(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", "1"));
+
+            // then
+            resultActions.andExpect(status().isForbidden())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+
+        @Test
+        @DisplayName("파일 삭제 API 호출 권한 검증에 성공하나 존재하지 않는 파일 메타데이터 ID를 파라미터로 전달하면 예외 메시지를 전달한다")
+        void 파일_삭제_API_호출_권한_검증에_성공하나_존재하지_않는_파일_메타데이터_ID를_파라미터로_전달하면_예외_메시지를_전달한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledHost();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.of(HttpStatus.NOT_FOUND, AssetErrorType.NOT_FOUND_FILE_METADATA));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(delete(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", "1"));
+
+            // then
+            resultActions.andExpect(status().isNotFound())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+
+        @Test
+        @DisplayName("파일 삭제 API 호출 권한 검증에 성공하나 삭제된 파일 메타데이터 ID를 파라미터로 전달하면 예외 메시지를 전달환다")
+        void 파일_삭제_API_호출_권한_검증에_성공하나_삭제된_파일_메타데이터_ID를_파라미터로_전달하면_예외_메시지를_전달환다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledHost();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            String fileName = userFromDb.getId() + "/" + "file";
+            FileMetadata fileMetadata = FileMetadataFixture.createDeletedFileMetadata(userFromDb.getId() + 1, fileName);
+            FileMetadata fileMetadataFromDb = fileMetadataRepository.save(fileMetadata);
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.UNAUTHORIZED_FILE_ACCESS));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(delete(URL)
                 .contentType(MULTIPART_FORM_DATA)
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())

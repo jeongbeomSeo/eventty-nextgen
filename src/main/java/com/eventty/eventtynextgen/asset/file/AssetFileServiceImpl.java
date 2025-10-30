@@ -18,7 +18,6 @@ import com.eventty.eventtynextgen.asset.file.service.FileMetadataService;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
-import com.eventty.eventtynextgen.shared.utils.LoggerUtils;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;

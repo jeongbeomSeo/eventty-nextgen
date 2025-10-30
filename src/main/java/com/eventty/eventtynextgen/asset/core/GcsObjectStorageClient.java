@@ -136,7 +136,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             .toList();
 
         if (blobs.isEmpty()) {
-            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILES);
+            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILE);
         }
 
         Set<String> blobNameSet = blobs.stream()
@@ -165,7 +165,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
         Blob blob = this.storage.get(BlobId.of(bucketName, fileName));
 
         if (blob == null) {
-            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILES);
+            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILE);
         }
 
         return blob.getMediaLink();
@@ -178,7 +178,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
         }
 
         if (!existsFile(fileName, context)) {
-            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILES);
+            throw CustomException.badRequest(AssetErrorType.NOT_FOUND_FILE);
         }
 
         String bucketName = getBucketInfo(context).getBucketName();
