@@ -29,7 +29,7 @@ public interface ObjectStorageClient {
         EVENT_VIDEO;
     }
 
-    record UploadFileMetaData(String fileName, String contentType, Long fileSize, String fileUrl) {}
+    record UploadFileMetaData(String fileName, String contentType, String fileUrl) {}
 
     @Deprecated
     record FindFileUrlResult(List<String> fileUrls, List<String> failedFileNames) {}

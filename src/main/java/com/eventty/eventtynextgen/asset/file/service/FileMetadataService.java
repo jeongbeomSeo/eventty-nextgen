@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface FileMetadataService {
 
-    FileMetadata save(Long userId, String fileName, String contentType, Long fileSize, String fileUrl);
+    FileMetadata save(Long userId, String fileName, String contentType, String fileUrl);
 
     FileMetadata findById(Long fileMetadataId);
 

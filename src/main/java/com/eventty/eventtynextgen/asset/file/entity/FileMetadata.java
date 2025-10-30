@@ -35,9 +35,6 @@ public class FileMetadata {
     @Column(name = "content_type")
     private String contentType;
 
-    @Column(name = "file_size")
-    private Long fileSize;
-
     @Column(name = "file_url", nullable = false)
     private String fileUrl;
 
@@ -49,21 +46,19 @@ public class FileMetadata {
     private LocalDateTime deletedAt;
 
     @Builder
-    private FileMetadata(Long userId, String fileName, String contentType, Long fileSize, String fileUrl) {
+    private FileMetadata(Long userId, String fileName, String contentType, String fileUrl) {
         this.userId = userId;
         this.fileName = fileName;
         this.contentType = contentType;
-        this.fileSize = fileSize;
         this.fileUrl = fileUrl;
         this.isDeleted = false;
     }
 
-    public static FileMetadata of(Long userId, String fileName, String contentType, Long fileSize, String fileUrl) {
+    public static FileMetadata of(Long userId, String fileName, String contentType, String fileUrl) {
         return FileMetadata.builder()
             .userId(userId)
             .fileName(fileName)
             .contentType(contentType)
-            .fileSize(fileSize)
             .fileUrl(fileUrl)
             .build();
     }

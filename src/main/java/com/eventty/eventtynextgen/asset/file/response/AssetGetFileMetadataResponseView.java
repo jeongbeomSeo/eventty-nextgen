@@ -9,8 +9,6 @@ public record AssetGetFileMetadataResponseView(
     String fileName,
     @Schema(description = "파일 콘텐츠 타입")
     String contentType,
-    @Schema(description = "파일 크기")
-    Long fileSize,
     @Schema(description = "파일 URL")
     String fileUrl
 ) {

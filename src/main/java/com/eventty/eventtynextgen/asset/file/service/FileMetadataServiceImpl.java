@@ -19,9 +19,9 @@ public class FileMetadataServiceImpl implements FileMetadataService {
 
     @Override
     @Transactional
-    public FileMetadata save(Long userId, String fileName, String contentType, Long fileSize, String fileUrl) {
+    public FileMetadata save(Long userId, String fileName, String contentType, String fileUrl) {
 
-        FileMetadata fileMetadata = FileMetadata.of(userId, fileName, contentType, fileSize, fileUrl);
+        FileMetadata fileMetadata = FileMetadata.of(userId, fileName, contentType, fileUrl);
 
         return fileMetadataRepository.save(fileMetadata);
     }

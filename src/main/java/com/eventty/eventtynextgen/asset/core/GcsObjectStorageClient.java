@@ -58,7 +58,7 @@ public class GcsObjectStorageClient implements ObjectStorageClient {
             throw e;
         }
 
-        return new UploadFileMetaData(fileName, blobInfo.getContentType(), blobInfo.getSize(), getFileUrl(getBucketInfo(context), fileName));
+        return new UploadFileMetaData(fileName, blobInfo.getContentType(), getFileUrl(getBucketInfo(context), fileName));
     }
 
     /**
