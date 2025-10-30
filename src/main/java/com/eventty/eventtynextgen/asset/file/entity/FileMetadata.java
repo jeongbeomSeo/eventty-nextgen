@@ -77,6 +77,10 @@ public class FileMetadata {
         }
     }
 
+    public String getOriginFileName() {
+        return this.fileName;
+    }
+
     public void updateDeleteStatus(FileMetadataStatus status) {
         if (status == FileMetadataStatus.ACTIVE) {
             this.isDeleted = false;

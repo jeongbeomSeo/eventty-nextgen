@@ -16,7 +16,7 @@ import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
 import com.eventty.eventtynextgen.asset.file.fixture.FileMetadataFixture;
 import com.eventty.eventtynextgen.asset.file.repository.FileMetadataRepository;
 import com.eventty.eventtynextgen.asset.file.request.AssetFileUploadMultipartFileRequestCommand;
-import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
+import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFileResponseView;
 import com.eventty.eventtynextgen.asset.utils.MultipartConvertHelper;
 import com.eventty.eventtynextgen.asset.utils.MultipartConvertHelper.MultipartFileInfo;
 import com.eventty.eventtynextgen.base.exception.CustomException;
@@ -128,7 +128,7 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$.contentType").value("application/zip"));
 
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            AssetUploadAssetFile assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFile.class);
+            AssetUploadAssetFileResponseView assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFileResponseView.class);
 
             objectStorageClient.deleteFile(user.getId() + "/" + assetUploadAssetFile.fileName(), StorageContext.FILE);
         }
@@ -165,7 +165,7 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$.contentType").value("application/yaml"));
 
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            AssetUploadAssetFile assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFile.class);
+            AssetUploadAssetFileResponseView assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFileResponseView.class);
 
             objectStorageClient.deleteFile(user.getId() + "/" + assetUploadAssetFile.fileName(), StorageContext.FILE);
         }
@@ -366,7 +366,7 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$[*].contentType").isNotEmpty());
 
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            List<AssetUploadAssetFile> assetUploadAssetFiles = objectMapper.readValue(contentAsString, new TypeReference<>() {
+            List<AssetUploadAssetFileResponseView> assetUploadAssetFiles = objectMapper.readValue(contentAsString, new TypeReference<>() {
             });
             assetUploadAssetFiles.forEach(assetFile -> objectStorageClient.deleteFile(assetFile.fileName(), StorageContext.FILE));
         }
@@ -405,7 +405,7 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$[*].contentType").isNotEmpty());
 
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            List<AssetUploadAssetFile> assetUploadAssetFiles = objectMapper.readValue(contentAsString, new TypeReference<>() {
+            List<AssetUploadAssetFileResponseView> assetUploadAssetFiles = objectMapper.readValue(contentAsString, new TypeReference<>() {
             });
             assetUploadAssetFiles.forEach(assetFile -> objectStorageClient.deleteFile(assetFile.fileName(), StorageContext.FILE));
         }
@@ -706,7 +706,7 @@ class AssetFileControllerTest {
 
             // 업로드된 파일 삭제
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            AssetUploadAssetFile assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFile.class);
+            AssetUploadAssetFileResponseView assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFileResponseView.class);
             objectStorageClient.deleteFile(assetUploadAssetFile.fileName(), StorageContext.FILE);
         }
     }

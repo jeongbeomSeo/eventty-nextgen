@@ -3,25 +3,18 @@ package com.eventty.eventtynextgen.asset.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.FindFileUrlResult;
+import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
 import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileMetaData;
-import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileResult;
-import com.eventty.eventtynextgen.asset.utils.MultipartConvertHelper;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
-import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.StorageContext;
-import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.FindFileUrlResult;
 import com.eventty.eventtynextgen.config.TestcontainersConfiguration;
-import java.io.File;
-import java.io.FileInputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.IntStream;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,9 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
-@Tag("ExternalIntegration")
+//@Tag("ExternalIntegration")
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("GcsObjectStorageClient 통합 테스트")
@@ -620,6 +612,7 @@ class GcsObjectStorageClientTest {
     @Nested
     @DisplayName("파일 유무 확인 테스트")
     class FileExistsTest {
+
         @Test
         @DisplayName("존재하는 파일인 경우 true를 반환한다")
         void 존재하는_파일인_경우_true를_반환한다() throws Exception {
@@ -672,6 +665,7 @@ class GcsObjectStorageClientTest {
     @Nested
     @DisplayName("단일 파일 URL 조회 테스트")
     class FindFileUrlTest {
+
         @Test
         @DisplayName("1개의 파일 Name을 인자로 받아 공개 File Url를 조회하여 반환한다")
         void 단일_파일_Name을__인자로_받아_공개_File_Url를_조회하여_반환한다() throws Exception {
@@ -738,6 +732,7 @@ class GcsObjectStorageClientTest {
     @Nested
     @DisplayName("여러 파일 URL 조회 테스트")
     class FindFileUrlsTest {
+
         @Test
         @DisplayName("여러 개의 파일 Name을 인자로 받아 공개 File Urls를 조회하여 반환한다")
         void 여러_개의_파일_Name을_인자로_받아_공개_File_Urls를_조회하여_반환한다() throws Exception {
@@ -766,7 +761,8 @@ class GcsObjectStorageClientTest {
             fileNames.forEach(fileName -> {
                 try {
                     gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             });
         }
 
@@ -796,7 +792,8 @@ class GcsObjectStorageClientTest {
             fileNames.forEach(fileName -> {
                 try {
                     gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             });
         }
 
@@ -826,7 +823,8 @@ class GcsObjectStorageClientTest {
             fileNames.forEach(fileName -> {
                 try {
                     gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             });
         }
 
@@ -863,7 +861,8 @@ class GcsObjectStorageClientTest {
             fileNames.forEach(fileName -> {
                 try {
                     gcsImageStorageService.deleteFile(fileName, StorageContext.EVENT_IMAGE);
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             });
         }
 
@@ -886,6 +885,7 @@ class GcsObjectStorageClientTest {
     @Nested
     @DisplayName("파일 다운로드 링크 조회 테스트")
     class FindFileDownloadLinkTest {
+
         @Test
         @DisplayName("파일 이름을 인자로 받아 다운로드 링크를 조회하여 반환한다")
         void 파일_이름을_인자로_받아_다운로드_링크를_조회하여_반환한다() throws Exception {
@@ -952,6 +952,7 @@ class GcsObjectStorageClientTest {
     @Nested
     @DisplayName("파일 삭제 테스트")
     class DeleteFileTest {
+
         @Test
         @DisplayName("파일 이름을 인자로 받아 파일을 삭제한다")
         void 파일_이름을_인자로_받아_파일을_삭제한다() throws Exception {

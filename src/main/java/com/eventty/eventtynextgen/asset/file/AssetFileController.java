@@ -2,12 +2,10 @@ package com.eventty.eventtynextgen.asset.file;
 
 import com.eventty.eventtynextgen.asset.file.annotation.AssetFileApiV1;
 import com.eventty.eventtynextgen.asset.file.request.AssetFileUploadMultipartFileRequestCommand;
-import com.eventty.eventtynextgen.asset.file.response.AssetDownloadStreamingFileResponseView;
+import com.eventty.eventtynextgen.asset.file.response.AssetDownloadFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
-import com.eventty.eventtynextgen.asset.file.response.AssetGetAssetFileResponseView;
-import com.eventty.eventtynextgen.asset.file.response.AssetGetAssetFilesResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
-import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
+import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFileResponseView;
 import com.eventty.eventtynextgen.base.annotation.LoginRequired;
 import com.eventty.eventtynextgen.shared.context.SessionContextHolder;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,13 +32,13 @@ public class AssetFileController {
     @Operation(summary = "파일 업로드 API", description = "Multipart-File 형식의 단일 파일 업로드를 처리합니다.")
     @LoginRequired(requireHost = true, requireAdmin = true)
     @PostMapping(value = "/multipart-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AssetUploadAssetFile> uploadMultipartFile(
+    public ResponseEntity<AssetUploadAssetFileResponseView> uploadMultipartFile(
         @RequestPart(value = "file") MultipartFile file,
         @RequestPart(value = "requestCommand") @Valid AssetFileUploadMultipartFileRequestCommand requestCommand) {
 
         Long userId = SessionContextHolder.getContext().getUserId();
 
-        AssetUploadAssetFile assetUploadAssetFile = this.assetFileService.uploadMultipartFile(file, userId, requestCommand.fileName());
+        AssetUploadAssetFileResponseView assetUploadAssetFile = this.assetFileService.uploadMultipartFile(file, userId, requestCommand.fileName());
 
         return ResponseEntity.ok(assetUploadAssetFile);
     }
@@ -65,9 +62,9 @@ public class AssetFileController {
     @Deprecated
     @LoginRequired(requireHost = true, requireAdmin = true)
         @PostMapping(value = "/multipart-files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<AssetUploadAssetFile>> uploadMultipartFiles(@RequestPart("files") List<MultipartFile> files) {
+    public ResponseEntity<List<AssetUploadAssetFileResponseView>> uploadMultipartFiles(@RequestPart("files") List<MultipartFile> files) {
 
-        List<AssetUploadAssetFile> assetUploadAssetFiles = this.assetFileService.uploadMultipartFiles(files);
+        List<AssetUploadAssetFileResponseView> assetUploadAssetFiles = this.assetFileService.uploadMultipartFiles(files);
 
         return ResponseEntity.ok(assetUploadAssetFiles);
     }
@@ -87,9 +84,9 @@ public class AssetFileController {
     @Deprecated
     @LoginRequired(requireHost = true, requireAdmin = true)
     @PostMapping("/stream-file")
-    public ResponseEntity<AssetUploadAssetFile> uploadStreamFile(HttpServletRequest request) {
+    public ResponseEntity<AssetUploadAssetFileResponseView> uploadStreamFile(HttpServletRequest request) {
 
-        AssetUploadAssetFile assetUploadAssetFile = this.assetFileService.uploadStreaming(request);
+        AssetUploadAssetFileResponseView assetUploadAssetFile = this.assetFileService.uploadStreaming(request);
 
         return ResponseEntity.ok(assetUploadAssetFile);
     }
@@ -110,5 +107,15 @@ public class AssetFileController {
         Long userId = SessionContextHolder.getContext().getUserId();
 
         return ResponseEntity.ok(this.assetFileService.getFileMetadata(userId, fileMetadataId));
+    }
+
+    @Operation(summary = "파일 다운로드 API", description = "업로드된 파일을 다운로드합니다.")
+    @LoginRequired(requireHost = true, requireAdmin = true)
+    @GetMapping("/download/{fileMetadataId}")
+    public ResponseEntity<AssetDownloadFileResponseView> downloadFile(@PathVariable("fileMetadataId") Long fileMetadataId) {
+        Long userId = SessionContextHolder.getContext().getUserId();
+
+//        this.assetFileService.
+        return null;
     }
 }
