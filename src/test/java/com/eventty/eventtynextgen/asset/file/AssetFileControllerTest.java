@@ -1149,8 +1149,8 @@ class AssetFileControllerTest {
         }
 
         @Test
-        @DisplayName("파일 삭제 API 호출 권한 검증에 성공하나 삭제된 파일 메타데이터 ID를 파라미터로 전달하면 예외 메시지를 전달환다")
-        void 파일_삭제_API_호출_권한_검증에_성공하나_삭제된_파일_메타데이터_ID를_파라미터로_전달하면_예외_메시지를_전달환다() throws Exception {
+        @DisplayName("파일 삭제 API 호출 권한 검증에 성공하나 삭제된 파일 메타데이터 ID를 파라미터로 전달하면 예외 메시지를 전달한다")
+        void 파일_삭제_API_호출_권한_검증에_성공하나_삭제된_파일_메타데이터_ID를_파라미터로_전달하면_예외_메시지를_전달한다() throws Exception {
             // given
             CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
             User user = UserFixture.createUserWithRoledHost();
