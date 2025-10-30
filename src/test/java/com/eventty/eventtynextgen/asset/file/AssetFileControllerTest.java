@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -16,12 +17,13 @@ import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
 import com.eventty.eventtynextgen.asset.file.fixture.FileMetadataFixture;
 import com.eventty.eventtynextgen.asset.file.repository.FileMetadataRepository;
 import com.eventty.eventtynextgen.asset.file.request.AssetFileUploadMultipartFileRequestCommand;
-import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
+import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFileResponseView;
 import com.eventty.eventtynextgen.asset.utils.MultipartConvertHelper;
 import com.eventty.eventtynextgen.asset.utils.MultipartConvertHelper.MultipartFileInfo;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.ErrorResponse;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
+import com.eventty.eventtynextgen.base.exception.enums.AuthErrorType;
 import com.eventty.eventtynextgen.base.exception.factory.ErrorResponseEntityFactory;
 import com.eventty.eventtynextgen.base.fixture.CertificationTokenFixture;
 import com.eventty.eventtynextgen.base.fixture.SessionTokenFixture;
@@ -128,7 +130,7 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$.contentType").value("application/zip"));
 
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            AssetUploadAssetFile assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFile.class);
+            AssetUploadAssetFileResponseView assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFileResponseView.class);
 
             objectStorageClient.deleteFile(user.getId() + "/" + assetUploadAssetFile.fileName(), StorageContext.FILE);
         }
@@ -165,7 +167,7 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$.contentType").value("application/yaml"));
 
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            AssetUploadAssetFile assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFile.class);
+            AssetUploadAssetFileResponseView assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFileResponseView.class);
 
             objectStorageClient.deleteFile(user.getId() + "/" + assetUploadAssetFile.fileName(), StorageContext.FILE);
         }
@@ -366,7 +368,7 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$[*].contentType").isNotEmpty());
 
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            List<AssetUploadAssetFile> assetUploadAssetFiles = objectMapper.readValue(contentAsString, new TypeReference<>() {
+            List<AssetUploadAssetFileResponseView> assetUploadAssetFiles = objectMapper.readValue(contentAsString, new TypeReference<>() {
             });
             assetUploadAssetFiles.forEach(assetFile -> objectStorageClient.deleteFile(assetFile.fileName(), StorageContext.FILE));
         }
@@ -405,7 +407,7 @@ class AssetFileControllerTest {
                 .andExpect(jsonPath("$[*].contentType").isNotEmpty());
 
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            List<AssetUploadAssetFile> assetUploadAssetFiles = objectMapper.readValue(contentAsString, new TypeReference<>() {
+            List<AssetUploadAssetFileResponseView> assetUploadAssetFiles = objectMapper.readValue(contentAsString, new TypeReference<>() {
             });
             assetUploadAssetFiles.forEach(assetFile -> objectStorageClient.deleteFile(assetFile.fileName(), StorageContext.FILE));
         }
@@ -706,7 +708,7 @@ class AssetFileControllerTest {
 
             // 업로드된 파일 삭제
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            AssetUploadAssetFile assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFile.class);
+            AssetUploadAssetFileResponseView assetUploadAssetFile = objectMapper.readValue(contentAsString, AssetUploadAssetFileResponseView.class);
             objectStorageClient.deleteFile(assetUploadAssetFile.fileName(), StorageContext.FILE);
         }
     }
@@ -901,6 +903,156 @@ class AssetFileControllerTest {
             ResultActions resultActions = mockMvc.perform(get(URL + "/" + fileMetadataFromDb.getId())
                 .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
                 .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken()));
+
+            // then
+            resultActions.andExpect(status().isForbidden())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+    }
+
+    @Nested
+    @DisplayName("파일 다운로드 API")
+    class DownloadFile {
+
+        @BeforeEach
+        public void setup() {
+            fileMetadataRepository.deleteAllInBatch();
+        }
+
+        private static final String URL = BASE_URL + "/download";
+
+        @Tag("ExternalIntegration")
+        @Test
+        @DisplayName("파일 다운로드 API 호출 권한 검증에 성공하고 유효한 파일 메타데이터 ID를 파라미터로 전달하여 파일 다운로드 링크를 반환한다")
+        void 파일_다운로드_API_호출_권한_검증에_성공하고_유효한_파일_메타데이터_ID를_파라미터로_전달하여_파일_다운로드_링크를_반환한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledHost();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            String fileName = userFromDb.getId() + "/" + "file";
+            FileMetadata fileMetadata = FileMetadataFixture.createFileMetadata(userFromDb.getId(), fileName);
+            FileMetadata fileMetadataFromDb = fileMetadataRepository.save(fileMetadata);
+            MockMultipartFile file = new MockMultipartFile(fileName, fileName + ".json", fileMetadata.getContentType(), "content_type: json".getBytes());
+            objectStorageClient.uploadMultipartFile(file, fileName, StorageContext.FILE);
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", fileMetadataFromDb.getId().toString()));
+
+            // then
+            resultActions.andExpect(status().isOk())
+                .andExpect(header().stringValues("Content-Disposition", "attachment; filename=\"" + fileMetadataFromDb.getFileName() + "\""))
+                .andExpect(jsonPath("$.fileMetadataId").value(fileMetadataFromDb.getId()))
+                .andExpect(jsonPath("$.fileName").value(fileMetadataFromDb.getFileName()))
+                .andExpect(jsonPath("$.contentType").value(fileMetadataFromDb.getContentType()))
+                .andExpect(jsonPath("$.downloadLink").isNotEmpty());
+
+            objectStorageClient.deleteFile(fileName, StorageContext.FILE);
+        }
+
+        @Test
+        @DisplayName("파일 다운로드 API 호출 권한 검증에 실패하면 예외 메시지를 전달한다")
+        void 파일_다운로드_API_호출_권한_검증에_실패하면_예외_메시지를_전달한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledUser();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.of(HttpStatus.FORBIDDEN, AuthErrorType.AUTH_USER_NOT_AUTHORIZED));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", "1"));
+
+            // then
+            resultActions.andExpect(status().isForbidden())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+
+        @Test
+        @DisplayName("파일 다운로드 API 호출 권한 검증에 성공하나 존재하지 않는 파일 메타데이터 ID를 파라미터로 전달하면 예외 메시지를 전달한다")
+        void 파일_다운로드_API_호출_권한_검증에_성공하나_존재하지_않는_파일_메타데이터_ID를_파라미터로_전달하면_예외_메시지를_전달한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledHost();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.of(HttpStatus.NOT_FOUND, AssetErrorType.NOT_FOUND_FILE_METADATA));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", "1"));
+
+            // then
+            resultActions.andExpect(status().isNotFound())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+
+        @Test
+        @DisplayName("파일 다운로드 API 호출 권한 검증에 성공하나 삭제된 파일 메타데이터를 조회한 경우 예외 메시지를 전달한다")
+        void 파일_다운로드_API_호출_권한_검증에_성공하나_삭제된_파일_메타데이터를_조회한_경우_예외_메시지를_전달한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledHost();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            String fileName = userFromDb.getId() + "/" + "file";
+            FileMetadata fileMetadata = FileMetadataFixture.createDeletedFileMetadata(userFromDb.getId(), fileName);
+            FileMetadata fileMetadataFromDb = fileMetadataRepository.save(fileMetadata);
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.NOT_ALLOW_ACCESS_DELETED_FILE));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", fileMetadataFromDb.getId().toString()));
+
+            // then
+            resultActions.andExpect(status().isForbidden())
+                .andExpect(content().string(objectMapper.writeValueAsString(responseEntity.getBody())));
+        }
+
+        @Test
+        @DisplayName("파일 다운로드 API 호출 권한 검증에 성공하나 본인이 업로드하지 않은 파일 메타데이터를 조회한 경우 예외 메시지를 전달한다")
+        void 파일_다운로드_API_호출_권한_검증에_성공하나_본인이_업로드하지_않은_파일_메타데이터를_조회한_경우_예외_메시지를_전달한다() throws Exception {
+            // given
+            CertificationTokenInfo certificationToken = CertificationTokenFixture.createFullAuthorizedCertificationToken();
+            User user = UserFixture.createUserWithRoledHost();
+            User userFromDb = userRepository.save(user);
+            String accessTokenHeaderValue = SessionTokenFixture.createAccessTokenHeaderValue(userFromDb.getId());
+
+            String fileName = userFromDb.getId() + "/" + "file";
+            FileMetadata fileMetadata = FileMetadataFixture.createDeletedFileMetadata(userFromDb.getId() + 1, fileName);
+            FileMetadata fileMetadataFromDb = fileMetadataRepository.save(fileMetadata);
+
+            ResponseEntity<ErrorResponse> responseEntity = ErrorResponseEntityFactory.toResponseEntity(
+                CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.UNAUTHORIZED_FILE_ACCESS));
+
+            // when
+            ResultActions resultActions = mockMvc.perform(get(URL)
+                .contentType(MULTIPART_FORM_DATA)
+                .header(AUTHORIZATION_HEADER, accessTokenHeaderValue)
+                .header(CERTIFICATION_TOKEN_COOKIE_NAME, certificationToken.getCertificationToken())
+                .param("fileMetadataId", fileMetadataFromDb.getId().toString()));
 
             // then
             resultActions.andExpect(status().isForbidden())

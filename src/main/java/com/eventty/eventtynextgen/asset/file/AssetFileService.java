@@ -1,9 +1,9 @@
 package com.eventty.eventtynextgen.asset.file;
 
+import com.eventty.eventtynextgen.asset.file.response.AssetDownloadFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
-import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
-import jakarta.servlet.ServletInputStream;
+import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFileResponseView;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface AssetFileService {
 
 
-    AssetUploadAssetFile uploadMultipartFile(MultipartFile file, Long userId, String fileName);
+    AssetUploadAssetFileResponseView uploadMultipartFile(MultipartFile file, Long userId, String fileName);
 
     /**
      * 복합 파일 업로드 처리 메서드입니다.
@@ -20,7 +20,7 @@ public interface AssetFileService {
      *             단일 파일 업로드를 파일 수만큼 병렬 호출하는 방식을 권장합니다. 대신 {@link #uploadMultipartFile(MultipartFile, Long, String) 사용을 권장합니다.
      */
     @Deprecated
-    List<AssetUploadAssetFile> uploadMultipartFiles(List<MultipartFile> files);
+    List<AssetUploadAssetFileResponseView> uploadMultipartFiles(List<MultipartFile> files);
 
     /**
      * ServletInputStream을 통해 원시 바이트 스트림을 업로드합니다.
@@ -40,9 +40,11 @@ public interface AssetFileService {
      * @deprecated 제약 사항으로 인해 사용이 권장되지 않습니다. 대신 {@link #uploadMultipartFile(MultipartFile, Long, String)}을 사용하세요.
      */
     @Deprecated
-    AssetUploadAssetFile uploadStreaming(HttpServletRequest request);
+    AssetUploadAssetFileResponseView uploadStreaming(HttpServletRequest request);
 
     AssetGetFileMetadataResponseView getFileMetadata(Long userId, Long fileMetadataId);
 
     AssetFindFileMetadataResponseView findFileMetadata(Long userId);
+
+    AssetDownloadFileResponseView downloadFile(Long userId, Long fileMetadataId);
 }

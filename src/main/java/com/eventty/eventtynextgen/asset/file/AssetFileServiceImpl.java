@@ -9,9 +9,10 @@ import com.eventty.eventtynextgen.asset.core.ObjectStorageClient.UploadFileResul
 import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator;
 import com.eventty.eventtynextgen.asset.file.component.FileMetadataValidator.VerifyResult;
 import com.eventty.eventtynextgen.asset.file.entity.FileMetadata;
+import com.eventty.eventtynextgen.asset.file.response.AssetDownloadFileResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetFindFileMetadataResponseView;
 import com.eventty.eventtynextgen.asset.file.response.AssetGetFileMetadataResponseView;
-import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFile;
+import com.eventty.eventtynextgen.asset.file.response.AssetUploadAssetFileResponseView;
 import com.eventty.eventtynextgen.asset.file.service.FileMetadataService;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
@@ -20,6 +21,7 @@ import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +44,7 @@ public class AssetFileServiceImpl implements AssetFileService {
     private final ThreadPoolTaskExecutor gcsIoExecutor;
 
     @Override
-    public AssetUploadAssetFile uploadMultipartFile(MultipartFile file, Long userId, String fileName) {
+    public AssetUploadAssetFileResponseView uploadMultipartFile(MultipartFile file, Long userId, String fileName) {
 
         VerifyResult verifyResult = this.fileMetadataValidator.validateMultipartFile(file);
         handleVerifyResult(verifyResult);
@@ -54,7 +56,7 @@ public class AssetFileServiceImpl implements AssetFileService {
 
         FileMetadata fileMetadataFromDb = fileMetadataService.save(userId, uploadFileMetaData.fileName(), uploadFileMetaData.contentType(), uploadFileMetaData.fileUrl());
 
-        return new AssetUploadAssetFile(fileMetadataFromDb.getId(), fileMetadataFromDb.getFileName(), fileMetadataFromDb.getContentType(), fileMetadataFromDb.getFileUrl());
+        return new AssetUploadAssetFileResponseView(fileMetadataFromDb.getId(), fileMetadataFromDb.getFileName(), fileMetadataFromDb.getContentType(), fileMetadataFromDb.getFileUrl());
     }
 
     private String createFileFullName(Long userId, String fileName) {
@@ -63,7 +65,7 @@ public class AssetFileServiceImpl implements AssetFileService {
 
     @Deprecated
     @Override
-    public List<AssetUploadAssetFile> uploadMultipartFiles(List<MultipartFile> files) {
+    public List<AssetUploadAssetFileResponseView> uploadMultipartFiles(List<MultipartFile> files) {
         files.stream().map(this.fileMetadataValidator::validateMultipartFile).forEach(this::handleVerifyResult);
 
         List<CompletableFuture<UploadFileResult>> futures = files.stream()
@@ -99,13 +101,13 @@ public class AssetFileServiceImpl implements AssetFileService {
         }
 
         return results.stream()
-            .map(result -> new AssetUploadAssetFile(null, result.fileName(), result.contentType(), null))
+            .map(result -> new AssetUploadAssetFileResponseView(null, result.fileName(), result.contentType(), null))
             .toList();
     }
 
     @Deprecated
     @Override
-    public AssetUploadAssetFile uploadStreaming(HttpServletRequest request) {
+    public AssetUploadAssetFileResponseView uploadStreaming(HttpServletRequest request) {
         String contentType = request.getContentType();
         ServletInputStream inputStream;
         try {
@@ -124,7 +126,7 @@ public class AssetFileServiceImpl implements AssetFileService {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, FILE_UPLOAD_FAILED, "File upload interrupted: " + e.getMessage());
         }
 
-        return new AssetUploadAssetFile(null, null, null, null);
+        return new AssetUploadAssetFileResponseView(null, null, null, null);
     }
 
     private void handleVerifyResult(VerifyResult verifyResult) {
@@ -163,5 +165,23 @@ public class AssetFileServiceImpl implements AssetFileService {
         ).toList();
 
         return new AssetFindFileMetadataResponseView(userId, fileMetaDatas);
+    }
+
+    @Override
+    public AssetDownloadFileResponseView downloadFile(Long userId, Long fileMetadataId) {
+
+        FileMetadata fileMetadata = fileMetadataService.findById(fileMetadataId);
+
+        if (!Objects.equals(userId, fileMetadata.getUserId())) {
+            throw CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.UNAUTHORIZED_FILE_ACCESS);
+        }
+
+        if (fileMetadata.isDeleted()) {
+            throw CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.NOT_ALLOW_ACCESS_DELETED_FILE);
+        }
+
+        String downloadLink = objectStorageClient.findFileDownloadLink(fileMetadata.getOriginFileName(), StorageContext.FILE);
+
+        return new AssetDownloadFileResponseView(fileMetadata.getId(), fileMetadata.getFileName(), fileMetadata.getContentType(), downloadLink);
     }
 }
