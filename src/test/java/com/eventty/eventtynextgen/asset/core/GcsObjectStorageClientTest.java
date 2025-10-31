@@ -723,7 +723,7 @@ class GcsObjectStorageClientTest {
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
-                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_FOUND_FILES);
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_FOUND_FILE);
                 });
         }
     }
@@ -877,7 +877,7 @@ class GcsObjectStorageClientTest {
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
-                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_FOUND_FILES);
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_FOUND_FILE);
                 });
         }
     }
@@ -922,7 +922,7 @@ class GcsObjectStorageClientTest {
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
-                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_FOUND_FILES);
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_FOUND_FILE);
                 });
         }
 
@@ -983,7 +983,7 @@ class GcsObjectStorageClientTest {
                 .isInstanceOf(CustomException.class)
                 .satisfies(ex -> {
                     CustomException customException = (CustomException) ex;
-                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_FOUND_FILES);
+                    assertThat(customException.getErrorType()).isEqualTo(AssetErrorType.NOT_FOUND_FILE);
                 });
         }
 

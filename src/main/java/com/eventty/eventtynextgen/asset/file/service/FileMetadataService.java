@@ -10,4 +10,6 @@ public interface FileMetadataService {
     FileMetadata findById(Long fileMetadataId);
 
     List<FileMetadata> findAllByUserId(Long userId);
+
+    void deleteById(Long fileMetadataId);
 }
