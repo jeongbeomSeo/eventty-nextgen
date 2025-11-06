@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="251106-create-schema-01-07" author="jeongbeomSeo">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="outbox_event"/>
+      </not>
+    </preConditions>
+    <createTable tableName="outbox_event">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="aggregate_type" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="aggregate_id" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="event_type" type="varchar(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="payload" type="text"/>
+      <column name="time_stamp" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+      <column name="attemps" type="int" defaultValue="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="max_attemps" type="int">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="ENUM('READY_TO_PUBLISH', 'SUCCESS', 'FAILED')" defaultValue="READY_TO_PUBLISH">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

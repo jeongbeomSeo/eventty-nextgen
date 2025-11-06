@@ -125,7 +125,7 @@ public class AssetFileController {
             .body(assetDownloadFileResponseView);
     }
 
-    @Operation(summary = "파일 삭제 API", description = "업로드된 파일을 삭제하고 파일의 메타데이터도 함께 삭제합니다.")
+    @Operation(summary = "파일 삭제 API", description = "파일의 메타데이터를 삭제하고, 이벤트를 발행합니다.")
     @LoginRequired(requireAdmin = true, requireHost = true)
     @DeleteMapping
     public ResponseEntity<AssetDeleteFileResponseView> deleteFile(@RequestParam("fileMetadataId") Long fileMetadataId) {
