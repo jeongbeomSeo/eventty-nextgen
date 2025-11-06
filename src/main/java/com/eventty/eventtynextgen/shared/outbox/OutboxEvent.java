@@ -1,5 +1,7 @@
 package com.eventty.eventtynextgen.shared.outbox;
 
+import com.eventty.eventtynextgen.shared.outbox.enums.AggregateType;
+import com.eventty.eventtynextgen.shared.outbox.enums.EventType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,13 +28,15 @@ public class OutboxEvent {
     private Long id;
 
     @Column(name = "aggregate_type", nullable = false)
-    private String aggregateType;
+    @Enumerated(value = EnumType.STRING)
+    private AggregateType aggregateType;
 
     @Column(name = "aggregate_id", nullable = false)
     private String aggregateId;
 
     @Column(name = "event_type", nullable = false)
-    private String eventType;
+    @Enumerated(value = EnumType.STRING)
+    private EventType eventType;
 
     @Column(columnDefinition = "TEXT")
     private String payload;
@@ -59,7 +63,7 @@ public class OutboxEvent {
     }
 
     @Builder
-    private OutboxEvent(String aggregateType, String aggregateId, String eventType, String payload, LocalDateTime timeStamp, Status status) {
+    private OutboxEvent(AggregateType aggregateType, String aggregateId, EventType eventType, String payload, LocalDateTime timeStamp, Status status) {
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
         this.eventType = eventType;
@@ -68,7 +72,7 @@ public class OutboxEvent {
         this.status = status;
     }
 
-    public static OutboxEvent of(String aggregateType, String aggregateId, String eventType, String payload) {
+    public static OutboxEvent of(AggregateType aggregateType, String aggregateId, EventType eventType, String payload) {
         return OutboxEvent.builder()
             .aggregateType(aggregateType)
             .aggregateId(aggregateId)
