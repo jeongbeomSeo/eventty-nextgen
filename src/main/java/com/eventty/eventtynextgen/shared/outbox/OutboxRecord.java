@@ -18,10 +18,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "outbox_event")
+@Table(name = "outbox_record")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OutboxEvent {
+public class OutboxRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,17 +53,17 @@ public class OutboxEvent {
 
     @Column(name = "status", nullable = false)
     @Enumerated(value = EnumType.STRING)
-    @ColumnDefault("READY_TO_PUBLISH")
+    @ColumnDefault("READY_TO_PROCESS")
     private Status status;
 
     public enum Status {
-        READY_TO_PUBLISH,
+        READY_TO_PROCESS,
         SUCCESS,
         FAILED
     }
 
     @Builder
-    private OutboxEvent(AggregateType aggregateType, String aggregateId, EventType eventType, String payload, LocalDateTime timeStamp, Status status) {
+    private OutboxRecord(AggregateType aggregateType, String aggregateId, EventType eventType, String payload, LocalDateTime timeStamp, Status status) {
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
         this.eventType = eventType;
@@ -72,14 +72,14 @@ public class OutboxEvent {
         this.status = status;
     }
 
-    public static OutboxEvent of(AggregateType aggregateType, String aggregateId, EventType eventType, String payload) {
-        return OutboxEvent.builder()
+    public static OutboxRecord of(AggregateType aggregateType, String aggregateId, EventType eventType, String payload) {
+        return OutboxRecord.builder()
             .aggregateType(aggregateType)
             .aggregateId(aggregateId)
             .eventType(eventType)
             .payload(payload)
             .timeStamp(LocalDateTime.now())
-            .status(Status.READY_TO_PUBLISH)
+            .status(Status.READY_TO_PROCESS)
             .build();
     }
 

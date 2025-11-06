@@ -4,13 +4,13 @@
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <changeSet id="251106-create-schema-01-07" author="jeongbeomSeo">
+  <changeSet id="251106-create-schema-01-09" author="jeongbeomSeo">
     <preConditions onFail="MARK_RAN">
       <not>
-        <tableExists tableName="outbox_event"/>
+        <tableExists tableName="outbox_record"/>
       </not>
     </preConditions>
-    <createTable tableName="outbox_event">
+    <createTable tableName="outbox_record">
       <column name="id" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -33,7 +33,7 @@
       <column name="max_attemps" type="int">
         <constraints nullable="false"/>
       </column>
-      <column name="status" type="ENUM('READY_TO_PUBLISH', 'SUCCESS', 'FAILED')" defaultValue="READY_TO_PUBLISH">
+      <column name="status" type="ENUM('READY_TO_PROCESS', 'SUCCESS', 'FAILED')" defaultValue="READY_TO_PROCESS">
         <constraints nullable="false"/>
       </column>
     </createTable>

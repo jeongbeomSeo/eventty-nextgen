@@ -18,6 +18,8 @@ import com.eventty.eventtynextgen.asset.file.service.FileMetadataService;
 import com.eventty.eventtynextgen.base.exception.CustomException;
 import com.eventty.eventtynextgen.base.exception.enums.AssetErrorType;
 import com.eventty.eventtynextgen.base.exception.enums.CommonErrorType;
+import com.eventty.eventtynextgen.shared.outbox.component.OutboxEventListener;
+import com.eventty.eventtynextgen.shared.outbox.events.FileDeletedEvent;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -29,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,7 @@ public class AssetFileServiceImpl implements AssetFileService {
     private final ObjectStorageClient objectStorageClient;
     private final FileMetadataValidator fileMetadataValidator;
     private final ThreadPoolTaskExecutor gcsIoExecutor;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public AssetUploadAssetFileResponseView uploadMultipartFile(MultipartFile file, Long userId, String fileName) {
@@ -199,13 +203,18 @@ public class AssetFileServiceImpl implements AssetFileService {
             throw CustomException.of(HttpStatus.FORBIDDEN, AssetErrorType.ALREADY_FILE_DELETED);
         }
 
+
+        /*
         boolean deleted = this.objectStorageClient.deleteFile(fileMetadata.getOriginFileName(), StorageContext.FILE);
 
         if (!deleted) {
             throw CustomException.of(HttpStatus.INTERNAL_SERVER_ERROR, AssetErrorType.FAIL_GCS_FILE_DELETE, "userId: " + userId + ", fileMetadataId: " + fileMetadataId);
         }
+        */
 
         this.fileMetadataService.deleteById(fileMetadata.getId());
+
+        publisher.publishEvent(FileDeletedEvent.of(fileMetadata.getId(), fileMetadata.getOriginFileName()));
 
         return new AssetDeleteFileResponseView(fileMetadata.getId());
     }
